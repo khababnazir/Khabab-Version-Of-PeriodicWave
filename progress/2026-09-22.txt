@@ -1,0 +1,268 @@
+DATE: see filename
+SESSION: project setup, environment, and Stage 1 (the one-body orbital network)
+
+-----------------------------------------------------------------------------
+WHAT WE SET OUT TO DO
+-----------------------------------------------------------------------------
+Two things. First, turn a paper and a GitHub link into an actual working
+project: folders, git, a Python environment that can see the GPUs. Second,
+start the learning path at Stage 1 -- the smallest piece of the paper's neural
+network, the function that takes one electron's position and returns one
+complex number.
+
+The plan I started the day with was that I would write the Stage 1 code myself
+in NumPy, as a from-scratch exercise, and Claude would only review it. Partway
+through I changed my mind and asked Claude to write the real thing instead, in
+JAX, and to annotate it so that reading it teaches me what I would otherwise
+have learned by writing it. Claude said once that the cost of this is Stage 9
+(band-projected exact diagonalization), which has to be written from scratch
+because the authors did not publish it, and where there will be nothing to
+read. Noted and accepted for now.
+
+-----------------------------------------------------------------------------
+WHAT I DID
+-----------------------------------------------------------------------------
+Registered my server (khabab-server, two RTX 3090s) so Claude could reach it,
+and answered the SSH password prompt. Decided the toolchain: VS Code over
+Remote-SSH, git, and Codex for code assistance. Read through both Stage 1
+Python files after they were written, and confirmed I understood them. Did not
+work through the Stage 3 files yet.
+
+Still on my list: set my git identity and make the first commit, drop
+learning_path.md and reproduction_map.md into docs/, and hit "Retry probe" on
+the host in the Compute panel.
+
+-----------------------------------------------------------------------------
+WHAT CLAUDE DID
+-----------------------------------------------------------------------------
+
+1. READ THE PAPER AND AUDITED THE AUTHORS' CODE
+   (Earlier sessions, summarised here because the conclusions matter.)
+
+   The paper is Geier, Nazaryan, Zaklama & Fu, "Self-attention neural network
+   for solving correlated electron problems in solids", Phys. Rev. B 112,
+   045119 (2025), DOI 10.1103/qxc3-bkc7. The authors' code is
+   github.com/mg607/PeriodicWave, a fork of DeepMind's FermiNet.
+
+   Two findings that will bite later if forgotten. The paper deposits no data
+   at all -- "available from the authors on request" -- so reproducing it means
+   re-running calculations, not downloading anything. And the released code
+   differs from the published equations in four places: it uses standard
+   softmax attention (jax.nn.dot_product_attention, with its automatic
+   1/sqrt(d_k)) rather than the normalisation written in Eq. (18); it defaults
+   to GELU plus layer norm where the paper says plain tanh; its learning rate
+   is 0.1 with delay 2e4 against the paper's eta_0 = 10 with t_0 = 1e5, a
+   factor of 100 that is still unexplained; and its default architecture is
+   4 layers / 4 heads / 2 perceptrons per layer against Table II's 3 / 6 / 1.
+   Details in docs/reproduction_map.md, sections 10-13.
+
+2. SET UP THE SERVER AND THE REPOSITORY
+
+   Probed the machine: Ubuntu 24.04.4, 20 cores, 92 GiB RAM, 870 GB free, two
+   RTX 3090s with 24 GiB each, driver 595.84, CUDA 12.0 toolkit. No scheduler
+   (no SLURM), no conda, no module system.
+
+   Hit a real obstacle: the system Python 3.12 has no pip3 and no ensurepip,
+   so "python3 -m venv" cannot work, and sudo wants a password so apt was not
+   an option. The fix was to go entirely userspace -- install uv (a standalone
+   static binary) into ~/.local/bin, and let it download its own CPython 3.13.
+   Nothing needed root.
+
+   Built the environment from the pinned pip-freeze list in the PeriodicWave
+   README (the one they marked "verified 10/17/2025"). Result: Python 3.13.15,
+   jax 0.8.0, and jax.devices() returning two GPU devices, with a GPU matmul
+   confirmed. folx and kfac-jax built from the exact git commits the README
+   pins. 48 packages. env/requirements-gpu.txt is the pinned input,
+   env/freeze-actual.txt is what actually landed, and bash env/setup_env.sh
+   rebuilds the whole thing idempotently.
+
+   Created the repository layout (see README.md) and made the upstream clone a
+   git SUBMODULE rather than a copied folder, pinned at commit 6525d2f. The
+   reason is provenance: the commit is now recorded in our own history, so in
+   a year we can still prove which version of their code we built against,
+   even if they rewrite theirs.
+
+3. WROTE STAGE 1: learn/stage01_mlp/orbital_forward.py
+
+   This implements Eqs. (5)-(10) of the paper. The whole file is one function
+   conceptually: position r in R^2 goes in, a complex amplitude phi(r) comes
+   out. Four pieces.
+
+   (a) The periodic feature map, Eq. (7). The network is never shown r. It is
+       shown [sin(G1.r), sin(G2.r), cos(G1.r), cos(G2.r)], where G1 and G2 are
+       the reciprocal supercell vectors satisfying G_i . L_j = 2*pi*delta_ij.
+
+       This is the only physics in the file, and it is the important idea.
+       A wave function in a periodic crystal must satisfy Psi(r + L) = Psi(r)
+       for every supercell vector L. If you feed raw coordinates in, the
+       network can only approximate that, and it approximates it worst exactly
+       at the cell boundary -- which is where the physics of a crystal lives.
+       Feeding sin/cos of G.r makes the periodicity EXACT, because shifting r
+       by L_j moves each phase by exactly 2*pi and sin/cos cannot tell. So
+       periodicity is a property of how the model is written, not something
+       the optimiser has to discover and could later lose.
+
+       There is a second, quieter benefit: two points on opposite sides of the
+       cell boundary are physical neighbours but have very different raw
+       coordinates. This map sends them to neighbouring feature vectors, so
+       the network's smoothness in feature space matches smoothness in space.
+
+   (b) The trunk, Eqs. (8)-(9). A linear embedding W0 (64 x 4) lifts the
+       4-dimensional feature to a 64-dimensional hidden state, then three
+       residual layers of the form
+
+           h  <-  h + tanh(W h + b)
+
+       Note the "h +". It is not decoration. Two reasons, and Claude asked me
+       to work them out before telling me:
+
+       Representation: with the skip term, the identity map is free -- set
+       W = 0 and the layer passes its input through untouched. So a stack of
+       L such layers can always express anything a stack of L-1 can, which
+       means making the network deeper cannot make it worse. Without the skip,
+       every layer is forced to transform its input and depth becomes a gamble.
+
+       Gradients: tanh saturates and its derivative is at most 1, usually much
+       less. The chain rule multiplies L of those together when you
+       backpropagate, so the gradient reaching the first layer decays roughly
+       geometrically with depth -- the vanishing-gradient problem. The skip
+       adds a path whose local derivative is exactly 1, so the derivative of
+       the layer is 1 + (something small), and gradients reach the bottom of
+       the network intact.
+
+   (c) The complex output, Eq. (10): phi = w0.h + i*(w1.h), two learned
+       projection vectors giving the real and imaginary parts. Complex because
+       Bloch states in a solid carry a phase; the amplitude alone is not
+       enough.
+
+   (d) Two JAX things demonstrated in real use rather than in a toy.
+       jax.vmap turns the single-electron function into a batched one without
+       a Python loop, so it stays one fused kernel. And jax.grad differentiates
+       it -- with argnums=1 for the gradient with respect to POSITION (which
+       is what the kinetic energy will need) and argnums=0 for the gradient
+       with respect to PARAMETERS (which is what the optimiser will need).
+       Same machinery, different argument.
+
+   Two design points worth remembering. There are no classes anywhere:
+   parameters are a plain nested dict that you pass in explicitly. That is not
+   style. JAX differentiates functions of data, so with no hidden mutable
+   state there is nothing for the gradient to silently miss, and the same
+   parameters can feed both GPUs without either corrupting the other. The
+   random number generator is explicit for the same reason -- the whole
+   initialisation is reproducible from one key.
+
+   The file prints 12864 parameters, and cross-checks that against the paper's
+   own Appendix C formula with the attention terms removed and N_el = N_det = 1:
+       2*d_dim*d_L + L*(d_L*(d_L+1)) + 2*d_L*N_el*N_det
+   The two agree exactly. That is evidence the architecture is wired the way
+   the paper describes, not merely that the code runs.
+
+4. WROTE THE STAGE 1 TESTS: learn/stage01_mlp/test_periodicity.py
+
+   Plain asserts, no pytest -- pytest is not in the pinned environment, so
+   there is nothing extra to install. Run it with "python test_periodicity.py".
+
+   The point of the file is not that the checks pass. It is that they are
+   capable of failing. A suite that only ever asserts "these two numbers are
+   equal" cannot tell a correctly periodic network apart from a network that
+   ignores its input and returns a constant -- both pass. So two of the checks
+   are NEGATIVE CONTROLS:
+
+       - phi must VARY with r (kills the constant-function impostor)
+       - a NON-lattice shift must CHANGE phi (kills a network that is periodic
+         with the wrong period, or a feature map that collapsed the two
+         lattice directions together)
+
+   This is now a standing convention for the project: every test file gets
+   negative controls.
+
+   One genuine gotcha the tests document. JAX defaults to float32, in which
+   sin(G.r) for |G.r| ~ 10 carries about 1e-7 relative error, so a periodicity
+   check could only ever be trusted to about 1e-5. The test enables float64
+   first (jax.config.update("jax_enable_x64", True), which must come before
+   any JAX operation) and then demands 1e-12, so it is testing the mathematics
+   rather than the rounding. Production runs deliberately stay in float32 --
+   PeriodicWave even forces matmul precision down for GPU throughput. Knowing
+   which regime you are in is the difference between a real failure and noise.
+
+   Results: all six checks pass. G.L = 2*pi*I to 7e-18, periodicity under any
+   integer combination of lattice vectors to 9.6e-16.
+
+-----------------------------------------------------------------------------
+WHAT I NOW UNDERSTAND
+-----------------------------------------------------------------------------
+Confirmed: Stage 1. Both files in learn/stage01_mlp, including why the feature
+map makes periodicity exact rather than approximate, what the residual "h +"
+buys in representation and in gradient flow, and why the tests need negative
+controls.
+
+(Khabab: replace this paragraph with your own wording when you get a chance.
+The rule in progress/README.txt is that this section is yours, not a summary
+handed to you -- and writing it in your own words is the actual test of
+whether Stage 1 landed.)
+
+-----------------------------------------------------------------------------
+STILL UNCLEAR / NOT YET CONFIRMED
+-----------------------------------------------------------------------------
+Stage 3 (learn/stage03_slater/slaternet.py and its tests) is WRITTEN AND
+PASSING but NOT yet understood. It has not been read properly and is
+explicitly not confirmed. The four ideas waiting there: the determinant makes
+the wave function antisymmetric for free; Pauli exclusion falls out of the
+same determinant; log|Psi| and its phase are computed instead of Psi because
+Psi underflows (measured: at 18 electrons on 27 sites, |Psi| at initialisation
+is 10^-41.5 to 10^-33.6, below float32's smallest normal number, ~1e-38); and
+with ONE determinant SlaterNet has no communication between electrons at all,
+which is exactly why it is Hartree-Fock. It still contains exchange
+correlation (the Fermi hole, from antisymmetry); what it cannot capture is
+correlation BEYOND Hartree-Fock, which is what "correlation energy" means.
+
+[Correction, made during a code review before Stage 3 was confirmed: the
+first version of slaternet.py defaulted to 4 determinants and this entry
+called that Hartree-Fock. It is not -- a sum of several determinants of
+independent orbitals is a small multi-determinant expansion and captures
+some correlation. The default is now 1 determinant, matching the paper and
+the authors' config, and the tests check both the 1- and 4-determinant nets.]
+
+Also unconfirmed: the three setup questions Claude asked and I have not
+answered -- why the upstream code is a submodule rather than a folder, why
+python3 -m venv could not work on this server, and why env/ keeps both
+requirements-gpu.txt and freeze-actual.txt.
+
+-----------------------------------------------------------------------------
+NEXT
+-----------------------------------------------------------------------------
+Read the Stage 3 files properly and confirm them. Then Stage 4: Metropolis-
+Hastings sampling from |Psi|^2 and the local energy E_loc = Psi^-1 H Psi, whose
+variance is the convergence signal. Stage 4 is the last piece before an actual
+energy number appears.
+
+-----------------------------------------------------------------------------
+HANDOFF NOTES (for anyone, human or AI, picking this up cold)
+-----------------------------------------------------------------------------
+Repo:        ~/moire-nnvmc on khabab-server. Edited via VS Code Remote-SSH.
+Activate:    cd ~/moire-nnvmc && source .venv/bin/activate
+Rebuild env: bash env/setup_env.sh   (idempotent, needs no root)
+uv lives in ~/.local/bin; "source ~/.local/bin/env" puts it on PATH.
+Upstream:    external/PeriodicWave, submodule pinned at 6525d2f.
+Plan:        docs/learning_path.md (11 stages). Audit: docs/reproduction_map.md.
+Notes:       notes/stageNN.md for physics and ML; this folder for the diary.
+
+Run the stage code CPU-only with JAX_PLATFORMS=cpu so it does not grab a card
+someone is training on.
+
+Host quirks that cost time today, so nobody repeats them:
+  - No pip3 / ensurepip / python3-venv, and sudo needs a password. Use uv.
+  - No scheduler. Long runs need tmux or setsid nohup, and you should pin
+    CUDA_VISIBLE_DEVICES=0 or 1 yourself because nothing arbitrates the two
+    cards. Two GPUs means the paper's epsilon = 10 and epsilon = 5 runs can go
+    side by side.
+  - Claude's remote command channel times out at 60 s, and its job-submission
+    and file-download paths are both blocked because the host has no
+    scratch_root configured. That is why every file today was written by
+    heredoc over SSH rather than transferred, and why docs/ is still empty.
+    Fixing it: "Retry probe" on the host in the Compute panel.
+
+Target numbers, for when Stage 8 finally runs (Table I, 27 sites, 18
+electrons, 2/3 filling, meV):
+    eps=10:  self-attention NN -32.070(7) | SlaterNet -31.35(2) | BP-ED -31.32443
+    eps=5:   self-attention NN -59.127(9) | SlaterNet -58.01(3) | BP-ED -57.80848
