@@ -1,0 +1,177 @@
+DATE: 2026-09-27
+SESSION: Stage 3 (the many-electron wave function) -- written, reviewed three
+         times, fixed, confirmed, and committed
+
+-----------------------------------------------------------------------------
+WHAT WE SET OUT TO DO
+-----------------------------------------------------------------------------
+Turn Stage 1's single orbital into a full N-electron wave function: N orbitals
+arranged into a Slater determinant, so that the result is antisymmetric under
+exchange of any two electrons. This is SlaterNet, the paper's neural-network
+version of Hartree-Fock (Sec. III B, Eqs. 11-14 and 22-23). Then make sure it
+is actually correct before building the Monte Carlo sampler on top of it.
+
+The first half took an hour. The second half -- making sure it is actually
+correct -- took three rounds of outside review and turned up real errors,
+several of them mine. That is the part worth reading.
+
+-----------------------------------------------------------------------------
+WHAT I DID
+-----------------------------------------------------------------------------
+Read learn/stage03_slater/slaternet.py and its tests. Had another AI review
+the code independently, three times, and brought each review back to Claude
+to check and fix. Confirmed at the end of the day that everything through
+Stage 3 is good. Asked that Stage 4 code be written more simply -- clearer
+names, simpler control flow, fewer and plainer tests -- because the Stage 3
+test file had become hard to read line by line.
+
+-----------------------------------------------------------------------------
+WHAT CLAUDE DID
+-----------------------------------------------------------------------------
+
+1. WROTE learn/stage03_slater/slaternet.py
+
+   The pipeline is:
+       positions (N,2) -> hidden states (N,64) -> orbital matrices (D,N,N) -> log Psi
+
+   (a) Every electron goes through the SAME residual network from Stage 1,
+       independently. Nothing lets electron i's position influence electron
+       j's orbital. With one determinant (D = 1), that absence is exactly the
+       independent-electron, i.e. Hartree-Fock, approximation.
+
+   (b) The orbital matrix has electrons as rows and orbitals as columns.
+       Swapping two electrons swaps two rows, and a determinant changes sign
+       when you do that. So Psi -> -Psi under exchange, exactly, for every
+       possible value of the parameters. Two electrons at the same point give
+       two identical rows, so Psi = 0: Pauli exclusion comes for free too.
+
+   (c) The code never forms Psi itself. It returns log|Psi| and the phase.
+       Measured: at the paper's Table I size (18 electrons, 27 sites), |Psi|
+       at initialisation is between 1e-41.5 and 1e-33.6 over 1024 random
+       configurations -- below float32's smallest normal number (about
+       1e-38). Forming Psi would literally round to zero. Monte Carlo never
+       needs Psi anyway: it needs ratios, which are differences of logs.
+
+   (d) Architecture numbers: 6 electrons, 1 determinant, 3 layers of width 64
+       gives 13504 parameters.
+
+2. COMPARED IT LINE BY LINE WITH THE AUTHORS' CODE
+
+   Their feature map, residual block, orbital projection (one linear layer,
+   real and imaginary parts interleaved, no bias) and log-sum-exp sum over
+   determinants all match ours in substance. One real difference: they feed
+   each electron's spin in as a fifth input feature. With all spins equal
+   that is a constant, so it behaves as a bias on the embedding and adds 64
+   parameters beyond the paper's own Appendix C formula. learn/ follows the
+   paper. This is written up in docs/code_map.md, which also answers "do we
+   use DeepMind's FermiNet?": not directly. PeriodicWave IS FermiNet, forked
+   and adapted to 2D solids (7 files identical, 14 modified, 8 new, 35
+   dropped including Hartree-Fock pretraining). The paper's numbers came from
+   PeriodicWave, so that is what we will run for the real reproduction.
+
+3. FIXED ERRORS -- MINE FIRST, THEN THREE OUTSIDE REVIEWS
+
+   Claude's own review, against the authors' code:
+     - The first version defaulted to 4 determinants and was described as
+       Hartree-Fock. Wrong: a sum of several determinants of independent
+       orbitals already captures some correlation. Default is now 1.
+     - The explanation for working in logs used a made-up size estimate
+       (1e-18). Replaced by the measurement in 1(c).
+
+   Review 1 (all four points confirmed on our JAX 0.8.0):
+     - If every determinant is exactly zero, log_psi returned NaN, because
+       (-inf) - (-inf) = NaN. Now returns log|Psi| = -inf, phase = 0.
+     - Tests collected errors with Python's max(), and max(0.0, nan) is 0.0.
+       A broken function returning NaN could therefore print PASS. This bug
+       was in the Stage 1 test as well, which the review had not looked at.
+     - One "control" test never actually called log_psi.
+     - The comment on the parameter gradient was incomplete: for a complex
+       Psi the energy gradient needs the phase derivative too.
+
+   Review 2: pointed out that the authors' fast kinetic-energy path (folx,
+   the one the moire config uses) keeps only the REAL part of the local
+   energy. Claude worked out that the gradient term this drops is
+   <grad(phase) . grad(d phase / d theta)>, which is generally not zero, but
+   vanishes where the phase is locally constant. Not yet a finding -- it is a
+   prediction to test numerically in Stage 6. Also corrected Claude's
+   wording: a single determinant already contains EXCHANGE correlation (the
+   Fermi hole); what it lacks is correlation BEYOND Hartree-Fock.
+
+   Review 3 (all three points confirmed):
+     - The biggest one. With four determinants and ONE of them exactly zero,
+       log|Psi| was fine but its gradient was NaN. The derivative of slogdet
+       is tr(A^-1 dA), which is infinite for a singular matrix; the chain
+       rule multiplies it by the zero determinant and gets 0 * inf = NaN.
+       The authors' own logdet_matmul has the same problem. Fix: slogdet is
+       now used only to choose one common scale factor, with no gradient
+       through it; the determinants themselves are taken with jnp.linalg.det
+       on rescaled matrices, whose derivative stays finite for singular
+       matrices. Gradients now match an independent formula to about 1e-14,
+       for an ordinary configuration, for a determinant with two equal
+       orbitals, and for a determinant that is exactly zero.
+     - A leftover max() in one test still hid a NaN phase. The test file was
+       rewritten; no Python max() or min() remains.
+     - The fault-injection script printed a warning instead of failing. It
+       now exits with an error if any injected fault escapes, and that was
+       proved by feeding it one it cannot catch (exit code 1).
+
+4. ONE LIMITATION, DOCUMENTED RATHER THAN HIDDEN
+
+   JAX's own jnp.linalg.det has a second derivative that is NaN at matrices
+   of rank N-2 or lower, for N >= 4 (it is correct for 2x2 and 3x3). The
+   naive formula fails identically, so it is JAX, not our code. The
+   physically generic singular case -- a configuration sitting on one
+   determinant's node, rank N-1 -- is correct at first and second order, and
+   tested. Rank N-2 would need a whole determinant to vanish identically.
+   The test file prints a NOTE saying whether the JAX limitation still holds,
+   so a future JAX version fixing it would be noticed.
+
+   Final state: 23 checks pass, 13 of 13 injected faults are caught, Stage 1
+   still passes.
+
+-----------------------------------------------------------------------------
+WHAT I NOW UNDERSTAND
+-----------------------------------------------------------------------------
+Confirmed by Khabab on 2026-09-27, in his words: "everything through Stage 3
+is good." That closes Stage 3 and the items left open in 2026-09-22.txt (the
+submodule, why python3 -m venv fails on this server, and the two
+requirements files).
+
+(Khabab: this section is still meant to be yours. When you have a minute,
+add two or three sentences of your own on why the determinant makes the wave
+function antisymmetric, and why D_ab + D_cd cannot be written as one
+determinant.)
+
+-----------------------------------------------------------------------------
+STILL UNCLEAR
+-----------------------------------------------------------------------------
+Nothing blocking. Carried forward to Stage 6: whether dropping the imaginary
+part of the local energy (the authors' folx path) biases the energy gradient
+in practice. To be settled by a numerical gradient check on a small system.
+
+-----------------------------------------------------------------------------
+NEXT
+-----------------------------------------------------------------------------
+Stage 4: the Metropolis-Hastings sampler and the local energy
+E_loc = (H Psi) / Psi. First energy number from the machinery. Code to be
+written more simply than Stage 3, with only the checks that matter.
+
+-----------------------------------------------------------------------------
+HANDOFF NOTES
+-----------------------------------------------------------------------------
+Git: first commits made today, one per stage, tagged stage-00 (scaffold),
+stage-01, stage-03 (Stage 2 was folded into Stage 3; see
+learn/stage02_jax/README.txt). Git identity on the server was never set, so
+these commits were authored as "Khabab <khabab@khabab-server>" -- the
+account name and host name, the same thing git itself falls back to. To
+replace it with a real name and email later:
+    git config user.name "..." && git config user.email "..."
+    git rebase -r --root --exec "git commit --amend --no-edit --reset-author"
+Rewriting authorship changes every commit hash, so the stage-NN tags must be
+moved afterwards. Easiest to do before anything is pushed anywhere.
+
+Run Stage 3 checks:
+    cd ~/moire-nnvmc && source .venv/bin/activate
+    cd learn/stage03_slater
+    JAX_PLATFORMS=cpu python test_slaternet.py
+    JAX_PLATFORMS=cpu python nan_injection_check.py
