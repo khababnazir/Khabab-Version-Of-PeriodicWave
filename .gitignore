@@ -1,0 +1,22 @@
+# --- run outputs: large, regenerable, never committed ---
+runs/*
+results/
+*.npy
+train_stats*.csv
+device_info*.log
+config*.json
+
+# --- python ---
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.ipynb_checkpoints/
+
+# --- editor / local ---
+.vscode/
+.idea/
+.env
+
+# keep the directory itself on a fresh clone
+!runs/.gitkeep

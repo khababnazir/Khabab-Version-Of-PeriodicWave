@@ -1,0 +1,25 @@
+DATE: YYYY-MM-DD
+SESSION: <a few words -- "environment setup", "Stage 1: orbital network">
+
+WHAT WE SET OUT TO DO
+<One short paragraph. The goal as it stood at the start of the day, including
+ the version of it that turned out to be wrong.>
+
+WHAT I DID
+<First person, prose. The code you wrote, what you got stuck on, what you
+ tried that failed. The failures are the valuable part -- write them down.>
+
+WHAT CLAUDE DID
+<Plain prose, no credit-claiming. What was set up, explained, or debugged,
+ and anything that had to be worked around.>
+
+WHAT I NOW UNDERSTAND
+<The gate. In your own words, not quoted back from the explanation. If you
+ can't write this section without looking something up, the day is not done.>
+
+STILL UNCLEAR
+<Honest list. Empty is allowed but rare, and an empty one on a hard day is
+ a warning sign rather than a good sign.>
+
+NEXT
+<One or two lines. What the next session opens with.>
