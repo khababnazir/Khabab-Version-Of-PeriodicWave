@@ -6,9 +6,12 @@ Run:  python estimate_energy.py
 Two runs:
 
   A. A Slater determinant of plane waves, with NO potential.  This is an
-     exact eigenstate of the kinetic energy, so every sampled configuration
-     must give the same local energy: zero variance (paper Eq. 28).  If the
-     sampler or the kinetic energy were wrong, this would show it.
+     exact eigenstate of the kinetic energy, so every configuration must give
+     the same local energy: zero variance (paper Eq. 28).  This checks the
+     KINETIC ENERGY.  It cannot check the sampler: for an exact eigenstate
+     E_loc is the same everywhere, so even a sampler stuck at one point would
+     give the right answer.  The sampler is checked separately, in
+     test_stage04.py, on a distribution whose moments we know.
 
   B. SlaterNet from Stage 3, freshly initialised, in the moire potential.
      Not an eigenstate, so E_loc fluctuates from configuration to
@@ -72,8 +75,11 @@ def sample_and_measure(log_psi_fn, potential_strength, key):
     measurements = []
     for m in range(N_MEASUREMENTS):
         key, key_m = jax.random.split(key)
+        # Width frozen: it was tuned during burn-in and now stays fixed, so
+        # every measurement comes from one fixed Metropolis rule.
         walkers, width, _ = run_metropolis(log_abs_batch, walkers, key_m,
-                                           STEPS_BETWEEN, step_width=width)
+                                           STEPS_BETWEEN, step_width=width,
+                                           adapt_every=None)
         measurements.append(np.asarray(e_loc_batch(walkers)))
     return np.array(measurements)
 
@@ -81,10 +87,11 @@ def sample_and_measure(log_psi_fn, potential_strength, key):
 def report(e_loc, energy_unit_meV):
     """Print the energy estimate from an array (N_MEASUREMENTS, N_WALKERS) of E_loc.
 
-    Error bar: the standard error of the mean over the measurement rounds.
-    Rounds 30 steps apart are not perfectly independent, so this slightly
-    underestimates the true error.  (The paper's error bars are the spread of
-    the batch-averaged energy between optimisation steps -- the same idea.)
+    Error bar: the standard error of the mean over the measurement rounds,
+    which treats the rounds as independent.  They are not quite -- each round
+    continues the same chains -- so this is an APPROXIMATE error bar.  How far
+    off it is needs an autocorrelation ("blocking") analysis, which this stage
+    does not do.
     """
     n_rounds = e_loc.shape[0]
 
@@ -99,7 +106,12 @@ def report(e_loc, energy_unit_meV):
     mean_imag = imag_round_means.mean()
     imag_std_error = imag_round_means.std(ddof=1) / np.sqrt(n_rounds)
 
-    variance = e_loc.real.var()
+    # Variance of the FULL complex local energy: mean of |E_loc - mean|^2.
+    # This is the quantity equal to <H^2> - <H>^2 in the paper's Eq. (28),
+    # because <H^2> = integral of |H Psi|^2 = average of |E_loc|^2.  Using only
+    # the real part would miss fluctuations of the imaginary part -- and a
+    # state is an eigenstate only if both are absent.
+    variance = np.mean(np.abs(e_loc - e_loc.mean())**2)
 
     print(f"  energy         = {energy:+.6f} +- {std_error:.6f}   "
           f"({energy * energy_unit_meV:+.4f} +- {std_error * energy_unit_meV:.4f} meV)")

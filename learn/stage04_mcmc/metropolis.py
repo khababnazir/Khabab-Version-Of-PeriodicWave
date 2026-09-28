@@ -81,10 +81,19 @@ def adapt_step_width(step_width, acceptance_rate):
 def run_metropolis(log_abs_psi_batch, walkers, key, n_steps, step_width, adapt_every=10):
     """Run n_steps Metropolis steps.  Returns (walkers, step_width, acceptance_rates).
 
-    The step width is adjusted every `adapt_every` steps, using the average
-    acceptance rate over those steps.  The authors adjust it every 100 training
-    iterations (each of which is 30 Metropolis steps); we adjust more often so
-    that a short burn-in still gets to tune it.
+    adapt_every=10:   adjust the step width every 10 steps, from the average
+                      acceptance rate over those steps.  Use during burn-in.
+    adapt_every=None: keep the step width fixed.  Use while measuring.
+
+    Why freeze it?  The guarantee that walkers end up distributed as |Psi|^2
+    belongs to a FIXED Metropolis rule.  A rule that keeps changing itself
+    based on the walkers' own history is not covered by that guarantee.  So:
+    tune first, then freeze.
+
+    (The authors adjust the width every 100 training iterations, each of 30
+    Metropolis steps, throughout training.  There Psi itself changes every
+    iteration, so the target is moving anyway.  To measure the energy of one
+    fixed Psi, a frozen width is the clean choice.)
     """
     log_prob = 2.0 * log_abs_psi_batch(walkers)
     acceptance_rates = []
@@ -95,7 +104,7 @@ def run_metropolis(log_abs_psi_batch, walkers, key, n_steps, step_width, adapt_e
             log_abs_psi_batch, walkers, log_prob, step_key, step_width)
         acceptance_rates.append(float(acceptance))
 
-        if (step + 1) % adapt_every == 0:
+        if adapt_every is not None and (step + 1) % adapt_every == 0:
             recent_rate = sum(acceptance_rates[-adapt_every:]) / adapt_every
             step_width = adapt_step_width(step_width, recent_rate)
 

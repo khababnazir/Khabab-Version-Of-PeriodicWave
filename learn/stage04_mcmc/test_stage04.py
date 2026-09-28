@@ -79,8 +79,10 @@ class MetropolisTest(absltest.TestCase):
 
         With log|Psi| = -|x|^2 / (4 sigma^2), |Psi|^2 is proportional to
         exp(-|x|^2 / (2 sigma^2)): each coordinate has mean 0, variance sigma^2.
-        The walkers are independent chains, so the final snapshot is a clean
-        sample of 4096 walkers x 2 coordinates.  Its variance has a statistical
+        Burn in with step-width tuning, then sample with the width frozen --
+        the same recipe estimate_energy.py uses.  The walkers are independent
+        chains, so the final snapshot is a clean sample of 4096 walkers x 2
+        coordinates.  Its variance has a statistical
         uncertainty of about sigma^2 * sqrt(2 / 8192), roughly 1.6%, so 6% is a
         safe tolerance.
         """
@@ -90,13 +92,16 @@ class MetropolisTest(absltest.TestCase):
             return -jnp.sum(walkers**2, axis=(1, 2)) / (4 * sigma**2)
 
         walkers = jnp.zeros((4096, 1, 2))
-        walkers, width, rates = run_metropolis(log_abs_psi_batch, walkers,
-                                               jax.random.key(0), n_steps=300, step_width=0.1)
+        walkers, width, _ = run_metropolis(log_abs_psi_batch, walkers, jax.random.key(0),
+                                           n_steps=200, step_width=0.1)
+        walkers, frozen_width, rates = run_metropolis(log_abs_psi_batch, walkers, jax.random.key(1),
+                                                      n_steps=100, step_width=width, adapt_every=None)
+        self.assertEqual(frozen_width, width)       # adapt_every=None really keeps it fixed
         samples = np.asarray(walkers).reshape(-1)
 
         np.testing.assert_allclose(samples.mean(), 0.0, atol=0.03)
         np.testing.assert_allclose(samples.var(), sigma**2, rtol=0.06)
-        self.assertBetween(np.mean(rates[-50:]), 0.40, 0.65)   # the step-width rule did its job
+        self.assertBetween(np.mean(rates), 0.40, 0.65)   # the tuned width is reasonable
 
 
 if __name__ == "__main__":
