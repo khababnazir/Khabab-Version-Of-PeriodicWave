@@ -1,0 +1,135 @@
+DATE: 2026-09-29
+SESSION: Stage 4 (Monte Carlo sampling and the local energy) -- written,
+         reviewed once, fixed, confirmed
+
+-----------------------------------------------------------------------------
+WHAT WE SET OUT TO DO
+-----------------------------------------------------------------------------
+Build the machinery that turns a wave function into an energy. The energy of
+a trial state is E = <Psi|H|Psi> / <Psi|Psi>, a 2N-dimensional integral we
+cannot do directly. Variational Monte Carlo replaces it with an average: draw
+configurations R from |Psi(R)|^2, evaluate the local energy
+E_loc(R) = (H Psi)(R) / Psi(R) at each one, and average (paper Sec. IV A,
+Eqs. 24-28). Two pieces: a sampler, and the local energy.
+
+-----------------------------------------------------------------------------
+WHAT I DID
+-----------------------------------------------------------------------------
+Asked for Stage 4 to be written more simply than Stage 3 -- clearer names,
+plain control flow, only the tests that matter. Had the code reviewed by
+another AI and brought the review back to be checked. Read the code line by
+line and confirmed I understood it.
+
+-----------------------------------------------------------------------------
+WHAT CLAUDE DID
+-----------------------------------------------------------------------------
+
+1. learn/stage04_mcmc/metropolis.py -- THE SAMPLER
+
+   Metropolis-Hastings, following the authors' mcmc.py:
+     - propose: move every electron of every walker by a Gaussian step
+     - accept if  log(uniform) < log|Psi'|^2 - log|Psi|^2,  else stay put
+   Only the RATIO |Psi'|^2 / |Psi|^2 is ever needed, so the normalisation of
+   Psi -- the integral we cannot do -- cancels and is never computed. With a
+   symmetric proposal this acceptance rule makes |Psi|^2 the distribution the
+   walkers settle into (detailed balance).
+
+   Step width follows the authors' rule from train.py: multiply by 1.1 if
+   more than 55% of moves are accepted, by 0.9 if fewer than 50%. The authors
+   adjust every 100 training iterations of 30 steps each; we adjust every 10
+   steps so a short burn-in can tune it. Important, from the review: the
+   width is tuned during burn-in ONLY, then frozen while measuring. The
+   guarantee that walkers follow |Psi|^2 belongs to a fixed rule; a rule that
+   keeps changing itself from the walkers' own history is not covered.
+
+2. learn/stage04_mcmc/local_energy.py -- THE LOCAL ENERGY
+
+   Writing Psi = exp(u + i*phi), with u = log|Psi| and phi the phase:
+       (Lap Psi)/Psi = Lap u + |grad u|^2 - |grad phi|^2
+                       + i (Lap phi + 2 grad u . grad phi)
+   so the kinetic energy is built entirely from derivatives of log Psi --
+   which Stage 3 already computes. We keep the imaginary part. The authors'
+   fast path (folx) drops it; whether that matters is a Stage 6 question.
+
+   Potential: the moire potential only. Coulomb repulsion needs Ewald
+   summation under periodic boundary conditions, which is Stage 7, so every
+   Stage 4 number is for NON-interacting electrons and is not comparable to
+   anything in the paper yet.
+
+   One convention trap found and documented: the paper writes the moire
+   vectors g_j at 0/120/240 degrees; the authors' code uses the same star
+   rotated by 90 degrees (90/330/210). With the code's lattice orientation
+   only the code's vectors make the potential periodic. We use the code's,
+   and a test checks our potential equals the authors' function to 1e-12.
+
+3. learn/stage04_mcmc/estimate_energy.py -- PUTTING IT TOGETHER
+
+   Run A, a Slater determinant of plane waves with no potential, is an exact
+   eigenstate of the kinetic energy: exact energy 14.621636, and every sampled
+   configuration gave exactly that (largest deviation 1.2e-13, variance
+   3.6e-29). That is the zero-variance property of Eq. 28. It checks the
+   kinetic energy. It does NOT check the sampler -- an eigenstate has the same
+   E_loc everywhere, so even a stuck sampler would pass (a review correction).
+
+   Run B, an untrained SlaterNet (6 electrons, 9 sites) in the moire
+   potential: E = +46.199 +- 0.342 in code units (+155.95 +- 1.16 meV),
+   variance of E_loc 782.8, mean imaginary part -0.023 +- 0.096 (zero within
+   the error, as it must be). High, because the network is random; training
+   in Stage 6 is what lowers it.
+
+   The error bar treats the measurement rounds as independent. They are not
+   quite -- each continues the same chains -- so it is approximate; a proper
+   blocking analysis comes later (pyblock is already installed).
+
+4. learn/stage04_mcmc/test_stage04.py -- FOUR CHECKS, absltest style
+
+   - plane-wave determinant gives the exact kinetic energy at random points
+   - our moire potential equals the authors' make_triangular_potential
+   - the potential has the period of the moire lattice
+   - Metropolis sampling a Gaussian |Psi|^2 reproduces mean 0, variance
+     sigma^2 (burn in with tuning, then sample with the width frozen)
+
+   Each test was shown to fail when the code is deliberately broken: deleting
+   the -|grad phi|^2 term, swapping in the paper's moire vectors, and making
+   the sampler accept every move were each caught.
+
+5. FIXES FROM THE REVIEW (all four points were valid)
+
+   - freeze the step width while measuring (point 1 above)
+   - report the variance of the FULL complex E_loc, mean |E_loc - mean|^2.
+     This is the quantity equal to <H^2> - <H>^2, since
+     <H^2> = integral |H Psi|^2 = average of |E_loc|^2. The real part alone
+     came out at 751.8, the full value 782.8.
+   - describe the error bar as approximate rather than "slightly low"
+   - run A does not validate the sampler (point 3 above)
+
+-----------------------------------------------------------------------------
+WHAT I NOW UNDERSTAND
+-----------------------------------------------------------------------------
+Confirmed by Khabab, in his words: "Stage 4 read and understood."
+
+(Khabab: add your own two or three sentences here when you can -- why the
+sampler never needs the normalisation of Psi, and why run A's variance is
+~1e-29.)
+
+-----------------------------------------------------------------------------
+STILL UNCLEAR
+-----------------------------------------------------------------------------
+Nothing blocking. Carried to Stage 6: does dropping Im E_loc (the authors'
+folx path) bias the energy gradient? Carried to later: proper error bars
+via blocking.
+
+-----------------------------------------------------------------------------
+NEXT
+-----------------------------------------------------------------------------
+Stage 5: the self-attention network -- the one change that lets electrons
+see each other, and the reason the paper beats Hartree-Fock.
+
+-----------------------------------------------------------------------------
+HANDOFF NOTES
+-----------------------------------------------------------------------------
+    cd ~/moire-nnvmc && source .venv/bin/activate && cd learn/stage04_mcmc
+    JAX_PLATFORMS=cpu python test_stage04.py
+    JAX_PLATFORMS=cpu python estimate_energy.py     # ~20 s on CPU
+Code units: length a_M, energy hbar^2/(m* a_M^2) = 3.375559 meV;
+moire strength V0 = 4.443709, shape angle phi = pi/4.
