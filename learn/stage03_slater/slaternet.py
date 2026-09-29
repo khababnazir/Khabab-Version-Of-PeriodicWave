@@ -121,15 +121,20 @@ def hidden_states(params: dict, positions: jax.Array, G: jax.Array) -> jax.Array
     return h
 
 
-def orbital_matrices(params: dict, positions: jax.Array, G: jax.Array) -> jax.Array:
-    """Eq. (22): complex array of shape (D, N, N).
+def orbitals_from_hidden(projections: jax.Array, h: jax.Array) -> jax.Array:
+    """Eq. (22): hidden states (N, width) -> orbital matrices (D, N, N), complex.
 
     Element [m, i, j] = orbital j of determinant m, evaluated at electron i.
+    Shared with Stage 5, which changes only how h is computed.
     """
-    h = hidden_states(params, positions, G)
-    real_part = jnp.einsum("mjd,id->mij", params["proj"][:, :, 0, :], h)
-    imag_part = jnp.einsum("mjd,id->mij", params["proj"][:, :, 1, :], h)
+    real_part = jnp.einsum("mjd,id->mij", projections[:, :, 0, :], h)
+    imag_part = jnp.einsum("mjd,id->mij", projections[:, :, 1, :], h)
     return real_part + 1j * imag_part
+
+
+def orbital_matrices(params: dict, positions: jax.Array, G: jax.Array) -> jax.Array:
+    """SlaterNet's orbital matrices, shape (D, N, N)."""
+    return orbitals_from_hidden(params["proj"], hidden_states(params, positions, G))
 
 
 class LogPsi(NamedTuple):
@@ -137,8 +142,10 @@ class LogPsi(NamedTuple):
     phase:   jax.Array   # arg Psi, radians
 
 
-def log_psi(params: dict, positions: jax.Array, G: jax.Array) -> LogPsi:
-    """Eq. (23), Psi = sum_m det[phi^m_j(r_i)], returned as log|Psi| and arg Psi.
+def sum_of_determinants(matrices: jax.Array) -> LogPsi:
+    """Eq. (23): Psi = sum_m det(matrices[m]), returned as log|Psi| and arg Psi.
+
+    matrices: (D, N, N) complex orbital matrices.  Shared with Stage 5.
 
     Why never form Psi?  A determinant is a sum of N! products of N numbers;
     for entries of typical size s, |det| ~ sqrt(N!) s^N.  At the paper's Table I
@@ -149,7 +156,6 @@ def log_psi(params: dict, positions: jax.Array, G: jax.Array) -> LogPsi:
 
     log|Psi| = -inf exactly where Psi vanishes, never NaN.
     """
-    matrices = orbital_matrices(params, positions, G)
     n = matrices.shape[-1]
 
     # Step 1 -- find one common scale, from values only (no gradient flows here).
@@ -183,6 +189,11 @@ def log_psi(params: dict, positions: jax.Array, G: jax.Array) -> LogPsi:
     # Psi = 0 has no phase.  jnp.angle(0) = 0 is our documented placeholder.
     return LogPsi(log_abs=shift + jnp.log(jnp.abs(total)),
                   phase=jnp.angle(total))
+
+
+def log_psi(params: dict, positions: jax.Array, G: jax.Array) -> LogPsi:
+    """SlaterNet's wave function: log|Psi| and arg Psi at one configuration."""
+    return sum_of_determinants(orbital_matrices(params, positions, G))
 
 
 # ---------------------------------------------------------------------------
