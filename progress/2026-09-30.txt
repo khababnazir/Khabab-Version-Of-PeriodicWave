@@ -1,0 +1,132 @@
+DATE: 2026-09-30
+SESSION: Stage 5 (the self-attention wave function) -- written, tested,
+         confirmed; plus one correction to an earlier claim about the paper
+
+-----------------------------------------------------------------------------
+WHAT WE SET OUT TO DO
+-----------------------------------------------------------------------------
+Build the paper's main ansatz (Sec. III C, Eqs. 15-23): the network in which
+electrons can "see" each other. In SlaterNet (Stage 3) every electron went
+through the network on its own, so electron i's orbital could not depend on
+where electron j was -- that is exactly Hartree-Fock. Self-attention is the
+one change that lets each electron's hidden state gather information from
+all the others, turning the orbitals into correlated orbitals
+phi_j(r_i; everyone else). That is what lets the paper go below Hartree-Fock.
+
+-----------------------------------------------------------------------------
+WHAT I DID
+-----------------------------------------------------------------------------
+Read the Stage 5 code and tests line by line and confirmed I understood them.
+(I called it "stage 6" when confirming -- it is Stage 5 in
+docs/learning_path.md; Stage 6, the optimiser, has not been written yet.)
+
+-----------------------------------------------------------------------------
+WHAT CLAUDE DID
+-----------------------------------------------------------------------------
+
+1. CORRECTED AN EARLIER CLAIM ABOUT THE PAPER
+
+   The audit (docs/reproduction_map.md, section 12) had said the authors'
+   attention code and the paper's Eq. (18) were "different ansaetze". That
+   was wrong. It came from reading Eq. (18) out of text extracted from the
+   PDF, where the square-root sign had been lost. On the typeset page the
+   normalisation is  sqrt(d_AttnValues) * sum_j exp(q_j . k_i)  -- the root
+   covers d_AttnValues only. So Eq. (18) is a standard softmax times a
+   constant 1/sqrt(d_v).
+
+   The authors' jax.nn.dot_product_attention differs in three ways: which
+   electron supplies the query (paper: q_j against k_i; code: q_i against
+   k_j), a 1/sqrt(d_attn) inside the exponent, and no 1/sqrt(d_v) outside.
+   All three are absorbed by renaming or rescaling learned weights
+   (swap W_q and W_k, multiply W_q by sqrt(d_attn), divide W_o by sqrt(d_v)).
+   Same family of wave functions; only the scale of the parameterisation
+   differs. The audit is corrected, and a test now proves the equivalence.
+
+2. SMALL REFACTOR OF STAGE 3 (no behaviour change)
+
+   Split two functions out of slaternet.py so Stage 5 can reuse them:
+   orbitals_from_hidden (hidden states -> orbital matrices) and
+   sum_of_determinants (orbital matrices -> log|Psi| and phase). All Stage 3
+   and Stage 4 checks were re-run afterwards and pass unchanged.
+
+3. WROTE learn/stage05_attention/psiformer.py
+
+   Written literally from Eqs. (15)-(20), with the paper's Table II sizes:
+   3 layers, 6 heads, attention and value dimension 16, width 64,
+   4 determinants. Each layer is two residual steps:
+
+       f = h + self_attention(h)          Eq. (19)
+       h = f + tanh(W f + b)              Eq. (20)
+
+   Inside self_attention, one head at a time, as a plain loop: keys, queries
+   and values from each electron's hidden state; scores[i, j] = k_i . q_j;
+   a softmax over j for each row; a weighted average of the values; divide
+   by sqrt(d_v); concatenate the heads; project back with W_o. The periodic
+   features, the orbital projection and the determinant sum are Stage 3's,
+   unchanged.
+
+   Numbers from the demo:
+     parameters at 6 electrons   89,536 -- exactly the Appendix C formula
+     parameters at 18 electrons  95,680 (Table I size)
+     move electron 5 by (0.3, 0.1); largest change in electron 0's
+     hidden state: SlaterNet 0 exactly, attention network 3.4e-2
+     1024 walkers on CPU: about 113 ms per evaluation
+
+   The third line is the whole stage in one number.
+
+4. WROTE learn/stage05_attention/test_psiformer.py (six checks, absltest)
+
+   - attention is permutation equivariant: relabelling the electrons only
+     relabels the outputs (paper Eq. 21). This is why the determinant stays
+     antisymmetric even though every orbital now depends on every electron.
+   - Eq. (18) equals the authors' dot_product_attention after the rescaling
+     in point 1.
+   - the wave function is antisymmetric under exchange
+   - the wave function is periodic in every electron
+   - electrons see each other in the attention network, and do NOT in
+     SlaterNet
+   - the parameter count equals the Appendix C formula
+
+   Four deliberate breakages, each caught: dropping 1/sqrt(d_v), swapping
+   keys and queries, switching attention off, and letting each electron
+   attend only to itself.
+
+   One measured fact worth remembering: jax.nn.dot_product_attention returns
+   float64 arrays for float64 input but is only about 1e-7 accurate against
+   an explicit float64 softmax -- roughly float32 accuracy internally. The
+   equivalence test therefore uses a single-precision tolerance, which still
+   separates right from wrong cleanly because a wrong mapping is off by
+   order 1.
+
+-----------------------------------------------------------------------------
+WHAT I NOW UNDERSTAND
+-----------------------------------------------------------------------------
+Confirmed by Khabab on 2026-09-30, in his words: "Nice understood stage 6"
+(meaning this stage).
+
+(Khabab: add two or three sentences of your own here -- which property of
+self_attention keeps Psi antisymmetric even though each orbital now depends
+on every electron, and why a softmax over the wrong axis would matter.)
+
+-----------------------------------------------------------------------------
+STILL UNCLEAR
+-----------------------------------------------------------------------------
+Nothing blocking. Still carried to the optimiser stage: whether dropping the
+imaginary part of the local energy (the authors' folx path) biases the
+energy gradient.
+
+-----------------------------------------------------------------------------
+NEXT
+-----------------------------------------------------------------------------
+To be decided: Stage 6 (training -- natural gradient and KFAC, the first
+time an energy actually goes down) or Stage 7 (Ewald summation -- the
+electron-electron Coulomb repulsion, the last missing piece of the
+Hamiltonian).
+
+-----------------------------------------------------------------------------
+HANDOFF NOTES
+-----------------------------------------------------------------------------
+    cd ~/moire-nnvmc && source .venv/bin/activate && cd learn/stage05_attention
+    JAX_PLATFORMS=cpu python test_psiformer.py
+    JAX_PLATFORMS=cpu python psiformer.py
+Stage 5 reuses Stage 3 through sys.path; nothing needs installing.
