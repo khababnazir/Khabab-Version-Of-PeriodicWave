@@ -25,8 +25,8 @@ Caveat: that is *today's* upstream, not the commit PeriodicWave forked from, so 
 | `CustomPsiformer.py` | **new**, replaces FermiNet's `psiformer.py` | the self-attention network | 5 |
 | `mcmc.py` | modified | Metropolis–Hastings walkers | 4 |
 | `hamiltonian.py` | modified | kinetic-energy machinery | 4 |
-| `pbc/hamiltonian.py` | modified (183 lines added) | 2D Ewald Coulomb, moiré potential, local energy via folx | 4, 7 |
-| `loss.py` | modified | VMC energy and gradient estimator, local-energy clipping | 4, 6 |
+| `pbc/hamiltonian.py` | modified (183 lines added) | 2D Ewald Coulomb, moiré potential, local energy via folx (folx path returns Re E_loc only: reproduction_map §12 item 7) | 4, 6, 7 |
+| `loss.py` | modified | VMC energy and gradient estimator, local-energy clipping (complex branch is the exact estimator; verified in learn/stage06_kfac) | 4, 6 |
 | `curvature_tags_and_blocks.py` | modified (2 lines) | registers layers with KFAC | 6 |
 | `train.py` | modified | the optimisation loop | 6, 8 |
 | `base_config.py` | modified | default hyperparameters | 8 |
