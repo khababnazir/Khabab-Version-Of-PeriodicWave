@@ -42,24 +42,24 @@ ax_e.set_yscale("symlog", linthresh=1.0)
 ax_e.set_ylim(-0.3, 250)
 ax_e.set_xlabel("training iteration")
 ax_e.set_ylabel("energy above exact (meV, 6 electrons)")
-ax_e.set_title("Dropping Im E_loc stalls ~5 meV above exact")
+ax_e.set_title("Real-part-only gradient ends 1-3 meV higher (these runs)")
 
 ax_v.set_yscale("log")
 ax_v.set_xlabel("training iteration")
 ax_v.set_ylabel("variance of E_loc (code units$^2$)")
-ax_v.set_title("Only the full gradient heads to zero variance")
+ax_v.set_title("Full gradient reaches lower variance (these runs)")
 
 for ax in (ax_e, ax_v):
     ax.set_xlim(0, 3050)
 
 # direct labels, placed in empty regions of each panel (checked by eye on the render)
-ax_e.text(1150, 140, NAMES["real_only"], color=COLORS["real_only"], fontsize=6, ha="left", va="center")
-ax_e.text(600, 0.4, NAMES["full"], color=COLORS["full"], fontsize=6, ha="left", va="center")
+ax_e.text(1700, 7.0, NAMES["real_only"], color=COLORS["real_only"], fontsize=6, ha="left", va="center")
+ax_e.text(250, 0.4, NAMES["full"], color=COLORS["full"], fontsize=6, ha="left", va="center")
 ax_v.set_ylim(0.5, None)                      # a clear band below the curves for labels
-ax_v.text(500, 520, NAMES["real_only"], color=COLORS["real_only"], fontsize=6, ha="left", va="center")
-ax_v.text(2300, 0.85, NAMES["full"], color=COLORS["full"], fontsize=6, ha="left", va="center")
-ax_v.text(0.02, 0.03, "solid: seed 0   dashed: seed 1   (100-iteration running mean)",
-          transform=ax_v.transAxes, fontsize=6, color="0.3")
+ax_v.text(1600, 55, NAMES["real_only"], color=COLORS["real_only"], fontsize=6, ha="left", va="center")
+ax_v.text(1250, 0.8, NAMES["full"], color=COLORS["full"], fontsize=6, ha="left", va="center")
+ax_v.text(0.98, 0.97, "solid: seed 0   dashed: seed 1\n100-iteration running mean",
+          transform=ax_v.transAxes, fontsize=6, color="0.3", ha="right", va="top")
 
 out = RUNS / "stage06_training.png"
 fig.savefig(out, dpi=300)
