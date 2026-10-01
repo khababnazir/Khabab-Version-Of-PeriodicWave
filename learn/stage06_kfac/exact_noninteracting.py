@@ -21,7 +21,10 @@ Each moire vector g_j is itself an integer combination of G1 and G2, so the
 potential only ever connects basis states to other basis states.
 
 This is the benchmark for training: SlaterNet trained on this Hamiltonian
-must reach this energy -- and, being variational, can never go below it.
+should approach this energy.  The exact energy of any trial wave function
+cannot go below it (variational principle), but a Monte Carlo estimate can
+dip below by statistical noise.  The plane-wave sum is converged with the
+cutoff to about 2e-9 code units (measured: cutoff 30 versus 60).
 Stage 9's exact diagonalisation starts from the same plane-wave idea.
 """
 import sys

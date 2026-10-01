@@ -10,7 +10,8 @@ Authors: loss.py (gradient), kfac_jax + curvature_tags_and_blocks.py (natural gr
        dE/d theta_k = 2 Re < (E_loc - E) * conj(O_k) >
    and splitting into real and imaginary parts,
        = 2 < (Re E_loc - E) * d log|Psi|/d theta_k >  +  2 < Im E_loc * d phase/d theta_k >.
-   The second term needs Im E_loc.  The authors' loss.py formula contains it,
+   The second term needs Im E_loc.  The authors' loss.py formula contains it
+   (in the branch that runs when clipping is on, as in their moire config),
    but their fast kinetic-energy path (folx) passes in only Re E_loc, so the
    term is lost.  check_phase_gradient.py measures what that costs.
 
@@ -66,12 +67,23 @@ def energy_gradient(e_loc, O, weights=None):
 
     Pass a REAL e_loc to reproduce the authors' folx path: the Im E_loc term
     then drops out.
+
+    Centring.  We subtract the full COMPLEX mean of E_loc.  The exact average of
+    Im E_loc is zero, but a finite batch has a small nonzero one.  Subtracting it
+    makes the estimate exactly blind to a global phase, Psi -> e^{ia} Psi, which
+    cannot change the energy: for that change O = i at every walker, and the sum
+    below is then exactly zero.  Subtracting only the real mean would leave an
+    extra  2 <Im E_loc> <Im O>,  which can point where S has almost no curvature,
+    so (S + damping)^-1 blows it up.  Measured at initialisation (6 electrons,
+    seed 0): the natural-gradient step's size  step.S.step  went from 7262 to 560.
+    (The authors' clipped branch of loss.py subtracts only the real part of the
+    mean.  With their real E_loc the two choices are identical.)
     """
     if weights is None:
         weights = jnp.full(e_loc.shape, 1.0 / e_loc.shape[0])
 
-    energy = jnp.sum(weights * jnp.real(e_loc))
-    deviation = e_loc - energy                               # imaginary part kept, if any
+    mean_e_loc = jnp.sum(weights * e_loc)                    # complex
+    deviation = e_loc - mean_e_loc
     return 2.0 * jnp.real(jnp.sum(weights[:, None] * deviation[:, None] * jnp.conj(O), axis=0))
 
 
@@ -82,7 +94,11 @@ def quantum_geometric_tensor(O):
 
 
 def clip_local_energy(e_loc, scale=5.0):
-    """The authors' clipping (loss.py clip_local_values, their default settings).
+    """The authors' clipping, as their configs run it.
+
+    loss.py clip_local_values with base_config.py's settings clip_median=False
+    and center_at_clip=True: the window is centred at the batch MEAN.  (The
+    function's own keyword default would centre it at the median instead.)
 
     Rare configurations near a node of Psi can have enormous local energies,
     which would make single gradient steps wild.  For the GRADIENT only, pull
@@ -103,16 +119,23 @@ def natural_gradient_step(gradient, S, learning_rate, damping, max_step_norm):
 
     Why diagonalise S instead of just solving the linear system?  In exact
     arithmetic S is positive semi-definite -- it is an average of squares --
-    but in floating point it shows small negative eigenvalues.  Measured in
-    Stage 6: as low as -0.9 at the first training step in float32, larger than
-    the damping.  Then S + damping is not positive, and the "step" can point
-    uphill or blow up.  Those negative eigenvalues are pure rounding error, so
-    we set them to zero before inverting.  S + damping is then strictly
-    positive and the step is always downhill.
+    so any negative eigenvalue is rounding error.  Measured at initialisation
+    in float32: the most negative eigenvalue is -0.8, which is 1.3e-7 times
+    the largest one, i.e. float32's relative precision (1.2e-7).  Relative to
+    S it is rounding; in absolute terms it is far larger than the damping, so
+    S + damping is not positive and the "step" can point uphill or blow up.
+    We set negative eigenvalues to zero before inverting.  S + damping is then
+    positive definite, so the step is a descent direction for the ESTIMATED
+    gradient (gradient . step < 0).  That says nothing about a finite step:
+    a step that is too long can still raise the true energy.  The learning
+    rate and the size limit below are what keep steps short.
 
-    The size limit caps how far Psi itself moves in one step, measured with
-    S:  (step . S . step) <= max_step_norm.  This plays the role of the
-    norm_constraint option in the authors' KFAC settings.
+    The size limit:  step . (S + damping) . step <= max_step_norm,  i.e.
+    lr^2 * gradient . (S + damping)^-1 . gradient <= max_step_norm.  This is
+    the norm_constraint of kfac-jax (optimizer.py, _maybe_apply_norm_constraint)
+    with our exact S in place of KFAC's approximation.  The damping term
+    matters: without it, directions where S is (numerically) zero would not
+    count towards the limit at all.
     """
     eigenvalues, eigenvectors = jnp.linalg.eigh(S)
     eigenvalues = jnp.maximum(eigenvalues, 0.0)                  # remove rounding error
@@ -122,9 +145,9 @@ def natural_gradient_step(gradient, S, learning_rate, damping, max_step_norm):
     direction = eigenvectors @ (gradient_components / (eigenvalues + damping))
     step = -learning_rate * direction
 
-    # step . S . step, using the cleaned S.  Never negative.
+    # step . (S + damping) . step, using the cleaned S -- the quantity kfac-jax limits.
     step_components = eigenvectors.T @ step
-    size = jnp.sum(eigenvalues * step_components**2)
+    size = jnp.sum((eigenvalues + damping) * step_components**2)
 
     too_big = size > max_step_norm
     scale = jnp.where(too_big, jnp.sqrt(max_step_norm / jnp.maximum(size, 1e-30)), 1.0)

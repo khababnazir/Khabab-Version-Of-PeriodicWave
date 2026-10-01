@@ -3,9 +3,11 @@ Stage 6 checks.  Run:  python test_stage06.py
 
   1. the exact benchmark reproduces a case we know by hand
   2. the energy gradient equals the exact gradient -- and dropping Im E_loc
-     does not, unless the wave function is real
+     does not, unless the wave function is real -- and a global phase gets
+     exactly zero gradient from a finite batch
   3. the natural-gradient step solves (S + damping) x = gradient, respects
-     the size limit, and stays finite and downhill when S has rounding errors
+     the size limit, and stays finite and a descent direction when S has
+     rounding errors
 """
 import sys
 from pathlib import Path
@@ -25,7 +27,7 @@ from slaternet import Architecture, LogPsi, init_parameters, supercell_vectors  
 from local_energy import moire_units, local_energy, plane_wave_k_vectors  # noqa: E402
 from exact_noninteracting import (exact_ground_state_energy, plane_wave_basis,  # noqa: E402
                                   single_particle_hamiltonian)
-from gradient import natural_gradient_step  # noqa: E402
+from gradient import energy_gradient, natural_gradient_step  # noqa: E402
 from check_phase_gradient import grid_points, exact_energy, estimators  # noqa: E402
 
 
@@ -98,6 +100,17 @@ class GradientTest(absltest.TestCase):
         results, _ = estimators(self.real_params, self.points)
         np.testing.assert_allclose(results["real only (gradient.py)"], exact, rtol=1e-6, atol=1e-8)
 
+    def test_a_global_phase_gets_zero_gradient(self):
+        """Psi -> e^{ia} Psi cannot change the energy, so its gradient must be exactly 0.
+
+        For that parameter O = i at every walker.  A finite batch has a nonzero
+        mean of Im E_loc, so this checks that E_loc is centred with its complex mean.
+        """
+        rng = np.random.default_rng(1)
+        e_loc = jnp.asarray(rng.normal(size=500) + 1j * rng.normal(size=500))
+        O = jnp.full((500, 1), 1j)
+        np.testing.assert_allclose(energy_gradient(e_loc, O), 0.0, atol=1e-12)
+
 
 class NaturalGradientStepTest(absltest.TestCase):
 
@@ -116,7 +129,8 @@ class NaturalGradientStepTest(absltest.TestCase):
     def test_large_step_is_capped(self):
         step = natural_gradient_step(self.gradient, self.S, learning_rate=10.0,
                                      damping=1e-2, max_step_norm=1e-3)
-        np.testing.assert_allclose(step @ self.S @ step, 1e-3, rtol=1e-8)
+        # kfac-jax's norm: the damping counts too.
+        np.testing.assert_allclose(step @ (self.S + 1e-2 * jnp.eye(20)) @ step, 1e-3, rtol=1e-8)
 
     def test_rounding_errors_in_S_cannot_turn_the_step_uphill(self):
         """Give S a negative eigenvalue larger than the damping, as float32 did.
@@ -132,7 +146,7 @@ class NaturalGradientStepTest(absltest.TestCase):
         step = natural_gradient_step(gradient, broken_S, learning_rate=0.1,
                                      damping=1e-3, max_step_norm=1e-2)
         self.assertTrue(bool(jnp.all(jnp.isfinite(step))))
-        self.assertLess(float(step @ gradient), 0.0)           # downhill
+        self.assertLess(float(step @ gradient), 0.0)           # a descent direction
 
 
 if __name__ == "__main__":

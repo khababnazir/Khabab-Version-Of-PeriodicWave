@@ -17,8 +17,10 @@ compute three gradients without any sampling noise:
   full       the estimator  2 Re < (E_loc - E) conj(O) >  with complex E_loc
   real only  the same estimator with Re E_loc only (the authors' folx path)
 
-and also the authors' own loss.py formula written out literally, fed with
-complex E_loc (their default path) and with real E_loc (their folx path).
+and the complex branch of the authors' loss.py written out line by line, in
+both of its forms: clipping on (how the moire config runs it) and clipping
+off.  It is fed complex E_loc (their 'default' kinetic path) and real E_loc
+(their folx path).
 
 Two wave functions:
   complex  a SlaterNet orbital with both real and imaginary projections
@@ -93,23 +95,41 @@ def estimators(params, points):
     O = log_derivatives(lambda p, R: log_psi(p, R, G), params, points)
     p = jax.nn.softmax(2.0 * jax.vmap(lambda R: psi(R).log_abs)(points))   # exact |Psi|^2 weights
 
-    def authors_formula(e):
-        """loss.py, complex branch, literally: (term1 - 2 term2), with no clipping.
+    def authors_loss_py(e, clipping_on):
+        """loss.py's complex branch, line by line:  (term1 - 2 term2).real,  psi_tangent = O.
 
-        clipped_el = E_loc;  clipped_energy = its mean;  psi_tangent = O.
+        The two branches set clipped_energy and diff differently:
+          clipping on  (clip_local_energy > 0; the moire config uses 5.0):
+              clip_local_values returns clipped_energy = batch mean (a number)
+              and diff = clipped values - mean.  Here the window is taken so
+              wide that nothing is clipped, so the clipped values are E_loc.
+          clipping off (clip_local_energy = 0; not used by the moire config):
+              clipped_energy stays the ARRAY of local energies (set in
+              total_energy), and diff = E_loc - mean.  Inherited unchanged from
+              DeepMind's FermiNet.  For complex E_loc this counts the Im E_loc
+              term twice; for real E_loc the two branches agree.
         """
-        clipped_energy = jnp.sum(p * e)
-        term1 = (jnp.sum(p[:, None] * e[:, None] * jnp.conj(O), axis=0)
-                 + jnp.sum(p[:, None] * jnp.conj(e)[:, None] * O, axis=0))
-        term2 = jnp.sum(p[:, None] * clipped_energy * jnp.real(O), axis=0)
+        mean = jnp.sum(p * e)
+        if clipping_on:
+            clipped_energy, diff = mean, e - mean
+            centre_times_re_O = clipped_energy * jnp.real(O)
+        else:
+            clipped_energy, diff = e, e - mean
+            centre_times_re_O = clipped_energy[:, None] * jnp.real(O)
+        clipped_el = diff + clipped_energy
+        term1 = (jnp.sum(p[:, None] * clipped_el[:, None] * jnp.conj(O), axis=0)
+                 + jnp.sum(p[:, None] * jnp.conj(clipped_el)[:, None] * O, axis=0))
+        term2 = jnp.sum(p[:, None] * centre_times_re_O, axis=0)
         return jnp.real(term1 - 2.0 * term2)
 
+    real_e_loc = jnp.real(e_loc) + 0j
     energy_from_e_loc = float(jnp.sum(p * jnp.real(e_loc)))
     return {
-        "full (gradient.py)":         energy_gradient(e_loc, O, weights=p),
-        "real only (gradient.py)":    energy_gradient(jnp.real(e_loc) + 0j, O, weights=p),
-        "authors, complex E_loc":     authors_formula(e_loc),
-        "authors, real E_loc (folx)": authors_formula(jnp.real(e_loc) + 0j),
+        "full (gradient.py)":                   energy_gradient(e_loc, O, weights=p),
+        "real only (gradient.py)":              energy_gradient(real_e_loc, O, weights=p),
+        "loss.py clip on, complex E_loc":       authors_loss_py(e_loc, clipping_on=True),
+        "loss.py clip on, real E_loc (folx)":   authors_loss_py(real_e_loc, clipping_on=True),
+        "loss.py clip off, complex E_loc":      authors_loss_py(e_loc, clipping_on=False),
     }, energy_from_e_loc
 
 
@@ -126,7 +146,7 @@ def report(label, params, n_grid):
     print(f"  |exact gradient| = {norm:.6e}")
     for name, g in results.items():
         rel = float(jnp.linalg.norm(g - g_exact)) / norm
-        print(f"  {name:28s} relative error vs exact: {rel:.2e}")
+        print(f"  {name:36s} relative error vs exact: {rel:.2e}")
     return g_exact
 
 

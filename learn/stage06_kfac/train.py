@@ -3,6 +3,11 @@ Stage 6, part 3 -- train a wave function: variational Monte Carlo.
 
 Run:  python train.py --estimator full        --out ../../runs/stage06/full
       python train.py --estimator real_only   --out ../../runs/stage06/real_only
+      (add --seed 1 for a second, independent run)
+
+Writes to --out:  history.csv (every iteration), summary.json (final frozen
+measurement, settings, architecture, versions) and params.npz (the trained
+parameters and final walkers, so the wave function can be reloaded).
 
 The loop, once per iteration:
   1. move the walkers (Metropolis, Stage 4) so they follow the CURRENT |Psi|^2
@@ -13,7 +18,10 @@ The loop, once per iteration:
 
 The problem: 6 electrons on 9 moire sites, kinetic energy + moire potential,
 no Coulomb yet (Stage 7).  Its exact answer is known (exact_noninteracting.py),
-so we can see how close training gets -- and it can never go below it.
+so we can see how close training gets.  The exact energy of any trial Psi
+cannot go below it (variational principle), but a Monte Carlo ESTIMATE can
+dip below by statistical noise.  The plane-wave answer itself is converged
+to about 2e-9 code units (cutoff 30 versus 60).
 
 The experiment: --estimator full uses the exact gradient formula;
 --estimator real_only drops Im E_loc, as the authors' folx path does.
@@ -21,6 +29,7 @@ Everything else is identical, including the random seed.
 """
 import argparse
 import csv
+import dataclasses
 import json
 import sys
 import time
@@ -172,6 +181,13 @@ def main():
     final_error = float(np.std(round_means, ddof=1) / np.sqrt(len(round_means)))   # approximate, see Stage 4
     final_variance = float(np.mean(np.abs(all_e - all_e.mean())**2))
 
+    # ---------------- save the trained wave function ----------------
+    # To reload:  arch = Architecture(**summary["architecture"])
+    #             _, unflatten = ravel_pytree(init_parameters(jax.random.key(0), arch))
+    #             params = unflatten(jnp.asarray(np.load("params.npz")["flat_params"]))
+    flat_params, _ = ravel_pytree(params)
+    np.savez(out_dir / "params.npz", flat_params=np.asarray(flat_params), walkers=np.asarray(walkers))
+
     summary = {
         "estimator": args.estimator,
         "exact_energy": exact_energy,
@@ -183,6 +199,9 @@ def main():
         "n_params": int(n_params),
         "seconds": time.perf_counter() - t_start,
         "settings": vars(args),
+        "architecture": dataclasses.asdict(arch),
+        "jax_version": jax.__version__,
+        "device": jax.devices()[0].device_kind,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
     print(f"final: E = {final_energy:+.6f} +- {final_error:.6f}   exact {exact_energy:+.6f}   "
