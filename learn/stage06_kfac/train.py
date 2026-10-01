@@ -18,10 +18,11 @@ The loop, once per iteration:
 
 The problem: 6 electrons on 9 moire sites, kinetic energy + moire potential,
 no Coulomb yet (Stage 7).  Its exact answer is known (exact_noninteracting.py),
-so we can see how close training gets.  The exact energy of any trial Psi
-cannot go below it (variational principle), but a Monte Carlo ESTIMATE can
-dip below by statistical noise.  The plane-wave answer itself is converged
-to about 2e-9 code units (cutoff 30 versus 60).
+so we can see how close training gets.  By the variational principle, the
+exact energy of any trial Psi cannot go below the TRUE ground-state energy.
+The plane-wave value estimates that from above and is converged to about
+2e-9 code units (cutoff 30 versus 60), so here the two are the same.  A Monte
+Carlo ESTIMATE of the trial energy can still dip below by statistical noise.
 
 The experiment: --estimator full uses the exact gradient formula;
 --estimator real_only drops Im E_loc, as the authors' folx path does.
@@ -152,7 +153,8 @@ def main():
         learning_rate = args.learning_rate / (1.0 + t / args.lr_delay)
         params = update(params, e_loc, O, learning_rate)
 
-        # record (unclipped energies)
+        # record (unclipped energies).  e_loc was measured BEFORE this iteration's
+        # update, so row t describes the parameters left by update t-1.
         energy = float(jnp.mean(jnp.real(e_loc)))
         variance = float(jnp.mean(jnp.abs(e_loc - jnp.mean(e_loc))**2))
         energy_error = float(jnp.std(jnp.real(e_loc)) / np.sqrt(args.walkers))

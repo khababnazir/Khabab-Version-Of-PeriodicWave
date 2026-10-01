@@ -104,7 +104,8 @@ def clip_local_energy(e_loc, scale=5.0):
     which would make single gradient steps wild.  For the GRADIENT only, pull
     each local energy back to within  scale x (mean absolute deviation)  of
     the batch mean.  Real and imaginary parts are clipped separately.
-    The reported energy always uses the unclipped values.
+    This biases the gradient a little, on purpose, in exchange for much
+    lower variance.  The reported energy always uses the unclipped values.
     """
     def clip(values):
         center = jnp.mean(values)

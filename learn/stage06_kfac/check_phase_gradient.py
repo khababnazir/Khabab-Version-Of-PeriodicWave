@@ -103,6 +103,8 @@ def estimators(params, points):
               clip_local_values returns clipped_energy = batch mean (a number)
               and diff = clipped values - mean.  Here the window is taken so
               wide that nothing is clipped, so the clipped values are E_loc.
+              (Clipping that does change values biases the gradient on
+              purpose, for lower variance; this check does not test that.)
           clipping off (clip_local_energy = 0; not used by the moire config):
               clipped_energy stays the ARRAY of local energies (set in
               total_energy), and diff = E_loc - mean.  Inherited unchanged from
