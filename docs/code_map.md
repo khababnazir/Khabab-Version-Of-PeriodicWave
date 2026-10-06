@@ -26,7 +26,7 @@ Caveat: that is *today's* upstream, not the commit PeriodicWave forked from, so 
 | `mcmc.py` | modified | Metropolis–Hastings walkers | 4 |
 | `hamiltonian.py` | modified | kinetic-energy machinery | 4 |
 | `pbc/hamiltonian.py` | modified (183 lines added) | 2D Ewald Coulomb, moiré potential, local energy via folx (folx path returns Re E_loc only: reproduction_map §12 item 7) | 4, 6, 7 |
-| `loss.py` | modified | VMC energy and gradient estimator, local-energy clipping (complex branch: correct phase term with clipping on, verified with nothing actually clipped; counts it twice with clipping off; see learn/stage06_kfac) | 4, 6 |
+| `loss.py` | modified | VMC energy and gradient estimator, local-energy clipping (complex branch: correct phase term with clipping on, verified with nothing actually clipped; counts it twice with clipping off; see learn/stage06_natural_gradient) | 4, 6 |
 | `curvature_tags_and_blocks.py` | modified (2 lines) | registers layers with KFAC | 6 |
 | `train.py` | modified | the optimisation loop | 6, 8 |
 | `base_config.py` | modified | default hyperparameters | 8 |
