@@ -126,8 +126,8 @@ WHAT CLAUDE DID
 
    The server went down hard at about 01:17 while four training processes
    shared the two GPUs (no shutdown in the log, no error messages; cause not
-   determined), and rebooted into a kernel without the NVIDIA module. I
-   upgraded (now kernel 6.8.0-146, driver 595.91.07). Rule since then: at
+   determined), and rebooted into a kernel without the NVIDIA module.
+   Khabab upgraded it (now kernel 6.8.0-146, driver 595.91.07). Rule since then: at
    most one training process per GPU.
 
 Commits: 4149ce9, edffa94, 66a1c3b, 250fd36, 68d75cb, 48985c1 (rename),
