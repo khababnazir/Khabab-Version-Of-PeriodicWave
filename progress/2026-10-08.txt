@@ -1,0 +1,277 @@
+DATE: 2026-10-08
+SESSION: Stage 6 (training: the energy gradient, the natural gradient, an
+         exact benchmark) -- written 2026-09-30, reviewed twice by another
+         AI, corrected and rerun 2026-10-01, reproduced by me and confirmed
+         2026-10-08
+
+-----------------------------------------------------------------------------
+WHAT WE SET OUT TO DO
+-----------------------------------------------------------------------------
+Make an energy actually go down. Stages 3-5 built wave functions, Stage 4
+could sample them and measure their energy; Stage 6 adds the last two moving
+parts of VMC: the gradient of the energy with respect to the network's
+parameters, and the optimiser step (the natural gradient, Eqs. 29-31).
+Before copying the authors' training setup we also wanted to settle a
+question open since Stage 3: their fast kinetic-energy path (folx) keeps
+only the real part of the local energy. Does that bias the gradient?
+
+-----------------------------------------------------------------------------
+WHAT I DID
+-----------------------------------------------------------------------------
+Read the Stage 6 code. Passed it to another AI twice for review and brought
+the reviews back. Asked why the folder was called stage06_kfac when no KFAC
+is used (it is now learn/stage06_natural_gradient). Ran train.py myself on
+one RTX 3090:
+
+    default (1000 iterations):  E = -10.070547 +- 0.025009  (exact -10.527754)
+                                0.457 code units = 1.54 meV above exact,
+                                variance 11.5 -- the run stops just before
+                                the big drop that happens near iteration 1100
+    --iterations 3000:          E = -10.522425 +- 0.006839, variance 0.9577
+
+The 3000-iteration result is identical, to every printed digit, to Claude's
+seed-0 run: the whole pipeline is deterministic and reproducible.
+Then answered the two checkpoint questions (below).
+
+-----------------------------------------------------------------------------
+WHAT CLAUDE DID
+-----------------------------------------------------------------------------
+
+1. AN EXACT ANSWER TO AIM AT (exact_noninteracting.py)
+
+   Without Coulomb repulsion the electrons are independent, so the exact
+   ground state is one Slater determinant of the 6 lowest one-electron
+   states. Diagonalising h = -1/2 Laplacian + V_moire in plane waves on the
+   9-site supercell gives
+       E0 = -10.5277541 code units = -35.537 meV  (-5.923 meV per electron)
+   converged to about 2e-9 code units (cutoff 30 versus 60). Lowest levels:
+   -3.5519 (one state), then -1.39517 six times. Five electrons share the
+   sixfold level, so the ground state is degenerate (an open shell) -- all
+   six choices have the same energy. This connects to the sixfold Fermi
+   liquid degeneracy in the paper's Appendix E.
+
+2. THE GRADIENT, AND THE IMAGINARY-PART QUESTION (gradient.py,
+   check_phase_gradient.py)
+
+   dE/dtheta = 2 Re < (E_loc - E) conj(O) >,  O = d log|Psi| + i d phase.
+   With a real E_loc the term 2 < Im E_loc * d phase/dtheta > is lost.
+   Checked with no Monte Carlo at all: one electron, a 64x64 grid as exact
+   quadrature, gradient compared with an independently differentiated
+   energy. Relative error versus exact:
+       full estimator                          1.6e-14
+       real part of E_loc only                 0.687
+       authors' loss.py, clipping on, complex  1.6e-14  (nothing clipped)
+       authors' loss.py, clipping off, complex 0.687    (counts the term twice)
+       any of them, real wave function         1.7e-14
+   The clipping-off branch is inherited unchanged from DeepMind's FermiNet;
+   the moire config does not reach it (it clips at 5). The clipping-on
+   branch has the correct phase coefficient for complex E_loc, verified in
+   the limit where clipping changes no values; real clipping biases the
+   gradient on purpose, for lower variance.
+
+3. THE NATURAL GRADIENT (gradient.py)
+
+   Exact stochastic reconfiguration: build the quantum geometric tensor S
+   (2624 x 2624 for our network), solve (S + damping) x = gradient. KFAC,
+   which the authors use, approximates exactly this for large networks
+   (the paper's ~90k parameters would give an S with ~8e9 entries); we use
+   KFAC itself, through kfac-jax, from Stage 8. Two numerical points:
+   negative eigenvalues of S are float32 rounding (the most negative is
+   1.3e-7 times the largest, i.e. float32 precision) but exceed the damping,
+   so they are set to zero before inverting; and the step limit is
+   step.(S + damping).step <= max_step_norm, kfac-jax's norm constraint.
+
+4. TRAINING EXPERIMENT (train.py, plot_training.py)
+
+   6 electrons, 9 sites, moire potential, no Coulomb; SlaterNet with one
+   determinant, 2 layers of width 32 (2624 parameters); 1024 walkers, 3000
+   iterations, lr 0.05/(1 + t/500). Frozen final measurement, meV above
+   exact (approximate errors, no blocking analysis yet):
+                          seed 0            seed 1
+       full gradient      +0.018 +- 0.023   +0.036 +- 0.025
+       real part only     +3.087 +- 0.033   +1.124 +- 0.023
+   Both full-gradient runs end within 1.5 estimated standard errors of the
+   benchmark; real-only ends 1-3 meV higher in these runs and is still
+   slowly descending at iteration 3000. Figure: figures/stage06_training.png.
+
+5. TWO EXTERNAL REVIEWS, AND WHAT CHANGED
+
+   First review (all points checked on the server before changing code):
+   - energy_gradient now centres E_loc with its complex mean. A finite batch
+     has a nonzero mean Im E_loc; centring with only the real part leaves a
+     term 2<Im E_loc><Im O> that points where S has almost no curvature and
+     gets amplified by (S + damping)^-1. New test: a global phase change
+     Psi -> e^{ia} Psi gets exactly zero gradient.
+   - the step limit now includes the damping (Claude's addition, found while
+     checking the review: the old limit let near-zero-curvature directions
+     grow without bound).
+   - the "authors' formula" helper reproduced the clipping-on branch, not
+     clipping-off; both are now written out and labelled.
+   - train.py saves params.npz (parameters and walkers) and records the
+     architecture and JAX version.
+   - softened wording: "descent direction for the estimated gradient", not
+     "always downhill"; the variational bound is on the true ground-state
+     energy; plot titles say "in these runs".
+   Effect on the runs (old -> new, meV above exact): full +0.058 -> +0.018
+   and +0.508 -> +0.036; real-only +5.27 -> +3.09 and +5.89 -> +1.12.
+   Single-seed attribution (seed 1): neither fix +0.508, centring only
+   +0.116, step limit only +0.017, both +0.036 -- one seed, so not general.
+   Second review: no code errors; corrected reporting only ("within 1.5
+   standard errors", not "within error bars"; the seed-1 bump near
+   iteration 2688 is a sampled-energy excursion of unknown cause, and
+   train.py logs each energy before that iteration's update).
+   Tests: 9 (absltest); 6 deliberate breakages, each caught.
+
+6. SERVER CRASH (2026-10-01)
+
+   The server went down hard at about 01:17 while four training processes
+   shared the two GPUs (no shutdown in the log, no error messages; cause not
+   determined), and rebooted into a kernel without the NVIDIA module. I
+   upgraded (now kernel 6.8.0-146, driver 595.91.07). Rule since then: at
+   most one training process per GPU.
+
+Commits: 4149ce9, edffa94, 66a1c3b, 250fd36, 68d75cb, 48985c1 (rename),
+then this entry, tagged stage-06.
+
+-----------------------------------------------------------------------------
+WHAT I NOW UNDERSTAND
+-----------------------------------------------------------------------------
+My answers to the two checkpoint questions (2026-10-08):
+
+### 1. Why Dropping $\text{Im}(E_L)$ Leaves Reported Energy Correct, but Hurts the Optimizer
+
+The reported energy is an **expectation value**, while the optimizer relies on **covariances**.
+
+#### The Expectation Value
+
+For any Hermitian Hamiltonian $\hat{H} = \hat{H}^\dagger$, the exact mathematical expectation value is real:
+
+
+$$\langle E \rangle = \int \vert{}\psi(R)\vert{}^2 E_L(R) \, dR \in \mathbb{R}$$
+
+
+Because the true imaginary part integrates to zero, $\langle \text{Im}(E_L) \rangle = 0$. In Monte Carlo sampling, the imaginary part of the sample mean is just zero-mean stochastic noise. Discarding it when computing $\langle E \rangle$ leaves the estimated energy completely unbiased and correct.
+
+#### The Variational Gradient
+
+The energy gradient with respect to a real parameter $\theta_k$ is derived from:
+
+
+$$\nabla_{\theta_k} \langle E \rangle = \nabla_{\theta_k} \frac{\langle \psi \vert{} \hat{H} \vert{} \psi \rangle}{\langle \psi \vert{} \psi \rangle}$$
+
+Writing $\psi(R)$ in polar form $\psi(R) = e^{\ln \vert{}\psi(R)\vert{} + i \phi(R)}$, the logarithmic derivative is complex:
+
+
+$$O_k(R) \equiv \frac{\partial \ln \psi(R)}{\partial \theta_k} = \frac{\partial \ln \vert{}\psi(R)\vert{}}{\partial \theta_k} + i \frac{\partial \phi(R)}{\partial \theta_k} = u_k(R) + i v_k(R)$$
+
+
+where $u_k = \text{Re}(O_k)$ affects the **amplitude** (magnitude) and $v_k = \text{Im}(O_k)$ affects the **phase**.
+
+Similarly, write the local energy in terms of its real and imaginary parts:
+
+
+$$E_L(R) = E_R(R) + i E_I(R)$$
+
+The exact energy gradient evaluated over the distribution $\vert{}\psi\vert{}^2$ is:
+
+
+$$\nabla_{\theta_k} \langle E \rangle = 2 \, \text{Re} \, \mathbb{E}\left[ \big(E_L(R) - \langle E \rangle\big)^* O_k(R) \right]$$
+
+Expanding the complex product inside the expectation:
+
+
+$$\big(E_R - \langle E \rangle - i E_I\big) \big(u_k + i v_k\big) = \Big[(E_R - \langle E \rangle) u_k + E_I v_k\Big] + i \Big[(E_R - \langle E \rangle) v_k - E_I u_k\Big]$$
+
+Taking the real part yields:
+
+
+$$\nabla_{\theta_k} \langle E \rangle = 2 \, \mathbb{E}\Big[(E_R - \langle E \rangle) u_k\Big] + 2 \, \mathbb{E}\Big[E_I v_k\Big]$$
+
+Look closely at the second term:
+
+
+$$2 \, \mathbb{E}\Big[\text{Im}(E_L) \cdot \text{Im}(O_k)\Big] = 2 \, \text{cov}\Big(\text{Im}(E_L), \frac{\partial \phi}{\partial \theta_k}\Big)$$
+
+Even though $\mathbb{E}[\text{Im}(E_L)] = 0$, the correlation between $\text{Im}(E_L)$ and the phase gradients $\frac{\partial \phi}{\partial \theta_k}$ is **not zero**.
+
+If you drop $\text{Im}(E_L)$ inside the optimizer:
+
+1. You set this second term to zero.
+2. The optimizer loses the gradient component that informs how parameters affect the **quantum phase** $\phi(R)$.
+3. Because changes in phase directly alter the kinetic energy ($-\frac{1}{2}\nabla^2 \psi$), the optimizer follows a distorted, incorrect gradient direction. It stalls at an artificial plateau with higher variational energy.
+
+---
+
+### 2. Why the Real-Part-Only Gradient Is Exact When $\psi$ Is Real
+
+When the wavefunction $\psi(R)$ is strictly real-valued:
+
+1. **The Phase is Trivial:** $\phi(R) = 0$ (or constant $\pi$), which means:
+
+$$v_k(R) = \text{Im}(O_k(R)) = \frac{\partial \phi(R)}{\partial \theta_k} \equiv 0$$
+
+
+
+The log-derivatives $O_k(R)$ are entirely real.
+2. **The Local Energy is Strictly Real:**
+
+$$E_L(R) = \frac{\hat{H}\psi(R)}{\psi(R)} = -\frac{1}{2}\frac{\nabla^2 \psi(R)}{\psi(R)} + V(R)$$
+
+
+
+If $\hat{H}$ is real (no magnetic field or complex gauge potential) and $\psi(R)$ is real, then $\nabla^2 \psi(R)$ and $V(R)$ are strictly real everywhere in configuration space. Therefore:
+
+$$E_I(R) = \text{Im}(E_L(R)) \equiv 0 \quad \text{pointwise}$$
+
+
+
+Now revisit the gradient expansion:
+
+
+$$\nabla_{\theta_k} \langle E \rangle = 2 \, \mathbb{E}\Big[(E_R - \langle E \rangle) u_k\Big] + 2 \, \underbrace{\mathbb{E}\Big[E_I v_k\Big]}_{= 0}$$
+
+Because both $E_I = 0$ and $v_k = 0$ hold identically at every point $R$, no non-zero term was discarded. The real-part formula is no longer an approximation—it is mathematically identical to the full expression.
+
+Claude's notes on these answers (my text above is unchanged):
+- "It stalls at an artificial plateau" is stronger than our runs show:
+  after the fixes both real-only runs were still slowly descending at
+  iteration 3000. What they show is that it ended 1-3 meV higher in these
+  runs.
+- A real wave function's phase is not one constant: it jumps between 0 and
+  pi across the nodes and is constant in between, so d phase/d theta = 0
+  everywhere except on the nodes, which have zero volume. The conclusion
+  stands.
+
+-----------------------------------------------------------------------------
+STILL UNCLEAR
+-----------------------------------------------------------------------------
+- Whether dropping Im E_loc matters at the authors' scale (KFAC with the
+  Fisher metric, Coulomb, ~1e5 parameters, 2e5 iterations). Stage 8 test:
+  rerun Fig. 5 with the complex E_loc kept.
+- Error bars are approximate until we use blocking analysis (pyblock, in the
+  environment) in Stage 8.
+- The learning-rate factor of 100 between the paper (eta0 = 10) and the
+  moire config (0.1) is still unresolved.
+
+-----------------------------------------------------------------------------
+NEXT
+-----------------------------------------------------------------------------
+Stage 7: the Coulomb repulsion under periodic boundary conditions -- 2D
+Ewald summation, the Madelung term, the neutralising background -- checked
+against an independent value and against the authors' implementation, then
+added to the local energy.
+
+-----------------------------------------------------------------------------
+HANDOFF NOTES
+-----------------------------------------------------------------------------
+    cd ~/moire-nnvmc && source .venv/bin/activate
+    cd learn/stage06_natural_gradient
+    JAX_PLATFORMS=cpu python test_stage06.py          # 9 tests, ~35 s
+    JAX_PLATFORMS=cpu python check_phase_gradient.py  # the grid check
+    python train.py --iterations 3000 --out ../../runs/stage06/full   # GPU, ~5 min
+    (add --seed 1, or --estimator real_only)
+Runs (gitignored): runs/stage06/{full,full_seed1,real_only,real_only_seed1},
+ablation/, v1_before_fixes/. Each has history.csv, summary.json, params.npz.
+Plot: uv run --no-project --with matplotlib --with pandas python plot_training.py
+Server: one training process per GPU; check nvidia-smi after any kernel
+update (the driver modules are per kernel).
