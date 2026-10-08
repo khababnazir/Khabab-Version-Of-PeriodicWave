@@ -25,8 +25,10 @@ own SlaterNet at eps = 10 (-31.35) lies *above* our 9-site value.
 6 electrons). Read off the plot by eye (about +-0.05 meV): SlaterNet about
 -57.9 and -31.6, self-attention about -59.5 and -32.3 meV per electron. Our
 determinant, never optimised with Coulomb, lies above the paper's SlaterNet
-at both eps, as expected: Hartree-Fock is the lowest single-determinant
-energy. Fixed in `interacting_energy.py` (docstring and printout) and in
+at both eps. That is expected, but it is a numerical comparison, not a bound:
+every single determinant lies above the true Hartree-Fock minimum, and
+neither calculation bounds the other (see section 7). Fixed in
+`interacting_energy.py` (docstring and printout) and in
 `docs/reproduction_map.md` item 8.
 
 The conclusion that Table I reports energy per electron was right and stands.
@@ -91,9 +93,10 @@ term is a finite-supercell artefact and vanishes as the supercell grows.
 
 The demo now compares all 84 ways of putting 6 electrons on the 9 sites. Every
 site is an equivalent moire minimum, so only the Coulomb energy separates the
-arrangements. The lowest energy, -59.582 meV per electron at eps = 5, belongs
-to exactly the 3 honeycombs; the next arrangement is 2.597 meV per electron
-higher.
+arrangements. The lowest Coulomb energy, -59.582 meV per electron at eps = 5,
+belongs to exactly the 3 honeycombs; the next arrangement is 2.597 meV per
+electron higher. This is a classical problem restricted to the sites (no
+kinetic energy, no relaxation off the sites), not the quantum ground state.
 
 ### 6. Smaller points
 
@@ -108,6 +111,27 @@ higher.
   same NaN gradient; VMC never needs it.
 - **Unused function:** `local_energy_with_coulomb`, the function training
   will use, was never called. The demo now uses it.
+
+### 7. Wording corrected after a second review (same day)
+
+An external review of `ab5639d` found no error in the calculation. It
+reproduced the five tests, the eta check (2.7e-15 code units, i.e. our
+relative 6.6e-16), U, the gradient against finite differences (9.2e-9), and
+the 84-arrangement demo. It corrected three explanations:
+
+- **The SlaterNet comparison** was worded as if the paper's energy had to lie
+  below ours. Only the true Hartree-Fock minimum bounds both determinants.
+  The paper's value lying lower is an expectation, not a bound, and both
+  numbers are Monte Carlo estimates.
+- **The 84-arrangement demo** was called "the classical limit". It is a
+  restricted problem: electrons fixed on the moire sites, Coulomb energy only,
+  no kinetic energy, no relaxation off the sites. A true classical limit
+  would minimise over continuous positions.
+- **The eta test** was said to catch mistakes in "every term that contains
+  eta". It is a consistency check: it catches mistakes that change how a term
+  depends on eta, not every conceivable error (adding a constant to the pair
+  potential, for instance, would pass it). The outside references, Wigner
+  crystals and the authors' code, are what make the overall check convincing.
 
 ### Caught before the first commit
 

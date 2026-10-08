@@ -54,11 +54,14 @@ erfc(eta |G|), so only small |G| contribute.
 
 eta only decides how the work is shared: a small eta makes the real-space sum
 short and the reciprocal sum long, a large eta the opposite.  The total cannot
-depend on it, and test_stage07.py checks that it does not.  That check catches
-mistakes in every term that contains eta (the erfc arguments, the background,
-the self-term of the Madelung constant), but not in the pieces without eta,
-such as the factors of 1/2 or the interaction strength.  Those are checked
-against perfect Wigner crystals, whose energies are known, and against the
+depend on it, and test_stage07.py checks that it does not.  That is a
+consistency check between the terms.  It catches mistakes that change how a
+term depends on eta (an erfc argument, the background and the self-term of
+the Madelung constant were each broken on purpose and caught), but it is
+blind to anything that does not depend on eta, such as the factors of 1/2 or
+the interaction strength, and no consistency check can rule out every error.
+What makes the overall check convincing is the comparison with outside
+references: perfect Wigner crystals, whose energies are published, and the
 authors' code.
 
 The authors write the same split with  gamma = 1 / (2 eta)^2  and set
@@ -271,14 +274,17 @@ if __name__ == "__main__":
     print(f"triangular crystal, 9 electrons:  E/N * r_s = {per_electron * r_s:+.10f}"
           f"   (published -1.106102587)")
 
-    # Filling 2/3 in the classical limit.  Put every electron on a site, a
-    # minimum of the moire potential.  All 9 minima are equivalent, so the
-    # moire energy is the same for every arrangement and only the Coulomb
-    # energy decides; it depends only on relative positions, so it does not
-    # matter where the minima sit within the cell.  Try all C(9, 6) = 84
-    # arrangements.  The paper finds a honeycomb crystal at strong interaction
-    # (Sec. V C, Fig. 6b): the 3 empty sites form one of the three
-    # sqrt3 x sqrt3 sublattices.
+    # Filling 2/3: a classical comparison with electrons restricted to the
+    # moire sites.  Put every electron on a site, a minimum of the moire
+    # potential.  All 9 minima are equivalent, so the moire energy is the same
+    # for every arrangement and only the Coulomb energy decides; it depends
+    # only on relative positions, so it does not matter where the minima sit
+    # within the cell.  Try all C(9, 6) = 84 arrangements.
+    # This is a restricted problem: no kinetic energy, and the electrons may
+    # not relax away from the sites, so it is not the quantum ground state.
+    # It is a picture to set beside what the paper finds at strong
+    # interaction (Sec. V C, Fig. 6b): a honeycomb crystal, the 3 empty sites
+    # forming one of the three sqrt3 x sqrt3 sublattices.
     import itertools
     energy_of = jax.jit(lambda positions: coulomb_energy(setup, positions, strength=U))
     arrangements = list(itertools.combinations(range(9), 6))
@@ -291,8 +297,8 @@ if __name__ == "__main__":
 
     levels = np.unique(np.round(per_electron_meV, 9))
     lowest = [occupied for occupied, e in zip(arrangements, per_electron_meV) if e < levels[0] + 1e-6]
-    print(f"\nfilling 2/3, classical limit, eps = 5 (U = {U:.6f}): all {len(arrangements)} "
-          f"ways to put 6 electrons on the 9 sites")
+    print(f"\nfilling 2/3, electrons restricted to the 9 sites, eps = 5 (U = {U:.6f}): "
+          f"all {len(arrangements)} arrangements of 6 electrons")
     print(f"  lowest Coulomb energy  {levels[0]:+9.3f} meV per electron, reached by "
           f"{len(lowest)} arrangements, honeycombs: {all(is_honeycomb(o) for o in lowest)}")
     print(f"  next lowest            {levels[1]:+9.3f} meV per electron  "

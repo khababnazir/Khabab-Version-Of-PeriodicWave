@@ -1,9 +1,11 @@
 """
 Stage 7 checks.  Run:  python test_stage07.py
 
-  1. The energy does not depend on the splitting parameter eta.  This checks
-     every term that contains eta: the erfc arguments, the background and the
-     self-term of the Madelung constant.
+  1. The energy does not depend on the splitting parameter eta.  A consistency
+     check between the terms: it catches mistakes that change how a term
+     depends on eta (a wrong erfc argument, background or Madelung self-term
+     were each made on purpose and caught), but not mistakes without eta.
+     Tests 3 and 4 compare with outside references.
   2. The authors' default truncation (5 shells of images) is converged.
   3. Perfect Wigner crystals have their published energies.  This is the one
      check that depends neither on eta nor on the authors' code, so it guards

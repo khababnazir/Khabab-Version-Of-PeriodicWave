@@ -20,12 +20,14 @@ H its energy is a variational upper bound for this 9-site system, though not
 a tight one.
 
 What to compare it with.  The paper's Fig. 5 is the same system (3 x 3
-supercell, 6 electrons, filling 2/3).  No single determinant can go below
-Hartree-Fock, the best single determinant, and the paper's SlaterNet is its
-estimate of Hartree-Fock; ours was never optimised with Coulomb, so it should
-come out above that.  Table I is NOT a valid comparison: it is for 27 sites,
-and the energy per electron changes with system size, so it bounds nothing
-here.
+supercell, 6 electrons, filling 2/3).  The rigorous statement is that every
+single determinant lies above the true Hartree-Fock minimum of this system.
+The paper's SlaterNet is a determinant optimised WITH Coulomb, so presumably
+close to that minimum; ours was optimised without it, so we expect ours to
+come out higher.  But neither calculation bounds the other, and both are
+Monte Carlo estimates: this is a numerical comparison, not a variational
+bound.  Table I is not a valid comparison at all: it is for 27 sites, and
+the energy per electron changes with system size.
 
 For a FIXED wave function <H_ee> is exactly proportional to U, so the two
 eps values below differ in a trivial way.  They stop being trivially related
@@ -140,8 +142,9 @@ def main():
         print(f"  {eps:4.1f}  {interaction[eps]:9.6f}   {mean:+9.3f} +- {error:5.3f}     "
               f"{FIG5[eps]['SlaterNet']:+7.1f}     {FIG5[eps]['self-attention']:+7.1f}")
 
-    print("\n  Ours should lie above the paper's SlaterNet: both are single determinants")
-    print("  for the same Hamiltonian, and only theirs was optimised for it.")
+    print("\n  We expect the paper's SlaterNet, optimised with Coulomb, to lie below ours,")
+    print("  which was optimised without it.  An expectation, not a variational bound:")
+    print("  only the true Hartree-Fock minimum bounds both, and both are estimates.")
     print("  Error bars treat the 20 rounds as independent; blocking comes in Stage 8.")
 
 
