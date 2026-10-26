@@ -28,15 +28,22 @@ Those three, plus the two options above when used, are the ONLY changes.
 They are listed in overrides.json, and the full configuration is written to
 config.json in the run folder.
 
-Two safety rules, checked before JAX starts (so a refused start never
-touches a GPU that a real run is using):
-  - only one process may train into a folder: if another run_moire.py is
-    already writing there, this one stops;
+Safety rules, all checked before JAX starts, so a refused start never
+touches a GPU that a real run is using:
+  - only one process may train into a folder.  The process takes an
+    exclusive lock on <folder>/.training.lock and holds it until it ends;
+    the operating system releases it when the process exits for any reason,
+    a crash included, so no stale lock is ever left behind.  Runs started
+    before locks existed hold none, so a scan of the running processes
+    catches those as well.  Either way the exit code is 75 (ALREADY_RUNNING),
+    which launch_fig5.sh treats as "this GPU is busy", not as a failure;
   - a resumed run must be the same experiment: network, eps and laplacian
     must match what the folder was started with.  Only the iteration count
-    may change, and each start is appended to starts.log.
+    may change, and each start is appended to starts.log;
+  - a run whose last checkpoint is already its final step exits at once.
 """
 import argparse
+import fcntl
 import json
 import os
 import runpy
@@ -86,14 +93,48 @@ def this_process_and_its_parents():
     return chain
 
 
-def other_processes_training_into(folder):
-    """Process ids of other run_moire.py processes whose --out is this folder.
+ALREADY_RUNNING = 75        # exit code: another process is training into this folder
 
-    Reads each process's command line and working directory from /proc
-    (Linux), so it also finds runs started by an older version of this
-    script, or by hand.  This process and its parents are skipped: a wrapper
-    such as `timeout 600 python run_moire.py --out ...` carries the same
-    command line, but it is this run, not another one.
+
+def refuse(message, code):
+    print(message, file=sys.stderr)
+    sys.exit(code)
+
+
+def hold_folder_lock(folder):
+    """Take the exclusive lock on <folder>/.training.lock, or stop.
+
+    The returned file must stay open for as long as the training runs:
+    closing it, or the process ending, releases the lock.
+    """
+    handle = open(folder / ".training.lock", "w")
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        refuse(f"refusing to start: another process holds the lock on {folder}", ALREADY_RUNNING)
+    return handle
+
+
+def out_argument(argv):
+    """The value of --out in a command line, written as '--out PATH' or '--out=PATH'."""
+    for i, argument in enumerate(argv):
+        if argument == "--out" and i + 1 < len(argv):
+            return argv[i + 1]
+        if argument.startswith("--out="):
+            return argument.split("=", 1)[1]
+    return None
+
+
+def older_runs_training_into(folder):
+    """Process ids of run_moire.py processes that write into this folder without a lock.
+
+    Only needed for runs started before the lock existed.  Reads each
+    process's command line and working directory from /proc (Linux).  This
+    process and its parents are skipped: a wrapper such as
+    `timeout 600 python run_moire.py --out ...` carries the same command line.
+    A relative --out is resolved against the other process's working
+    directory, which is only reliable once that process is training; a
+    process that holds the lock is caught by hold_folder_lock instead.
     """
     ours = this_process_and_its_parents()
     found = []
@@ -105,12 +146,28 @@ def other_processes_training_into(folder):
             working_directory = os.readlink(process / "cwd")
         except OSError:                      # the process ended, or is not ours
             continue
-        if not any(a.endswith("run_moire.py") for a in argv) or "--out" not in argv:
+        value = out_argument(argv)
+        if value is None or not any(a.endswith("run_moire.py") for a in argv):
             continue
-        their_folder = (Path(working_directory) / argv[argv.index("--out") + 1]).resolve()
-        if their_folder == folder:
+        if (Path(working_directory) / value).resolve() == folder:
             found.append(int(process.name))
     return found
+
+
+def already_finished(folder, iterations):
+    """True if the folder's last checkpoint is the run's final step.
+
+    Training writes a checkpoint at step iterations - 1.  If --iterations was
+    not given, the target is the one the folder was last started with
+    (config.json).  Reads files only, so it needs no JAX.
+    """
+    if iterations is None:
+        config_file = folder / "config.json"
+        if not config_file.exists():
+            return False
+        iterations = json.loads(config_file.read_text())["optim"]["iterations"]
+    steps = [int(p.stem.rsplit("_", 1)[1]) for p in folder.glob("qmcjax_ckpt_*.npz")]
+    return bool(steps) and max(steps) >= iterations - 1
 
 
 def check_same_experiment(folder, command_line, laplacian):
@@ -122,14 +179,16 @@ def check_same_experiment(folder, command_line, laplacian):
     saved_laplacian = saved["overrides"].get(
         "system.make_local_energy_kwargs.kinetic_kwargs.laplacian_method", "folx")
     if saved["authors_command_line"] != command_line or saved_laplacian != laplacian:
-        sys.exit(f"refusing to resume {folder}: it was started with "
-                 f"{saved['authors_command_line']} and laplacian {saved_laplacian}, "
-                 f"this command asks for {command_line} and laplacian {laplacian}. "
-                 f"Use a new --out folder for a different experiment.")
+        refuse(f"refusing to resume {folder}: it was started with "
+               f"{saved['authors_command_line']} and laplacian {saved_laplacian}, "
+               f"this command asks for {command_line} and laplacian {laplacian}. "
+               f"Use a new --out folder for a different experiment.", 1)
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    # allow_abbrev=False: only --out and --out= are accepted, never a
+    # shortened --ou, so older_runs_training_into can find the folder.
+    parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("--network", choices=["CustomPsiformer", "SlaterNet"], required=True)
     parser.add_argument("--eps", type=float, choices=[5.0, 10.0], required=True)
     parser.add_argument("--out", type=Path, required=True)
@@ -139,15 +198,19 @@ def main():
 
     # Safety checks first, before anything imports JAX or touches a GPU.
     out = args.out.resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    lock = hold_folder_lock(out)                       # noqa: F841 -- held until the process ends
+    older = older_runs_training_into(out)
+    if older:
+        refuse(f"refusing to start: process {older} is already training into {out}", ALREADY_RUNNING)
     command_line = authors_command_line(args.network, args.eps)
-    running = other_processes_training_into(out)
-    if running:
-        sys.exit(f"refusing to start: process {running} is already training into {out}")
     check_same_experiment(out, command_line, args.laplacian)
+    if already_finished(out, args.iterations):
+        print(f"{out} has already finished: its last checkpoint is the final step")
+        return
 
     cfg = authors_configuration(command_line)
 
-    out.mkdir(parents=True, exist_ok=True)
     overrides = {"log.save_path": str(out), "debug.deterministic": True}
     cfg.log.save_path = str(out)
     cfg.debug.deterministic = True

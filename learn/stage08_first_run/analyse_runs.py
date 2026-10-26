@@ -22,8 +22,9 @@ means stop being correlated, and reads the error off there.
 What the error bar does NOT cover.  Blocking assumes the series is
 stationary.  During training the parameters still change, so the energy may
 still be drifting down, and blocking cannot remove that bias.  The drift
-column shows how large it is: if it is not small compared with the error bar,
-the run has not converged and its average is only provisional.  A
+column helps judge it: a drift several times its error means the run is
+still descending and its average is only provisional; a drift of one or two
+errors is suggestive, not conclusive.  A
 frozen-parameter evaluation is the cleaner number, and is a separate step.
 
 Comparing with Fig. 5.  The paper's dashed lines are also means of the local
@@ -72,29 +73,51 @@ def load_history(folder):
     existing number (utils/writers.py, rename_file).  So the order is
     train_stats_1, _2, ..., and train_stats.csv is always the newest.
     Overlap.  After a crash, the old file can hold steps beyond the last
-    checkpoint; the resumed run computes those steps again, from the
-    checkpoint.  The newer file wins, because its steps belong to the run
-    that continues.
+    checkpoint.  Those steps belong to a continuation that was abandoned:
+    the resumed run starts again from the checkpoint.  So when a newer file
+    starts at step s, every older row from step s on is dropped -- not only
+    the steps the newer file has reached so far.
     """
     numbered = sorted(glob.glob(str(folder / "train_stats_*.csv")),
                       key=lambda f: int(Path(f).stem.rsplit("_", 1)[1]))
-    files = numbered + [str(folder / "train_stats.csv")]
-    frames = [pd.read_csv(f) for f in files if Path(f).exists() and Path(f).stat().st_size > 0]
-    frames = [frame for frame in frames if len(frame) > 0]
-    if not frames:
+    history = None
+    for file in numbered + [str(folder / "train_stats.csv")]:
+        if not Path(file).exists() or Path(file).stat().st_size == 0:
+            continue
+        segment = pd.read_csv(file)
+        if len(segment) == 0:
+            continue
+        if history is not None:
+            history = history[history["step"] < segment["step"].min()]
+        history = segment if history is None else pd.concat([history, segment])
+    if history is None:
         return None
-    history = pd.concat(frames).drop_duplicates("step", keep="last").sort_values("step")
-    return history.reset_index(drop=True)
+    return history.sort_values("step").reset_index(drop=True)
+
+
+MINIMUM_SAMPLES = 32        # fewer than this: report no error bar at all
 
 
 def blocked_mean(values):
-    """Mean and its standard error from a blocking analysis (Flyvbjerg-Petersen)."""
-    stats = pyblock.blocking.reblock(np.asarray(values, dtype=float))
+    """The mean of `values`, and its standard error from a blocking analysis.
+
+    The mean is always the plain mean of all the values.  Blocking is used
+    only for the error bar: at deeper levels pyblock drops a trailing value
+    whenever the count is odd, so the mean IT reports can leave samples out.
+    With too few samples, or no plateau in the blocking curve, the error is
+    reported as unavailable (nan) rather than guessed.
+    """
+    values = np.asarray(values, dtype=float)
+    if len(values) == 0:
+        return float("nan"), float("nan")
+    mean = float(np.mean(values))
+    if len(values) < MINIMUM_SAMPLES:
+        return mean, float("nan")
+    stats = pyblock.blocking.reblock(values)
     optimal = pyblock.blocking.find_optimal_block(len(values), stats)[0]
-    if np.isnan(optimal):          # no plateau found: the series is too short to trust
-        return float(np.mean(values)), float("nan")
-    block = stats[int(optimal)]
-    return float(block.mean), float(block.std_err)
+    if np.isnan(optimal):
+        return mean, float("nan")
+    return mean, float(stats[int(optimal)].std_err)
 
 
 def describe(folder):
@@ -135,8 +158,9 @@ def main():
         paper = FIG5[(run["eps"], run["network"])]
         print(f"{run['name']:20s} {run['steps']:7d}  {run['mean']:+11.4f} +- {run['error']:.4f}  "
               f"{run['drift']:+8.4f} +- {run['drift_error']:.4f}  {paper:+6.1f}  {run['mean'] - paper:+6.3f}")
-    print("  drift = mean of the window's first half minus its second half; "
-          "positive means still going down.")
+    print("  drift = mean of the window's first half minus its second half.  Positive means the")
+    print("  second half was lower; it is evidence of continued descent only when it is several")
+    print("  times its error, and the error itself assumes each half is stationary.")
 
     print("\ncorrelation energy per electron, E(self-attention) - E(SlaterNet):")
     by_name = {run["name"]: run for run in runs}
