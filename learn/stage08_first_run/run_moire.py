@@ -40,7 +40,9 @@ touches a GPU that a real run is using:
   - a resumed run must be the same experiment: network, eps and laplacian
     must match what the folder was started with.  Only the iteration count
     may change, and each start is appended to starts.log;
-  - a run whose last checkpoint is already its final step exits at once.
+  - a run whose newest COMPLETE checkpoint is its final step exits at once.
+    A damaged checkpoint is moved into unreadable_checkpoints/ and the run
+    resumes from the one before it.
 """
 import argparse
 import fcntl
@@ -50,7 +52,10 @@ import runpy
 import sys
 import tempfile
 import time
+import zipfile
 from pathlib import Path
+
+import numpy as np
 
 AUTHORS_CONFIG = (Path(__file__).resolve().parents[2] / "external" / "PeriodicWave"
                   / "periodicwave" / "configs" / "run_2deg_triangular_potential.py")
@@ -154,8 +159,56 @@ def older_runs_training_into(folder):
     return found
 
 
+def checkpoint_problem(path, step):
+    """None if the checkpoint is complete, otherwise what is wrong with it.
+
+    Complete means: every member of the .npz (a zip archive) passes its CRC
+    check, and the step saved inside it ('t') equals the step in its name.
+    Nothing is unpickled, so this needs no JAX.
+    """
+    try:
+        with zipfile.ZipFile(path) as archive:
+            damaged = archive.testzip()
+            if damaged is not None:
+                return f"damaged member {damaged}"
+            if "t.npy" not in archive.namelist():
+                return "no saved step in it"
+        with np.load(path, allow_pickle=False) as contents:
+            saved_step = int(contents["t"])
+    except (OSError, EOFError, ValueError, KeyError, zipfile.BadZipFile) as error:
+        return f"{type(error).__name__}: {error}"
+    if saved_step != step:
+        return f"it holds step {saved_step}, not {step}"
+    return None
+
+
+def newest_valid_checkpoint(folder):
+    """The step of the newest complete checkpoint, or None.  Damaged ones are moved aside.
+
+    The authors' restore (checkpoint.find_last_checkpoint) already skips a
+    file numpy cannot open, such as an empty or truncated one, and falls back
+    to the one before.  But np.load reads only the archive's directory, so it
+    would accept a file whose directory is intact and whose data is damaged,
+    and the restore would then fail.  A file that fails checkpoint_problem is
+    therefore moved into unreadable_checkpoints/ -- never deleted -- so that
+    neither this check nor the authors' restore can pick it.  Called only
+    while this process holds the folder lock, so no run can be writing to it.
+    """
+    for path in sorted(folder.glob("qmcjax_ckpt_*.npz"), reverse=True):
+        step = int(path.stem.rsplit("_", 1)[1])
+        problem = checkpoint_problem(path, step)
+        if problem is None:
+            return step
+        quarantine = folder / "unreadable_checkpoints"
+        quarantine.mkdir(exist_ok=True)
+        path.rename(quarantine / path.name)
+        print(f"warning: {path.name} is unusable ({problem}); moved to "
+              f"unreadable_checkpoints/, resuming from the checkpoint before it", file=sys.stderr)
+    return None
+
+
 def already_finished(folder, iterations):
-    """True if the folder's last checkpoint is the run's final step.
+    """True if the newest complete checkpoint is the run's final step.
 
     Training writes a checkpoint at step iterations - 1.  If --iterations was
     not given, the target is the one the folder was last started with
@@ -166,8 +219,8 @@ def already_finished(folder, iterations):
         if not config_file.exists():
             return False
         iterations = json.loads(config_file.read_text())["optim"]["iterations"]
-    steps = [int(p.stem.rsplit("_", 1)[1]) for p in folder.glob("qmcjax_ckpt_*.npz")]
-    return bool(steps) and max(steps) >= iterations - 1
+    step = newest_valid_checkpoint(folder)
+    return step is not None and step >= iterations - 1
 
 
 def check_same_experiment(folder, command_line, laplacian):
