@@ -8,12 +8,18 @@
 # One process per GPU (see the 2026-10-01 crash note in progress/2026-10-08.txt).
 # Each run takes about 8 hours (7 iterations per second on an RTX 3090).
 #
-# This script is also the restart command: after a crash or reboot, run it
-# again.  Every run resumes from the last checkpoint in its folder (written
-# every 30 minutes); a finished run exits almost immediately.
+# Restarting.  Nothing restarts a run automatically.  After a crash or a
+# reboot, run this script again BY HAND: every run resumes from the last
+# checkpoint in its folder (written every 30 minutes), and a finished run
+# exits almost immediately.  It is safe to run while jobs are still alive:
+# run_moire.py refuses to start in a folder another process is training into.
+#
+# The two runs on one GPU are independent experiments, so if the first one
+# fails, the log says FAILED with its exit code and the second one still runs.
 #
 # Usage:   bash learn/stage08_first_run/launch_fig5.sh        (from ~/moire-nnvmc)
 # Watch:   tail -f runs/stage08/logs/gpu0.log
+#          tail -1 runs/stage08/psiformer_eps5/train_stats.csv
 set -e
 cd "$(dirname "$0")"
 PY=../../.venv/bin/python
@@ -22,8 +28,12 @@ mkdir -p $RUNS/logs
 
 run () {   # gpu network eps folder
     echo "=== $(date '+%F %T')  start $4 on GPU $1"
-    CUDA_VISIBLE_DEVICES=$1 PYTHONUNBUFFERED=1 $PY run_moire.py --network $2 --eps $3 --out $RUNS/$4
-    echo "=== $(date '+%F %T')  finished $4"
+    if CUDA_VISIBLE_DEVICES=$1 PYTHONUNBUFFERED=1 $PY run_moire.py --network $2 --eps $3 --out $RUNS/$4; then
+        echo "=== $(date '+%F %T')  finished $4"
+    else
+        status=$?                     # save it: the $(date) below would reset $?
+        echo "=== $(date '+%F %T')  FAILED $4 (exit code $status)"
+    fi
 }
 
 export -f run

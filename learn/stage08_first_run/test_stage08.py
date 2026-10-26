@@ -12,9 +12,15 @@ It checks both of the authors' kinetic-energy paths:
   folx     (what their moire config uses): must equal the REAL part of ours,
            with the imaginary part exactly zero -- it is computed and then
            discarded by jnp.real (pbc/hamiltonian.py);
-  default  must equal ours completely, imaginary part included.  So a run
-           that keeps Im E_loc in the gradient needs only
-           laplacian_method = 'default'.
+  default  must equal ours completely, imaginary part included.
+
+What this does not show.  The test is about the local ENERGY.  Whether the
+authors' training would then use the imaginary part correctly in the
+GRADIENT is a separate question about their loss.py.  Stage 6 reproduced
+loss.py line by line and found it correct when clipping is on
+(check_phase_gradient.py), but did not run their code.  That has to be tested
+directly before a 'default' run is used to decide whether dropping Im E_loc
+matters.  Nor does this test cover the optimiser, checkpoints, or convergence.
 """
 import json
 import sys
