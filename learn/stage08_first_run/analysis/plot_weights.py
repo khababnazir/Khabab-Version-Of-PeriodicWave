@@ -31,7 +31,7 @@ from pathlib import Path
 
 # observables.py imports JAX, which would otherwise start up a visible GPU and reserve
 # most of its memory.  Plotting needs no GPU, and must not share one with a training run.
-os.environ.setdefault("JAX_PLATFORMS", "cpu")
+os.environ["JAX_PLATFORMS"] = "cpu"
 
 import numpy as np
 import pandas as pd
@@ -120,7 +120,10 @@ def load(name):
     # at one distance.  Dividing pair by pair removes the uneven site
     # occupations, so 1 means "independent sites".  Equal mixture of the three
     # honeycombs: 0.75 for neighbours, 1.5 at sqrt(3).  Random filling with one
-    # electron per site: 15/16 for both.
+    # electron per site: 15/16 for both.  But a SINGLE honeycomb that stays in
+    # place gives 1 for its filled pairs (and 0/0 for empty sites), so these
+    # numbers alone cannot rule out a crystal: read them with the filling
+    # patterns and S(kappa).
     sites = observables.moire_sites(supercell)
     distance = np.array([[float(np.linalg.norm(observables.minimum_image(np.asarray(a - b), supercell)))
                           for b in sites] for a in sites])

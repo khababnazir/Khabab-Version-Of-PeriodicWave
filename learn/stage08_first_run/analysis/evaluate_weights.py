@@ -43,10 +43,14 @@ function and the weights were just fitted to samples like the ones
 measured (not tested separately).  A 1600-iteration test run's training
 energy was 0.08 below its frozen final weights, and it failed the check.
 
-Safety, as for the training (run_moire.py): only one process may evaluate
-into a folder (an exclusive lock on <out>/.evaluation.lock, exit code 75 if
-it is taken), and an existing evaluation is never replaced without
---overwrite.  There is no resuming: an evaluation takes minutes.
+Safety, as for the training: only one process may evaluate into a folder
+(a lock on <out>/.evaluation.lock), and only one job may use a GPU (the lock
+runs/stage08/gpu_locks/gpuN.lock, which the training queues of launch_fig5.sh
+hold too -- two processes on one GPU crashed the machine on 2026-10-01).  A
+refused start exits with code 75.  A finished evaluation is not repeated and
+never replaced without --overwrite; "the same evaluation" means the same
+checkpoint (by its md5 checksum), steps, burn-in and seed, with all output
+files present.  There is no resuming: an evaluation takes minutes.
 
 Output, in the --out folder (rewritten every 1000 steps):
     energies.csv      one row per step: batch means of E_loc and its parts,
@@ -103,14 +107,41 @@ def hold_folder_lock(folder):
     return handle
 
 
-def existing_evaluation(folder, steps):
-    """None if the folder holds no evaluation, 'finished' if it holds this one, else 'other'."""
+def existing_evaluation(folder, wanted):
+    """None if the folder holds no evaluation, 'finished' if it holds this one, complete, else 'other'.
+
+    `wanted` holds what identifies an evaluation: the checkpoint's md5
+    checksum (so a longer training run, or a moved folder, is recognised
+    correctly), the steps requested, the burn-in and the seed.
+    """
     summary_file = folder / "summary.json"
     if not summary_file.exists():
         return None
     summary = json.loads(summary_file.read_text())
-    finished = summary.get("steps_done") == summary.get("steps_requested") == steps
-    return "finished" if finished else "other"
+    same = all(summary.get(name) == value for name, value in wanted.items())
+    complete = (summary.get("steps_done") == summary.get("steps_requested")
+                and (folder / "energies.csv").exists() and (folder / "observables.npz").exists())
+    return "finished" if same and complete else "other"
+
+
+def hold_gpu_lock():
+    """Take runs/stage08/gpu_locks/gpuN.lock for the one GPU in CUDA_VISIBLE_DEVICES, or stop.
+
+    The training queues of launch_fig5.sh hold the same file with `flock`,
+    the same operating-system lock as fcntl.flock here, so an evaluation never
+    starts on a GPU that a training run or another evaluation is using.
+    """
+    gpu = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    if not gpu.isdigit():
+        sys.exit("make exactly one GPU visible, e.g. CUDA_VISIBLE_DEVICES=0")
+    (RUNS / "gpu_locks").mkdir(parents=True, exist_ok=True)
+    handle = open(RUNS / "gpu_locks" / f"gpu{gpu}.lock", "w")
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print(f"refusing to start: GPU {gpu} is in use by another job", file=sys.stderr)
+        sys.exit(ALREADY_RUNNING)
+    return handle
 
 
 # ------------------------------------------------- the trained wave function
@@ -294,14 +325,23 @@ def main():
     out = (args.out or RUNS / "evaluation" / run.name).resolve()
     out.mkdir(parents=True, exist_ok=True)
 
-    # 1. Folder safety, before anything imports JAX or touches a GPU.
+    # 1. Folder and GPU safety, before anything imports JAX or touches a GPU.
+    #    The final checkpoint is the last step of the iterations recorded in config.json.
     lock = hold_folder_lock(out)                                   # noqa: F841 -- held until exit
-    existing = existing_evaluation(out, args.steps)
+    final_step = json.loads((run / "config.json").read_text())["optim"]["iterations"] - 1
+    final = run / f"qmcjax_ckpt_{final_step:06d}.npz"
+    if not final.exists():
+        sys.exit(f"{final} does not exist: has the run finished?")
+    checkpoint_md5 = file_md5(final)
+    wanted = dict(checkpoint_md5=checkpoint_md5, steps_requested=args.steps,
+                  burn_in=args.burn_in, seed=args.seed)
+    existing = existing_evaluation(out, wanted)
     if existing == "finished" and not args.overwrite:
         print(f"{out} already holds this evaluation; use --overwrite to repeat it")
         return
     if existing == "other" and not args.overwrite:
         sys.exit(f"{out} holds a different or unfinished evaluation; use --overwrite to replace it")
+    gpu_lock = hold_gpu_lock()                                     # noqa: F841 -- held until exit
 
     import jax
     import jax.numpy as jnp
@@ -309,10 +349,9 @@ def main():
     import observables
 
     # 2. The configuration, network and weights the run was trained with.
+    #    (training_configuration checks the whole configuration against config.json.)
     cfg, trained_with = training_configuration(run)
     network, local_energy, charges = build_like_train_py(cfg)
-    final_step = cfg.optim.iterations - 1
-    final = run / f"qmcjax_ckpt_{final_step:06d}.npz"
     if jax.device_count() != 1:
         sys.exit("make exactly one GPU visible (CUDA_VISIBLE_DEVICES=0): "
                  "the checkpoint was saved from one device")
@@ -366,7 +405,7 @@ def main():
 
     training_energy = np.loadtxt(run / "train_stats.csv", delimiter=",", skiprows=1, usecols=1)
     summary = dict(run=str(run), checkpoint=final.name, checkpoint_step=final_step,
-                   checkpoint_md5=file_md5(final),
+                   checkpoint_md5=checkpoint_md5,
                    authors_command_line=trained_with["authors_command_line"],
                    training_overrides=trained_with["overrides"],
                    steps_requested=args.steps, burn_in=args.burn_in,

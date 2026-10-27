@@ -25,7 +25,7 @@ import os
 import sys
 from pathlib import Path
 
-os.environ.setdefault("JAX_PLATFORMS", "cpu")      # before JAX is imported: keep off the GPUs
+os.environ["JAX_PLATFORMS"] = "cpu"      # before JAX is imported: always off the GPUs
 
 import numpy as np
 
