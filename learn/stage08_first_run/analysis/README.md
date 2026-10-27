@@ -13,7 +13,7 @@ to `runs/stage08/evaluation/`, `runs/stage08/figures/` and
 | `launch_evaluation.sh` | Runs `evaluate_weights.py` for all four networks, one queue per GPU, using the same GPU locks as the training. About 12 minutes in total. A finished evaluation is never repeated. | `evaluation/logs/` |
 | `observables.py` | The functions that turn sampled electron positions into the density, the pair correlation, the site-filling patterns and the structure factor S(q) — and that normalise them afterwards. No files; used by the two scripts around it. | — |
 | `plot_weights.py` | Makes figures 2–6 and the two result tables from the evaluations. Refuses evaluation folders whose files disagree about how many steps they contain. | `figures/2_…` to `figures/6_…`, `results/*.csv` |
-| `check_translation_symmetry.py` | Tests whether a trained network keeps the translation symmetry of the moiré lattice (it does not: moving every electron by one lattice vector changes log\|Ψ\| by about 0.5–2.9 on average). This explains the uneven site filling in figures 3 and 6. Prints only. | — |
+| `check_translation_symmetry.py` | Tests whether a trained network keeps the translation symmetry of the moiré lattice (it does not: moving every electron by one lattice vector changes log\|Ψ\| by about 0.5–2.9 on average). This explains the uneven site filling in figures 3 and 6. Runs on the CPU; prints only. | — |
 | `test_observables.py` | Five checks of `observables.py`: the sites are the potential minima, minimum-image distances are the shortest, the three honeycombs are the three lowest-Coulomb arrangements, uncorrelated electrons give flat maps and S(q) = 1, and a perfect honeycomb gives the S(q) worked out by hand. | — |
 
 ## How to run
@@ -27,7 +27,7 @@ JAX_PLATFORMS=cpu ../../../.venv/bin/python test_observables.py
 uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
 bash launch_evaluation.sh                                         # GPUs, about 12 minutes
 uv run --no-project --python ../../../.venv/bin/python --with matplotlib python plot_weights.py
-CUDA_VISIBLE_DEVICES=0 ../../../.venv/bin/python check_translation_symmetry.py
+../../../.venv/bin/python check_translation_symmetry.py                # CPU, under a minute
 ```
 
 The project environment has no matplotlib; `uv run --no-project ... --with

@@ -40,7 +40,8 @@ touches a GPU that a real run is using:
     those too; it was removed after commit 9f31afb);
   - a resumed run must be the same experiment: network, eps and laplacian
     must match what the folder was started with.  Only the iteration count
-    may change, and each start is appended to starts.log;
+    may change, and only with --iterations: a restart without it keeps the
+    target the folder was started with.  Each start is appended to starts.log;
   - a run whose newest COMPLETE checkpoint is its final step exits at once.
     A damaged checkpoint is moved into unreadable_checkpoints/ and the run
     resumes from the one before it.
@@ -181,6 +182,22 @@ def already_finished(folder, iterations):
     return step is not None and step >= iterations - 1
 
 
+def iteration_target(folder, requested):
+    """How many iterations to train for: --iterations if given, else what the folder was started with.
+
+    A run started with --iterations 1600 and restarted without the option
+    must still stop at 1600, not continue to the authors' 200,000.  The
+    target is read from overrides.json, which records --iterations when it
+    was used; None means the authors' own value.
+    """
+    if requested is not None:
+        return requested
+    saved_file = folder / "overrides.json"
+    if not saved_file.exists():
+        return None
+    return json.loads(saved_file.read_text())["overrides"].get("optim.iterations")
+
+
 def check_same_experiment(folder, command_line, laplacian):
     """A folder that already holds a run may only be resumed with the same settings."""
     saved_file = folder / "overrides.json"
@@ -211,7 +228,8 @@ def main():
     lock = hold_folder_lock(out)                       # noqa: F841 -- held until the process ends
     command_line = authors_command_line(args.network, args.eps)
     check_same_experiment(out, command_line, args.laplacian)
-    if already_finished(out, args.iterations):
+    iterations = iteration_target(out, args.iterations)
+    if already_finished(out, iterations):
         print(f"{out} has already finished: its last checkpoint is the final step")
         return
 
@@ -220,9 +238,9 @@ def main():
     overrides = {"log.save_path": str(out), "debug.deterministic": True}
     cfg.log.save_path = str(out)
     cfg.debug.deterministic = True
-    if args.iterations is not None:
-        overrides["optim.iterations"] = args.iterations
-        cfg.optim.iterations = args.iterations
+    if iterations is not None:
+        overrides["optim.iterations"] = iterations
+        cfg.optim.iterations = iterations
     if args.laplacian != "folx":
         overrides["system.make_local_energy_kwargs.kinetic_kwargs.laplacian_method"] = args.laplacian
         cfg.system.make_local_energy_kwargs["kinetic_kwargs"]["laplacian_method"] = args.laplacian

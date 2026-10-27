@@ -1,8 +1,9 @@
 """
 Stage 8 -- does a trained network respect the moire lattice's translation symmetry?
 
-Run (one GPU, under a minute for all four runs):
-    CUDA_VISIBLE_DEVICES=0 python check_translation_symmetry.py
+Run (on the CPU, under a minute for all four runs; it never touches a GPU,
+so it is safe while a training run is going):
+    python check_translation_symmetry.py
 
 The Hamiltonian does not change when every electron is moved by the same
 moire lattice vector a (the moire potential repeats with period a; kinetic
@@ -20,8 +21,11 @@ that never mixed between translated copies of a pattern.  If log|Psi|
 changes under a lattice translation, it is the wave function.
 """
 import json
+import os
 import sys
 from pathlib import Path
+
+os.environ.setdefault("JAX_PLATFORMS", "cpu")      # before JAX is imported: keep off the GPUs
 
 import numpy as np
 

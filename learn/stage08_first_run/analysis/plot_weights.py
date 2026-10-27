@@ -25,8 +25,13 @@ our runs are the 9-site, 6-electron system of Fig. 5.  The comparison is
 qualitative: does eps = 10 look like a liquid and eps = 5 like a crystal?
 """
 import json
+import os
 import sys
 from pathlib import Path
+
+# observables.py imports JAX, which would otherwise start up a visible GPU and reserve
+# most of its memory.  Plotting needs no GPU, and must not share one with a training run.
+os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import numpy as np
 import pandas as pd

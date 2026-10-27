@@ -17,8 +17,8 @@ All data and figures are written to `runs/stage08/` (see the `README.md` there).
 | `run_moire.py` | Trains **one** run with the authors' code. It executes their config script and intercepts the call to `train.train`, so the configuration is exactly theirs; it changes only the output folder and the seed (fixed, so a run can be repeated), and optionally the iteration count or the Laplacian method. Safety before JAX starts: one process per folder (a lock), a resumed run must be the same experiment, and a finished run (a complete final checkpoint) exits at once. |
 | `launch_fig5.sh` | Starts the four runs of Fig. 5, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; self-attention first, then SlaterNet). Each queue holds `runs/stage08/gpu_locks/gpuN.lock`, so two jobs never share a GPU. |
 | `test_stage08.py` | The authors' local energy equals ours (Stages 4 + 7) on one wave function: the `folx` path gives the real part, the `default` path the full complex value. Without this, nothing from earlier stages could check their numbers. |
-| `test_run_moire.py` | The checkpoint check that `run_moire.py` relies on before resuming or declaring a run finished: incomplete, truncated, wrongly named or damaged files are rejected. |
-| `test_launcher.sh` | The queue logic of `launch_fig5.sh`, with stand-in programs instead of training: a busy GPU stops the queue, a failed run does not, a second queue for the same GPU refuses to start. |
+| `test_run_moire.py` | The checkpoint check that `run_moire.py` relies on before resuming or declaring a run finished (incomplete, truncated, wrongly named or damaged files are rejected; tested on small stand-in checkpoints, so no trained run is needed), and that a restart keeps the iteration target the run was started with. |
+| `test_launcher.sh` | The queue logic of `launch_fig5.sh`, with stand-in programs instead of training: a busy GPU stops the queue, a failed run does not, a second queue for the same GPU refuses to start. It counts the runs started in each case and fails if a count is wrong. |
 | `analysis/` | Everything after training. Its own `README.md` lists the files. |
 
 ## How to run
