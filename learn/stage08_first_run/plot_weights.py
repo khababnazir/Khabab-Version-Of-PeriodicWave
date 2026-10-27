@@ -11,6 +11,11 @@ Reads runs/stage08/evaluation/<run>/ and writes into runs/stage08/evaluation/:
     evaluation_density.png          n(r) for each run                   -- paper Fig. 6(a, b)
     evaluation_pair_correlation.png g(dr) maps and g(r)                 -- paper Fig. 6(c, d)
     evaluation_order.png            (a) which sites are filled, (b) structure factor S(q)
+    evaluation_stationarity.png     site occupations step by step
+
+It refuses evaluation folders whose three files disagree about the number of
+steps (a crash between two writes).  The titles describe what is plotted;
+what the plots show is for the reader, not written into the code.
 
 Comparing with Fig. 6.  The paper's Fig. 6 is for 27 sites (18 electrons);
 our runs are the 9-site, 6-electron system of Fig. 5.  The comparison is
@@ -62,7 +67,17 @@ def load(name):
     N = summary["n_electrons"]
     to_meV_per_electron = ENERGY_UNIT_MEV / N
     supercell = np.array(summary["supercell"])
-    n_configurations = summary["n_configurations"]
+
+    # The three files are written one after the other; after a crash between
+    # two writes they would describe different numbers of steps.
+    steps = int(totals.pop("steps_done"))
+    if not steps == summary["steps_done"] == len(energies):
+        sys.exit(f"{folder}: the output files disagree (observables.npz {steps} steps, "
+                 f"summary.json {summary['steps_done']}, energies.csv {len(energies)}); "
+                 "evaluate again with --overwrite")
+    n_configurations = steps * summary["batch_size"]
+    assert totals["density"].sum() == N * n_configurations, "every electron counted once"
+    assert totals["patterns"].sum() == n_configurations, "every configuration counted once"
 
     run = dict(name=name, network=command_line[-1], eps=round(1.0 / float(command_line[3]), 6),
                summary=summary, totals=totals, N=N, supercell=supercell,
@@ -91,15 +106,22 @@ def load(name):
     # 3 of the 84 would be honeycombs.
     run["p_honeycombs_if_random"] = 3 / 84 * (1.0 - run["p_double"])
 
-    # Site-pair correlation: <n_k n_l> / <n>^2 averaged over pairs at one distance.
-    # Honeycomb crystal: 0.75 for neighbours, 1.5 at sqrt(3).  Random filling: 15/16 for both.
+    # Site-pair correlation <n_k n_l> / (<n_k> <n_l>), averaged over the pairs
+    # at one distance.  Dividing pair by pair removes the uneven site
+    # occupations, so 1 means "independent sites".  Equal mixture of the three
+    # honeycombs: 0.75 for neighbours, 1.5 at sqrt(3).  Random filling with one
+    # electron per site: 15/16 for both.
     sites = observables.moire_sites(supercell)
     distance = np.array([[float(np.linalg.norm(observables.minimum_image(np.asarray(a - b), supercell)))
                           for b in sites] for a in sites])
-    products = totals["occupation_products"] / n_configurations
-    mean_squared = run["occupation"].mean() ** 2
-    run["g_site_neighbours"] = products[np.isclose(distance, 1.0)].mean() / mean_squared
-    run["g_site_sqrt3"] = products[np.isclose(distance, np.sqrt(3))].mean() / mean_squared
+    ratio = (totals["occupation_products"] / n_configurations) / np.outer(run["occupation"], run["occupation"])
+    run["g_site_neighbours"] = ratio[np.isclose(distance, 1.0)].mean()
+    run["g_site_sqrt3"] = ratio[np.isclose(distance, np.sqrt(3))].mean()
+
+    # Is the spatial pattern stationary?  Per-step S(kappa) and site occupations.
+    run["occupation_series"] = energies[[f"occupation_{k}" for k in range(observables.N_SITES)]].to_numpy()
+    halves = np.array_split(energies["S_kappa"].to_numpy(), 2)
+    run["S_kappa_halves"] = (halves[0].mean(), halves[1].mean())
 
     # Structure factor at the supercell's wave vectors.
     run["q"] = np.array(summary["q_vectors"])
@@ -127,6 +149,7 @@ def summary_table(runs):
             g_site_neighbours=r["g_site_neighbours"], g_site_sqrt3=r["g_site_sqrt3"],
             occupation_min=r["occupation"].min(), occupation_max=r["occupation"].max(),
             S_kappa=r["S_kappa"], S_kappa_connected=r["S_kappa_connected"],
+            S_kappa_first_half=r["S_kappa_halves"][0], S_kappa_second_half=r["S_kappa_halves"][1],
             steps_per_second=r["summary"]["steps_per_second"]))
     return pd.DataFrame(rows)
 
@@ -172,7 +195,7 @@ def energy_figure(runs, path):
     ax_a.set_yticks(range(len(runs)), [label_for(r) for r in runs])
     ax_a.set_ylim(len(runs) - 0.5, -0.5)              # first run at the top
     ax_a.set_xlabel("E/N \u2212 Fig. 5 value (meV)")
-    ax_a.set_title("a   Frozen weights reproduce the training energies,\n     within the Fig. 5 reading accuracy")
+    ax_a.set_title("a   Frozen-weight and training energy estimates,\n     relative to Fig. 5")
     handles, labels = ax_a.get_legend_handles_labels()
     handles.append(Patch(facecolor="0.92", edgecolor="0.6", lw=0.5))
     labels.append("Fig. 5 read by eye: \u00b10.05 meV")
@@ -259,7 +282,7 @@ def pair_correlation_figure(runs, path):
             if column == 0:
                 ax.set_ylabel("\u0394y / a$_M$")
     fig.colorbar(image, ax=fig.axes, location="left", shrink=0.7, pad=0.02,
-                 label="pair correlation g(\u0394r)  (1 = uncorrelated)")
+                 label="g(\u0394r), relative to uniform independent electrons")
 
     # g(r) averaged over directions, one panel per eps.
     for row, eps in enumerate((10.0, 5.0)):
@@ -306,7 +329,7 @@ def order_figure(runs, path):
     ax_a.set_ylim(len(runs) - 0.5, -0.5)              # first run at the top
     ax_a.set_xlim(0, 1)
     ax_a.set_xlabel("fraction of sampled configurations")
-    ax_a.set_title("a   Honeycomb fillings are no more common than at random")
+    ax_a.set_title("a   Probabilities of site-filling patterns")
     ax_a.legend(frameon=False, fontsize=6, loc="upper center", bbox_to_anchor=(0.5, -0.25), ncol=3)
 
     # (b) structure factor at every wave vector of the supercell.  The full S(q),
@@ -324,8 +347,39 @@ def order_figure(runs, path):
     ax_b.axhline(1.0, color="0.6", lw=0.5)
     ax_b.set_xlabel("|q| a$_M$")
     ax_b.set_ylabel("S(q) = \u27e8|\u03c1$_q$|\u00b2\u27e9 / N")
-    ax_b.set_title("b   No crystal peak at \u03ba in any run", pad=10)
+    ax_b.set_title("b   Static structure factor", pad=10)
     ax_b.legend(frameon=False, fontsize=6, loc="upper right")
+    fig.savefig(path, dpi=300)
+    plt.close(fig)
+
+
+def stationarity_figure(runs, path, window=100):
+    """Site occupations step by step: is the spatial pattern the same at the start and the end?
+
+    The energy's blocking analysis says nothing about this: the walkers can
+    mix quickly in energy and still move slowly between spatial patterns.
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(7.2, 3.6), sharex=True, sharey=True, constrained_layout=True)
+    by_key = {(r["network"], r["eps"]): r for r in runs}
+    shades = plt.get_cmap("Greys")(np.linspace(0.35, 0.95, observables.N_SITES))
+    for row, network in enumerate(("CustomPsiformer", "SlaterNet")):
+        for column, eps in enumerate((10.0, 5.0)):
+            ax = axes[row, column]
+            r = by_key.get((network, eps))
+            if r is None:
+                ax.set_axis_off()
+                continue
+            smooth = pd.DataFrame(r["occupation_series"]).rolling(window).mean().to_numpy()
+            for k in range(observables.N_SITES):
+                ax.plot(smooth[:, k], color=shades[k], lw=0.6)
+            ax.axhline(r["N"] / observables.N_SITES, color=COLOURS[network], lw=0.8, ls="--")
+            ax.set_title(label_for(r))
+            if row == 1:
+                ax.set_xlabel("evaluation step")
+            if column == 0:
+                ax.set_ylabel("site occupation")
+    fig.suptitle(f"Occupation of each of the 9 sites during the evaluation (moving average over {window} steps;"
+                 " dashed: 2/3, a uniform filling)", x=0.02, ha="left", fontsize=8)
     fig.savefig(path, dpi=300)
     plt.close(fig)
 
@@ -342,6 +396,7 @@ def main():
     density_figure(runs, EVALUATION / "evaluation_density.png")
     pair_correlation_figure(runs, EVALUATION / "evaluation_pair_correlation.png")
     order_figure(runs, EVALUATION / "evaluation_order.png")
+    stationarity_figure(runs, EVALUATION / "evaluation_stationarity.png")
     print(f"figures written to {EVALUATION}")
 
 

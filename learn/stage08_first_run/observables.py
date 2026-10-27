@@ -203,10 +203,15 @@ def density_map(counts, n_configurations, supercell):
 
 
 def pair_correlation_map(counts, n_configurations, n_electrons, supercell):
-    """g(dr): 1 where the other electrons are where they would be if uncorrelated.
+    """g(dr), normalised to independent electrons spread UNIFORMLY over the cell.
 
-    Normalised by what N(N-1) independent, uniformly spread pairs would give,
-    so g -> 1 without correlations and g = 0 where the other electrons never are.
+    g = 1 means as many pairs at dr as N(N-1) uniformly spread, independent
+    electrons would give; g = 0 where the other electrons never are.  In a
+    moire potential the density itself is modulated, so even independent
+    electrons give g != 1 -- above 1 at lattice vectors, where both electrons
+    of a pair tend to sit on sites.  A peak in g is therefore not by itself
+    a sign of correlation; the site-pair numbers in plot_weights.py remove
+    the density modulation.
     """
     pairs_per_configuration = n_electrons * (n_electrons - 1)
     expected_per_bin = n_configurations * pairs_per_configuration / counts.size
@@ -214,7 +219,7 @@ def pair_correlation_map(counts, n_configurations, n_electrons, supercell):
 
 
 def radial_pair_correlation(counts, n_configurations, n_electrons, supercell, r_max):
-    """g(r) from pair_distance_counts, normalised the same way; valid up to r_max."""
+    """g(r) from pair_distance_counts, with the same uniform reference; valid up to r_max."""
     edges = np.linspace(0.0, r_max, len(counts) + 1)
     shell_area = np.pi * (edges[1:] ** 2 - edges[:-1] ** 2)
     pairs_per_configuration = n_electrons * (n_electrons - 1) / 2

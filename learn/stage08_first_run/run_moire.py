@@ -33,10 +33,11 @@ touches a GPU that a real run is using:
   - only one process may train into a folder.  The process takes an
     exclusive lock on <folder>/.training.lock and holds it until it ends;
     the operating system releases it when the process exits for any reason,
-    a crash included, so no stale lock is ever left behind.  Runs started
-    before locks existed hold none, so a scan of the running processes
-    catches those as well.  Either way the exit code is 75 (ALREADY_RUNNING),
-    which launch_fig5.sh treats as "this GPU is busy", not as a failure;
+    a crash included, so no stale lock is ever left behind.  A refused start
+    exits with code 75 (ALREADY_RUNNING), which launch_fig5.sh treats as
+    "this GPU is busy", not as a failure.  (Until all runs started before
+    the lock existed had ended, a scan of the running processes caught
+    those too; it was removed after commit 9f31afb);
   - a resumed run must be the same experiment: network, eps and laplacian
     must match what the folder was started with.  Only the iteration count
     may change, and each start is appended to starts.log;
@@ -87,17 +88,6 @@ def authors_configuration(command_line):
     return captured["cfg"]
 
 
-def this_process_and_its_parents():
-    """Process ids from this one up to init, read from /proc/<pid>/stat (Linux)."""
-    chain = set()
-    pid = os.getpid()
-    while pid > 1:
-        chain.add(pid)
-        stat = Path(f"/proc/{pid}/stat").read_text()
-        pid = int(stat.rsplit(")", 1)[1].split()[1])     # the field after "(name) state" is the parent
-    return chain
-
-
 ALREADY_RUNNING = 75        # exit code: another process is training into this folder
 
 
@@ -120,59 +110,27 @@ def hold_folder_lock(folder):
     return handle
 
 
-def out_argument(argv):
-    """The value of --out in a command line, written as '--out PATH' or '--out=PATH'."""
-    for i, argument in enumerate(argv):
-        if argument == "--out" and i + 1 < len(argv):
-            return argv[i + 1]
-        if argument.startswith("--out="):
-            return argument.split("=", 1)[1]
-    return None
-
-
-def older_runs_training_into(folder):
-    """Process ids of run_moire.py processes that write into this folder without a lock.
-
-    Only needed for runs started before the lock existed.  Reads each
-    process's command line and working directory from /proc (Linux).  This
-    process and its parents are skipped: a wrapper such as
-    `timeout 600 python run_moire.py --out ...` carries the same command line.
-    A relative --out is resolved against the other process's working
-    directory, which is only reliable once that process is training; a
-    process that holds the lock is caught by hold_folder_lock instead.
-    """
-    ours = this_process_and_its_parents()
-    found = []
-    for process in Path("/proc").iterdir():
-        if not process.name.isdigit() or int(process.name) in ours:
-            continue
-        try:
-            argv = (process / "cmdline").read_bytes().decode().split("\0")
-            working_directory = os.readlink(process / "cwd")
-        except OSError:                      # the process ended, or is not ours
-            continue
-        value = out_argument(argv)
-        if value is None or not any(a.endswith("run_moire.py") for a in argv):
-            continue
-        if (Path(working_directory) / value).resolve() == folder:
-            found.append(int(process.name))
-    return found
+CHECKPOINT_MEMBERS = {"t.npy", "data.npy", "params.npy", "opt_state.npy", "mcmc_width.npy"}
 
 
 def checkpoint_problem(path, step):
     """None if the checkpoint is complete, otherwise what is wrong with it.
 
-    Complete means: every member of the .npz (a zip archive) passes its CRC
-    check, and the step saved inside it ('t') equals the step in its name.
-    Nothing is unpickled, so this needs no JAX.
+    Complete means: the .npz (a zip archive) holds everything the authors'
+    checkpoint.restore reads (t, data, params, opt_state, mcmc_width), every
+    member passes its CRC check, and the step saved inside it ('t') equals
+    the step in its name.  The pickled members are not unpickled (that would
+    need JAX), so a member that is intact but holds the wrong content would
+    still pass; the CRC check does catch any damage after it was written.
     """
     try:
         with zipfile.ZipFile(path) as archive:
             damaged = archive.testzip()
             if damaged is not None:
                 return f"damaged member {damaged}"
-            if "t.npy" not in archive.namelist():
-                return "no saved step in it"
+            missing = CHECKPOINT_MEMBERS - set(archive.namelist())
+            if missing:
+                return f"missing {sorted(missing)}"
         with np.load(path, allow_pickle=False) as contents:
             saved_step = int(contents["t"])
     except (OSError, EOFError, ValueError, KeyError, zipfile.BadZipFile) as error:
@@ -239,9 +197,7 @@ def check_same_experiment(folder, command_line, laplacian):
 
 
 def main():
-    # allow_abbrev=False: only --out and --out= are accepted, never a
-    # shortened --ou, so older_runs_training_into can find the folder.
-    parser = argparse.ArgumentParser(allow_abbrev=False)
+    parser = argparse.ArgumentParser(allow_abbrev=False)      # full option names only
     parser.add_argument("--network", choices=["CustomPsiformer", "SlaterNet"], required=True)
     parser.add_argument("--eps", type=float, choices=[5.0, 10.0], required=True)
     parser.add_argument("--out", type=Path, required=True)
@@ -253,9 +209,6 @@ def main():
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
     lock = hold_folder_lock(out)                       # noqa: F841 -- held until the process ends
-    older = older_runs_training_into(out)
-    if older:
-        refuse(f"refusing to start: process {older} is already training into {out}", ALREADY_RUNNING)
     command_line = authors_command_line(args.network, args.eps)
     check_same_experiment(out, command_line, args.laplacian)
     if already_finished(out, args.iterations):
