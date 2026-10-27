@@ -65,6 +65,7 @@ def minimum_image(d, supercell):
     a neighbouring image is closer.  So the 9 nearest images are compared and
     the shortest is kept.
     """
+    d = jnp.asarray(d)              # NumPy float64 becomes JAX's default float32 here, quietly
     supercell = jnp.asarray(supercell, dtype=d.dtype)
     s = d @ jnp.linalg.inv(supercell).T
     s = s - jnp.round(s)

@@ -24,7 +24,7 @@ import jax
 import jax.numpy as jnp
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "stage07_ewald"))
+sys.path.insert(0, str(HERE.parents[1] / "stage07_ewald"))
 import observables  # noqa: E402
 from ewald import make_ewald_setup, coulomb_energy, moire_interaction_strength  # noqa: E402
 from periodicwave.pbc import hamiltonian, lattices  # noqa: E402

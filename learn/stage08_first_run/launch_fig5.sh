@@ -14,23 +14,22 @@
 # exits at once.
 #
 # Running it while jobs are alive does no harm, by two locks:
-#   - each GPU queue holds runs/stage08/logs/gpuN.lock while it runs, so a
+#   - each GPU queue holds runs/stage08/gpu_locks/gpuN.lock while it runs, so a
 #     second queue for the same GPU stops immediately;
 #   - run_moire.py exits with code 75 if its folder is already being trained
-#     (by a locked run, or by an older run started before locks existed).
 #     The queue then stops too, rather than starting its next run on a GPU
 #     that is busy.
 # A run that fails for any other reason is logged as FAILED with its exit
 # code, and the queue goes on to its next run, which is independent.
 #
 # Usage:   bash learn/stage08_first_run/launch_fig5.sh        (from ~/moire-nnvmc)
-# Watch:   tail -f runs/stage08/logs/gpu0.log
-#          tail -1 runs/stage08/psiformer_eps5/train_stats.csv
+# Watch:   tail -f runs/stage08/training/logs/gpu0.log
+#          tail -1 runs/stage08/training/psiformer_eps5/train_stats.csv
 ALREADY_RUNNING=75
 
 run () {   # gpu network eps folder;  returns run_moire.py's exit code
     echo "=== $(date '+%F %T')  start $4 on GPU $1"
-    CUDA_VISIBLE_DEVICES=$1 PYTHONUNBUFFERED=1 $PY run_moire.py --network $2 --eps $3 --out $RUNS/$4
+    CUDA_VISIBLE_DEVICES=$1 PYTHONUNBUFFERED=1 $PY run_moire.py --network $2 --eps $3 --out $RUNS/training/$4
     status=$?                         # save it: the $(date) below would reset $?
     if [ $status -eq 0 ]; then
         echo "=== $(date '+%F %T')  finished $4"
@@ -44,7 +43,7 @@ run () {   # gpu network eps folder;  returns run_moire.py's exit code
 
 queue () {   # gpu, then groups of three: network eps folder
     gpu=$1; shift
-    exec 9> "$RUNS/logs/gpu$gpu.lock"
+    exec 9> "$RUNS/gpu_locks/gpu$gpu.lock"
     if ! flock --nonblock 9; then
         echo "=== $(date '+%F %T')  a queue for GPU $gpu is already running; this one stops"
         return 0
@@ -68,10 +67,10 @@ set -e
 cd "$(dirname "$0")"
 PY=../../.venv/bin/python
 RUNS=../../runs/stage08
-mkdir -p $RUNS/logs
+mkdir -p $RUNS/training/logs $RUNS/gpu_locks
 
 export -f run queue
 export PY RUNS ALREADY_RUNNING
-setsid nohup bash -c "queue 0 CustomPsiformer 5 psiformer_eps5   SlaterNet 5 slaternet_eps5"   >> $RUNS/logs/gpu0.log 2>&1 &
-setsid nohup bash -c "queue 1 CustomPsiformer 10 psiformer_eps10 SlaterNet 10 slaternet_eps10" >> $RUNS/logs/gpu1.log 2>&1 &
-echo "launched; logs in runs/stage08/logs/"
+setsid nohup bash -c "queue 0 CustomPsiformer 5 psiformer_eps5   SlaterNet 5 slaternet_eps5"   >> $RUNS/training/logs/gpu0.log 2>&1 &
+setsid nohup bash -c "queue 1 CustomPsiformer 10 psiformer_eps10 SlaterNet 10 slaternet_eps10" >> $RUNS/training/logs/gpu1.log 2>&1 &
+echo "launched; logs in runs/stage08/training/logs/"

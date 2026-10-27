@@ -2,7 +2,7 @@
 Stage 8 -- evaluate a trained network with its weights FROZEN.
 
 Run (one GPU, one evaluation):
-    CUDA_VISIBLE_DEVICES=0 python evaluate_weights.py ../../runs/stage08/psiformer_eps5
+    CUDA_VISIBLE_DEVICES=0 python evaluate_weights.py ../../../runs/stage08/training/psiformer_eps5
 Options: --steps N     evaluation steps after burn-in (default 10000)
          --burn-in N   steps that only move the walkers, first (default 200)
          --out DIR     default runs/stage08/evaluation/<run name>
@@ -40,8 +40,8 @@ proof: different wave functions can have similar energies.  It assumes a
 converged run.  While the energy still falls quickly, training reports it
 too low -- most likely because the walkers lag behind the changing wave
 function and the weights were just fitted to samples like the ones
-measured (not tested separately).  The 1600-iteration smoke run's training
-energy is 0.08 below its frozen final weights, and it fails the check.
+measured (not tested separately).  A 1600-iteration test run's training
+energy was 0.08 below its frozen final weights, and it failed the check.
 
 Safety, as for the training (run_moire.py): only one process may evaluate
 into a folder (an exclusive lock on <out>/.evaluation.lock, exit code 75 if
@@ -72,8 +72,9 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[1] / "runs" / "stage08"
+RUNS = HERE.parents[2] / "runs" / "stage08"
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))      # run_moire.py, one folder up
 
 DENSITY_BINS = 90              # 30 bins per moire cell along each supercell vector
 RADIAL_BINS = 150
@@ -282,7 +283,7 @@ def save(out, rows, totals, summary):
 
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/psiformer_eps5")
+    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/training/psiformer_eps5")
     parser.add_argument("--steps", type=int, default=10000)
     parser.add_argument("--burn-in", type=int, default=200)
     parser.add_argument("--out", type=Path, default=None)

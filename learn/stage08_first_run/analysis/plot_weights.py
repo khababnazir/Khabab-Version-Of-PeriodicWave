@@ -3,15 +3,18 @@ Stage 8 -- figures and table from the frozen-weight evaluations.
 
 Run after evaluate_weights.py (CPU is enough; matplotlib is layered on top of
 the project environment without changing it):
-    uv run --no-project --python ../../.venv/bin/python --with matplotlib python plot_weights.py
+    uv run --no-project --python ../../../.venv/bin/python --with matplotlib python plot_weights.py
+(from learn/stage08_first_run/analysis)
 
-Reads runs/stage08/evaluation/<run>/ and writes into runs/stage08/evaluation/:
-    evaluation_summary.csv          one row per run, all numbers below
-    evaluation_energy.png           (a) frozen vs training vs Fig. 5, (b) blocking curves
-    evaluation_density.png          n(r) for each run                   -- paper Fig. 6(a, b)
-    evaluation_pair_correlation.png g(dr) maps and g(r)                 -- paper Fig. 6(c, d)
-    evaluation_order.png            (a) which sites are filled, (b) structure factor S(q)
-    evaluation_stationarity.png     site occupations step by step
+Reads runs/stage08/evaluation/<run>/ and runs/stage08/training/<run>/, writes
+    runs/stage08/results/energies_meV_per_electron.csv   energies, one row per run
+    runs/stage08/results/electron_structure.csv          where the electrons are, one row per run
+    runs/stage08/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
+    runs/stage08/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
+    runs/stage08/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
+    runs/stage08/figures/5_site_filling_and_structure_factor.png
+    runs/stage08/figures/6_site_occupation_during_evaluation.png
+(Figure 1, the training curves, comes from analyse_runs.py.)
 
 It refuses evaluation folders whose three files disagree about the number of
 steps (a crash between two writes).  The titles describe what is plotted;
@@ -39,8 +42,9 @@ sys.path.insert(0, str(HERE))
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, FIG5, COLOURS, LABELS, blocked_mean, describe  # noqa: E402
 
-RUNS = HERE.parents[1] / "runs" / "stage08"
-EVALUATION = RUNS / "evaluation"
+STAGE08 = HERE.parents[2] / "runs" / "stage08"
+TRAINING, EVALUATION = STAGE08 / "training", STAGE08 / "evaluation"
+FIGURES, RESULTS = STAGE08 / "figures", STAGE08 / "results"
 ORDER = ["psiformer_eps10", "slaternet_eps10", "psiformer_eps5", "slaternet_eps5"]
 FIG5_READING_ACCURACY = 0.05      # meV per electron, our by-eye reading of the plot
 KAPPA = 4 * np.pi / 3             # corner of the moire Brillouin zone (a_M = 1)
@@ -91,8 +95,9 @@ def load(name):
         run[part] = energies[part].mean() * to_meV_per_electron
     run["sigma_local_energy_meV"] = np.sqrt(energies["variance"].mean()) * ENERGY_UNIT_MEV
     run["pmove"] = energies["pmove"].mean()
-    training = describe(RUNS / name)
+    training = describe(TRAINING / name)
     run["training"], run["training_error"] = training["mean"], training["error"]
+    run["training_drift"], run["training_drift_error"] = training["drift"], training["drift_error"]
     run["fig5"] = FIG5[(run["eps"], run["network"])]
 
     # Which sites are filled.
@@ -133,25 +138,31 @@ def load(name):
     return run
 
 
-def summary_table(runs):
-    rows = []
-    for r in runs:
-        rows.append(dict(
-            run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
-            evaluation_steps=r["summary"]["steps_done"], configurations=r["n_configurations"],
-            E_frozen=r["frozen"], E_frozen_error=r["frozen_error"],
-            E_training_last20=r["training"], E_training_error=r["training_error"],
-            E_fig5_by_eye=r["fig5"], kinetic=r["kinetic"], moire=r["moire"], coulomb=r["coulomb"],
-            sigma_local_energy_meV=r["sigma_local_energy_meV"], pmove=r["pmove"],
-            P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),
-            P_honeycomb_if_random=r["p_honeycombs_if_random"],
-            P_double_occupancy=r["p_double"],
-            g_site_neighbours=r["g_site_neighbours"], g_site_sqrt3=r["g_site_sqrt3"],
-            occupation_min=r["occupation"].min(), occupation_max=r["occupation"].max(),
-            S_kappa=r["S_kappa"], S_kappa_connected=r["S_kappa_connected"],
-            S_kappa_first_half=r["S_kappa_halves"][0], S_kappa_second_half=r["S_kappa_halves"][1],
-            steps_per_second=r["summary"]["steps_per_second"]))
-    return pd.DataFrame(rows)
+def energy_table(runs):
+    """Energies in meV per electron (sigma_local_energy: meV, whole system), one row per run."""
+    return pd.DataFrame([dict(
+        run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
+        E_training_last20pct=r["training"], E_training_last20pct_error=r["training_error"],
+        training_drift=r["training_drift"], training_drift_error=r["training_drift_error"],
+        E_frozen_weights=r["frozen"], E_frozen_weights_error=r["frozen_error"],
+        E_fig5_read_by_eye=r["fig5"],
+        kinetic=r["kinetic"], moire=r["moire"], coulomb=r["coulomb"],
+        sigma_local_energy_meV=r["sigma_local_energy_meV"], pmove=r["pmove"],
+        evaluation_steps=r["summary"]["steps_done"], configurations=r["n_configurations"],
+        steps_per_second=r["summary"]["steps_per_second"]) for r in runs])
+
+
+def structure_table(runs):
+    """Where the electrons are, one row per run (definitions in runs/stage08/results/README.md)."""
+    return pd.DataFrame([dict(
+        run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
+        P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),
+        P_honeycomb_if_random=r["p_honeycombs_if_random"], P_two_nearest_one_site=r["p_double"],
+        g_site_neighbours=r["g_site_neighbours"], g_site_sqrt3=r["g_site_sqrt3"],
+        occupation_min=r["occupation"].min(), occupation_max=r["occupation"].max(),
+        S_kappa=r["S_kappa"], S_kappa_connected=r["S_kappa_connected"],
+        S_kappa_first_half=r["S_kappa_halves"][0], S_kappa_second_half=r["S_kappa_halves"][1])
+        for r in runs])
 
 
 # ------------------------------------------------------------------ helpers
@@ -388,16 +399,19 @@ def main():
     runs = [r for r in (load(name) for name in ORDER) if r is not None]
     if not runs:
         sys.exit(f"no evaluations found in {EVALUATION}")
-    table = summary_table(runs)
-    table.to_csv(EVALUATION / "evaluation_summary.csv", index=False)
-    with pd.option_context("display.width", 200, "display.max_columns", 30, "display.precision", 4):
-        print(table.T.to_string(header=False))
-    energy_figure(runs, EVALUATION / "evaluation_energy.png")
-    density_figure(runs, EVALUATION / "evaluation_density.png")
-    pair_correlation_figure(runs, EVALUATION / "evaluation_pair_correlation.png")
-    order_figure(runs, EVALUATION / "evaluation_order.png")
-    stationarity_figure(runs, EVALUATION / "evaluation_stationarity.png")
-    print(f"figures written to {EVALUATION}")
+    FIGURES.mkdir(exist_ok=True)
+    RESULTS.mkdir(exist_ok=True)
+    for table, name in ((energy_table(runs), "energies_meV_per_electron.csv"),
+                        (structure_table(runs), "electron_structure.csv")):
+        table.to_csv(RESULTS / name, index=False)
+        with pd.option_context("display.width", 200, "display.precision", 4):
+            print(f"\n{name}\n" + table.set_index("run").T.to_string())
+    energy_figure(runs, FIGURES / "2_frozen_weight_energies.png")
+    density_figure(runs, FIGURES / "3_electron_density.png")
+    pair_correlation_figure(runs, FIGURES / "4_pair_correlation.png")
+    order_figure(runs, FIGURES / "5_site_filling_and_structure_factor.png")
+    stationarity_figure(runs, FIGURES / "6_site_occupation_during_evaluation.png")
+    print(f"\ntables written to {RESULTS}, figures to {FIGURES}")
 
 
 if __name__ == "__main__":

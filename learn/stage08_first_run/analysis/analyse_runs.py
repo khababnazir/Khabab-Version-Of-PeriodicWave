@@ -3,8 +3,9 @@ Stage 8 -- read the training runs, compare with the paper's Fig. 5.
 
 Run (needs matplotlib, which the pinned project environment does not have):
     uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
+(from learn/stage08_first_run/analysis; writes runs/stage08/figures/1_training_curves_vs_fig5.png)
 
-For every run folder in runs/stage08/ it
+For every run folder in runs/stage08/training/ it
   1. joins the run's history files in the order they were written (see
      load_history) and converts the energy to meV per electron, as the paper
      reports it;
@@ -47,7 +48,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-RUNS = Path(__file__).resolve().parents[2] / "runs" / "stage08"
+STAGE08 = Path(__file__).resolve().parents[3] / "runs" / "stage08"
+RUNS = STAGE08 / "training"
 ENERGY_UNIT_MEV = 3.375559          # hbar^2 / (m* a_M^2); learn/stage04_mcmc moire_units()
 N_ELECTRONS = 6
 FINAL_FRACTION = 0.2
@@ -191,7 +193,8 @@ def main():
         ax.set_title(f"eps = {eps:g}   (dashed: paper, Fig. 5)", loc="left", fontsize=8)
         if ax.get_legend_handles_labels()[0]:
             ax.legend(fontsize=6, frameon=False, loc="upper right")
-    out = RUNS / "stage08_fig5.png"
+    out = STAGE08 / "figures" / "1_training_curves_vs_fig5.png"
+    out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=300)
     print(f"\nsaved {out}")
 

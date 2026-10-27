@@ -8,7 +8,7 @@
 #   0   ->  both runs finish
 #   and a second queue for a GPU whose queue is running stops at once.
 W=$(mktemp -d)
-mkdir -p $W/runs/logs
+mkdir -p $W/runs/gpu_locks $W/runs/training
 for code in 0 3 75; do
     printf '#!/bin/bash\necho "      (stand-in ran: $*)"\nexit %s\n' $code > $W/fake$code
     chmod +x $W/fake$code
@@ -22,7 +22,7 @@ for code in 75 3 0; do
     exec 9>&-      # release this test shell's GPU lock; a real queue releases it by exiting
 done
 echo "== a queue for GPU 0 already holds its lock:"
-( flock $W/runs/logs/gpu0.lock sleep 4 ) &
+( flock $W/runs/gpu_locks/gpu0.lock sleep 4 ) &
 sleep 1
 PY=$W/fake0
 queue 0 CustomPsiformer 5 first_run  SlaterNet 5 second_run

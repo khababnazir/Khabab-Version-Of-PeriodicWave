@@ -3,7 +3,7 @@ Stage 8 -- train the authors' own code (PeriodicWave) on the paper's moire syste
 
 Run (one GPU per run):
     CUDA_VISIBLE_DEVICES=0 python run_moire.py --network CustomPsiformer --eps 5 \
-        --out ../../runs/stage08/psiformer_eps5
+        --out ../../runs/stage08/training/psiformer_eps5
 
 Options: --network CustomPsiformer | SlaterNet,  --eps 5 | 10,
          --iterations N   (default: the authors' 200000),

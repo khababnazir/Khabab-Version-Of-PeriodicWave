@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[1] / "runs" / "stage08"
+RUNS = HERE.parents[2] / "runs" / "stage08" / "training"
 sys.path.insert(0, str(HERE))
 WALKERS = 256
 

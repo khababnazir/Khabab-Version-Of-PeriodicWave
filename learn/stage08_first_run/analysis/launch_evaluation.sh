@@ -7,25 +7,25 @@
 # SlaterNet one about 3, so both queues finish in about 12 minutes.
 #
 # Safe to start twice, by the same kind of locks as the training:
-#   - each GPU queue holds runs/stage08/logs/gpuN.lock -- the SAME lock the
+#   - each GPU queue holds runs/stage08/gpu_locks/gpuN.lock -- the SAME lock the
 #     training queues of launch_fig5.sh hold -- so an evaluation never shares
 #     a GPU with a training run or with another evaluation;
 #   - evaluate_weights.py locks its output folder (exit code 75 if taken) and
 #     never replaces a finished evaluation: it says so and exits with 0.
 # The exit status of this script is 0 only if every evaluation succeeded.
 #
-# Run:   bash learn/stage08_first_run/launch_evaluation.sh    (returns when both queues are done)
+# Run:   bash learn/stage08_first_run/analysis/launch_evaluation.sh    (returns when both queues are done)
 # Logs:  runs/stage08/evaluation/logs/gpuN.log  (appended to, never truncated)
 cd "$(dirname "$0")" || exit 1
-PY=../../.venv/bin/python
-RUNS=../../runs/stage08
+PY=../../../.venv/bin/python
+RUNS=../../../runs/stage08
 LOGS=$RUNS/evaluation/logs
-mkdir -p "$LOGS" "$RUNS/logs"
+mkdir -p "$LOGS" "$RUNS/gpu_locks"
 
 queue () {   # gpu, then run names.  Returns 0 only if every evaluation succeeded.
     gpu=$1
     shift
-    exec 9> "$RUNS/logs/gpu$gpu.lock"
+    exec 9> "$RUNS/gpu_locks/gpu$gpu.lock"
     if ! flock --nonblock 9; then
         echo "=== $(date -u '+%F %T')  GPU $gpu is in use by another queue (training or evaluation); stopping"
         return 75
@@ -33,7 +33,7 @@ queue () {   # gpu, then run names.  Returns 0 only if every evaluation succeede
     failed=0
     for run in "$@"; do
         echo "=== $(date -u '+%F %T')  start $run on GPU $gpu"
-        CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY evaluate_weights.py "$RUNS/$run"
+        CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY evaluate_weights.py "$RUNS/training/$run"
         status=$?                                  # saved first: $(date) below would overwrite $?
         echo "=== $(date -u '+%F %T')  $run ended with exit code $status"
         [ $status -eq 0 ] || failed=1
