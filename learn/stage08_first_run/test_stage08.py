@@ -1,5 +1,5 @@
 """
-Stage 8 check.  Run:  JAX_PLATFORMS=cpu python test_stage08.py      (about a minute)
+Stage 8 check.  Run:  python test_stage08.py      (about a minute, on the CPU)
 
 From this stage on, the paper's numbers come from the authors' code, not from
 learn/.  Everything we built in Stages 3-7 is only useful as a cross-check if
@@ -23,11 +23,13 @@ directly before a 'default' run is used to decide whether dropping Im E_loc
 matters.  Nor does this test cover the optimiser, checkpoints, or convergence.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
 from absl.testing import absltest
 
+os.environ["JAX_PLATFORMS"] = "cpu"          # before JAX is imported: a GPU may be training
 import jax
 jax.config.update("jax_enable_x64", True)     # before any JAX operation
 import numpy as np

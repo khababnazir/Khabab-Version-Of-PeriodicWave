@@ -1,5 +1,5 @@
 """
-Stage 8 checks for observables.py.  Run:  JAX_PLATFORMS=cpu python test_observables.py   (under a minute)
+Stage 8 checks for observables.py.  Run:  python test_observables.py   (under a minute, on the CPU)
 
 Each test guards a mistake that would silently change what the figures say:
   sites         the 9 sites must be the minima of the authors' moire potential,
@@ -15,9 +15,13 @@ Each test guards a mistake that would silently change what the figures say:
                 6 at the moire reciprocal vectors.
 """
 import itertools
+import os
 import sys
 from pathlib import Path
 
+# Before JAX is imported: never on a GPU.  A GPU may be training, and its
+# default TF32 products keep ~3 digits (the evaluation sets float32 instead).
+os.environ["JAX_PLATFORMS"] = "cpu"
 from absl.testing import absltest
 import numpy as np
 import jax

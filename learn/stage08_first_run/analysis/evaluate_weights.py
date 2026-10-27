@@ -49,8 +49,9 @@ runs/stage08/gpu_locks/gpuN.lock, which the training queues of launch_fig5.sh
 hold too -- two processes on one GPU crashed the machine on 2026-10-01).  A
 refused start exits with code 75.  A finished evaluation is not repeated and
 never replaced without --overwrite; "the same evaluation" means the same
-checkpoint (by its md5 checksum), steps, burn-in and seed, with all output
-files present.  There is no resuming: an evaluation takes minutes.
+checkpoint (by its md5 checksum), steps, burn-in and seed, with all three
+output files readable and holding every requested step.  There is no
+resuming: an evaluation takes minutes.
 
 Output, in the --out folder (rewritten every 1000 steps):
     energies.csv      one row per step: batch means of E_loc and its parts,
@@ -112,15 +113,23 @@ def existing_evaluation(folder, wanted):
 
     `wanted` holds what identifies an evaluation: the checkpoint's md5
     checksum (so a longer training run, or a moved folder, is recognised
-    correctly), the steps requested, the burn-in and the seed.
+    correctly), the steps requested, the burn-in and the seed.  Complete
+    means all three files hold the requested number of steps: an overwrite
+    stopped between two file writes leaves them disagreeing.
     """
     summary_file = folder / "summary.json"
     if not summary_file.exists():
         return None
-    summary = json.loads(summary_file.read_text())
+    try:                       # a missing, damaged or half-written file counts as unfinished
+        summary = json.loads(summary_file.read_text())
+        with open(folder / "energies.csv", newline="") as handle:
+            csv_steps = sum(1 for _ in csv.DictReader(handle))      # one row per step
+        with np.load(folder / "observables.npz") as observables_file:
+            npz_steps = int(observables_file["steps_done"])
+    except Exception:
+        return "other"
     same = all(summary.get(name) == value for name, value in wanted.items())
-    complete = (summary.get("steps_done") == summary.get("steps_requested")
-                and (folder / "energies.csv").exists() and (folder / "observables.npz").exists())
+    complete = csv_steps == npz_steps == summary.get("steps_done") == summary.get("steps_requested")
     return "finished" if same and complete else "other"
 
 
