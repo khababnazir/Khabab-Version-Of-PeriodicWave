@@ -21,20 +21,24 @@ run is archived in `learn/archive/stage08_authors_code/`, its data in
 
 ## Status (2026-10-28)
 
-Step 1 of 5 is written: the networks.
-
 1. **Networks** — the released settings added to Stages 3 and 5;
-   `test_networks.py` checks they are the authors' networks.
-2. Training program (`train_moire.py`), connecting Stages 3–7 with KFAC.
-3. Short checks of the training: finite and sensible steps, memory, time,
-   saving and resuming.
-4. SlaterNet at ε = 10 first, compared with the reference; then the other three.
+   `test_networks.py` checks they are the authors' networks. Done.
+2. **Training program** — `train_moire.py`, connecting Stages 3–7 with KFAC;
+   `test_train_moire.py` checks it. Done.
+3. **Short runs on the GPUs** — 400 iterations, stopped, restarted to 800,
+   for both networks: about 41 iterations/s (SlaterNet) and 12 (attention
+   network) on an RTX 3090. Done.
+4. **The four runs** of Fig. 5 (`launch_fig5.sh`), compared with the
+   reference; SlaterNet first on each GPU. Started 2026-10-28.
 5. The full gradient (imaginary part of E_loc kept) as a separate experiment.
 
 ## Files in this folder
 
 | File | What it is for |
 |---|---|
+| `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
+| `launch_fig5.sh` | Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Data in `runs/stage08/training/`. |
+| `test_train_moire.py` | The settings equal the reference run's; KFAC receives Stage 6's gradient; one complete update (local energies, gradient, KFAC step) from the reference run's trained weights equals one of the authors' code; a restart continues exactly. |
 | `test_networks.py` | Our networks with the released settings against the authors' networks: same settings, parameters, initial distribution, function and derivatives with their trained weights, local energy, and the same layers for KFAC. |
 
 ## Run
@@ -42,5 +46,10 @@ Step 1 of 5 is written: the networks.
 From this folder, with the project's environment:
 
 ```bash
-../../.venv/bin/python test_networks.py      # CPU, a few minutes
+../../.venv/bin/python test_networks.py       # CPU, a few minutes
+../../.venv/bin/python test_train_moire.py    # CPU, a few minutes
+
+# one run per GPU:
+CUDA_VISIBLE_DEVICES=0 ../../.venv/bin/python train_moire.py --network slaternet --eps 10 \
+    --out ../../runs/stage08/training/slaternet_eps10
 ```

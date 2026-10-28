@@ -232,20 +232,23 @@ def init_released(key, arch: ReleasedAttentionArchitecture) -> dict:
 
 
 def self_attention_released(attention: dict, h: jax.Array, n_heads: int) -> jax.Array:
-    """The authors' attention (jax.nn.dot_product_attention, written out).
+    """The authors' attention.  For each head, electron i receives
 
-    For each head, electron i receives
         sum_j softmax_j( q_i . k_j / sqrt(d_attn) ) v_j
-    The heads are concatenated and projected back to the width.
+
+    which is what jax.nn.dot_product_attention computes; the heads are then
+    concatenated and projected back to the width.  We call that JAX function,
+    as the authors do, rather than writing the softmax out (as self_attention
+    above does): it computes its softmax in single precision whatever the
+    input precision, so a written-out version differs from theirs by rounding
+    that test_networks.py would have to tolerate.  With the same call the
+    two networks compute the same numbers.
     """
     n = h.shape[0]
     queries = dense(h, attention["queries"]).reshape(n, n_heads, -1)    # (N, heads, d_attn)
     keys = dense(h, attention["keys"]).reshape(n, n_heads, -1)          # (N, heads, d_attn)
     values = dense(h, attention["values"]).reshape(n, n_heads, -1)      # (N, heads, d_values)
-
-    scores = jnp.einsum("ihd,jhd->hij", queries, keys) / jnp.sqrt(queries.shape[-1])
-    weights = jax.nn.softmax(scores, axis=-1)                           # each row sums to 1 over j
-    received = jnp.einsum("hij,jhd->ihd", weights, values)              # (N, heads, d_values)
+    received = jax.nn.dot_product_attention(queries, keys, values)      # (N, heads, d_values)
     return dense(received.reshape(n, -1), attention["output"])          # (N, width)
 
 

@@ -155,21 +155,30 @@ class SameNetworksTest(absltest.TestCase):
     def setUpClass(cls):
         if not REFERENCE.exists():
             raise FileNotFoundError(f"the reference runs are needed: {REFERENCE}")
-        # Tolerances.  SlaterNet must agree to rounding.  The authors' attention
-        # (jax.nn.dot_product_attention) computes its softmax in single
-        # precision even for float64 inputs (see test_psiformer.py), so the
-        # attention network can agree only at single-precision level.
+        # Tolerances.  Wave functions and their parameter derivatives must agree
+        # to rounding for both networks.  (The attention network calls
+        # jax.nn.dot_product_attention, as the authors do; a written-out
+        # softmax agreed only to about 3e-6, because that function computes
+        # its softmax in single precision even for float64 inputs.)
+        # The local energy needs second derivatives with respect to the
+        # positions; the two codes take them along different routes through
+        # that single-precision softmax, so for the attention network they can
+        # agree only at single-precision level: measured up to 4.3e-6 (median
+        # 1.6e-7) over 64 walkers, allowed 1e-4.  The function and its
+        # parameter derivatives are checked at 1e-10 by the other tests; this
+        # one is for the Laplacian, moire and Coulomb terms, where a mistake
+        # is far larger.
         cls.cases = {
             "SlaterNet": dict(setup_case(
                 "slaternet_eps5", SlaterNet,
                 slaternet.ReleasedArchitecture(n_electrons=N_ELECTRONS),
                 slaternet.init_released, slaternet.log_psi_released, ours_from_authors_slaternet),
-                n_parameters=34880, rtol=1e-10),
+                n_parameters=34880, rtol=1e-10, rtol_energy=1e-10),
             "attention": dict(setup_case(
                 "psiformer_eps5", CustomPsiformer,
                 psiformer.ReleasedAttentionArchitecture(n_electrons=N_ELECTRONS),
                 psiformer.init_released, psiformer.log_psi_released, ours_from_authors_psiformer),
-                n_parameters=103232, rtol=1e-5),
+                n_parameters=103232, rtol=1e-10, rtol_energy=1e-4),
         }
 
     def test_settings_are_those_of_the_reference_runs(self):
@@ -265,19 +274,25 @@ class SameNetworksTest(absltest.TestCase):
                 theirs.append(complex(authors_e_loc(case["trained_theirs"], None, data)[0]))
             ours, theirs = np.array(ours), np.array(theirs)
             with self.subTest(name):
-                np.testing.assert_allclose(ours.real, theirs.real, rtol=case["rtol"])
-                np.testing.assert_allclose(ours.imag, theirs.imag, atol=case["rtol"] * np.abs(theirs.real).max())
+                tolerance = case["rtol_energy"]
+                np.testing.assert_allclose(ours.real, theirs.real, rtol=tolerance)
+                np.testing.assert_allclose(ours.imag, theirs.imag, atol=tolerance * np.abs(theirs.real).max())
 
     def test_kfac_finds_the_same_layers(self):
-        """A layer kfac-jax did not recognise would be treated more crudely,
-        with no error message.  So both networks must give the same layer list."""
+        """A layer kfac-jax did not recognise would get its crude fallback
+        block (NaiveDiagonal), with no error message.  So both networks must
+        give the same layer list, every parameter must be in it, and only the
+        two expected kinds of block may appear: dense layers applied to every
+        electron, and the scale and offset of the layer norms."""
         for name, case in self.cases.items():
             batch = case["walkers"][:8]
             ours = kfac_layers(lambda p, R: case["log_psi_ours"](p, R).log_abs, case["trained_ours"], batch)
             theirs = kfac_layers(lambda p, R: authors_log_psi(case, p, R)[0], case["trained_theirs"], batch)
             with self.subTest(name):
                 self.assertEqual(ours, theirs)
-                self.assertNotIn("Generic", " ".join(block for block, _ in ours))
+                self.assertEqual({block for block, _ in ours}, {"RepeatedDenseBlock", "ScaleAndShiftDiagonal"})
+                covered = sum(int(np.prod(s)) for _, block_shapes in ours for s in block_shapes)
+                self.assertEqual(covered, case["n_parameters"])
 
 
 if __name__ == "__main__":
