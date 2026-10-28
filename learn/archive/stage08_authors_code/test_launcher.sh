@@ -16,6 +16,7 @@ for code in 0 3 75; do
 done
 source "$(dirname "$0")/launch_fig5.sh" --functions-only
 RUNS=$W/runs
+LOCKS=$W/runs/gpu_locks
 failures=0
 
 check () {   # description, expected number of runs started, queue output

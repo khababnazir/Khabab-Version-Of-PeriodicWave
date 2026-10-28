@@ -36,7 +36,7 @@ import numpy as np
 import jax.numpy as jnp
 from jax.flatten_util import ravel_pytree
 
-LEARN = Path(__file__).resolve().parent.parent
+LEARN = Path(__file__).resolve().parents[2]          # learn/
 for stage in ("stage03_slater", "stage04_mcmc", "stage07_ewald"):
     sys.path.insert(0, str(LEARN / stage))
 from slaternet import Architecture, init_parameters, log_psi, supercell_vectors, reciprocal_vectors  # noqa: E402

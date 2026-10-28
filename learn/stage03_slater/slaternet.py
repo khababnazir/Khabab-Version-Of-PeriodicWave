@@ -15,6 +15,9 @@ Key ideas
      With several it is not -- see Architecture.n_determinants.
 
 Scope: spin-polarised electrons (all spins equal), as in the paper.
+
+Stage 8 adds, at the end of this file, the same network with the settings of
+the authors' released code (init_released, log_psi_released).
 """
 from __future__ import annotations
 
@@ -225,6 +228,136 @@ def random_walkers(key: jax.Array, n_walkers: int, n_electrons: int,
     """Uniform positions inside the supercell: fractional -> cartesian."""
     frac = jax.random.uniform(key, (n_walkers, n_electrons, 2))
     return frac @ jnp.asarray(lattice).T
+
+
+# ---------------------------------------------------------------------------
+#  Stage 8: the same network with the settings of the authors' released code
+# ---------------------------------------------------------------------------
+#
+# Everything above follows the paper (Table II) and is unchanged.  Stage 8
+# trains with our own code but with the settings of the authors' released
+# moire config, the settings their reference run used, so that the two runs
+# can be compared.  The differences:
+#
+#                          above (paper)          released code (below)
+#   inputs per electron    4 periodic features    the same 4, plus its spin (+1)
+#   activation             tanh                   GELU, tanh approximation
+#   perceptrons per layer  1                      2, each followed by GELU
+#   after each residual    nothing                layer norm
+#   layers, width          3, 64                  4, 64
+#   initial weights        0.1 * normal           normal / sqrt(inputs); biases normal
+#
+# Weights are stored as (inputs, outputs) and used as x @ w + b, the authors'
+# layout.  learn/stage08_own_code/test_networks.py checks that these networks
+# ARE the authors' networks: same function and same derivatives with their
+# trained weights, same initial distribution, and the same layers for KFAC.
+
+@dataclass(frozen=True)
+class ReleasedArchitecture:
+    """SlaterNet sizes in the authors' released moire config."""
+    n_electrons: int
+    n_determinants: int = 1
+    n_layers: int = 4
+    width: int = 64
+    perceptrons_per_layer: int = 2
+
+
+def dense_init(key: jax.Array, n_in: int, n_out: int, bias: bool = True) -> dict:
+    """One dense layer, initialised as in the authors' code (network_blocks.py):
+    weights normal / sqrt(n_in), biases normal."""
+    key_w, key_b = jax.random.split(key)
+    layer = {"w": jax.random.normal(key_w, (n_in, n_out)) / np.sqrt(n_in)}
+    if bias:
+        layer["b"] = jax.random.normal(key_b, (n_out,))
+    return layer
+
+
+def dense(x: jax.Array, layer: dict) -> jax.Array:
+    """x @ w + b, or x @ w for a layer without bias."""
+    y = x @ layer["w"]
+    if "b" in layer:
+        y = y + layer["b"]
+    return y
+
+
+def layer_norm_init(width: int) -> dict:
+    return {"scale": jnp.ones(width), "offset": jnp.zeros(width)}
+
+
+def layer_norm(norm: dict, h: jax.Array) -> jax.Array:
+    """Each electron's hidden state to mean 0 and variance 1, then a learned
+    scale and offset.  Same operations in the same order as the authors'
+    make_layer_norm, epsilon 1e-5 included."""
+    mean = jnp.mean(h, axis=-1, keepdims=True)
+    variance = jnp.var(h, axis=-1, keepdims=True)
+    inverse = norm["scale"] * jax.lax.rsqrt(variance + 1e-5)
+    return inverse * (h - mean) + norm["offset"]
+
+
+def perceptrons(layers: list, h: jax.Array) -> jax.Array:
+    """The perceptrons of one layer, each followed by GELU.  jax.nn.gelu uses
+    the tanh approximation unless told otherwise; the authors call it that way."""
+    for layer in layers:
+        h = jax.nn.gelu(dense(h, layer), approximate=True)
+    return h
+
+
+def released_inputs(positions: jax.Array, G: jax.Array) -> jax.Array:
+    """(N,2) -> (N,5): the 4 periodic features of Eq. (7), then the spin.
+
+    All electrons have spin +1 here, so the fifth input is a constant: it acts
+    as a bias of the embedding.
+    """
+    features = periodic_features(positions, G)
+    spin = jnp.ones_like(features[:, :1])
+    return jnp.concatenate([features, spin], axis=1)
+
+
+def released_orbitals(orbital_layer: dict, h: jax.Array, n_determinants: int) -> jax.Array:
+    """Hidden states (N, width) -> orbital matrices (D, N, N), complex.
+
+    One dense layer gives 2 N D numbers per electron: in the authors' packing
+    the even ones are real parts, the odd ones imaginary parts.  Element
+    [m, i, j] is orbital j of determinant m at electron i, as in
+    orbitals_from_hidden.
+    """
+    n = h.shape[0]
+    out = dense(h, orbital_layer)                    # (N, 2 N D)
+    values = out[:, 0::2] + 1j * out[:, 1::2]        # (N, N D)
+    return values.reshape(n, n_determinants, n).transpose(1, 0, 2)
+
+
+def init_released(key: jax.Array, arch: ReleasedArchitecture) -> dict:
+    """SlaterNet parameters with the released settings."""
+    key_embed, key_orbital, *layer_keys = jax.random.split(key, arch.n_layers + 2)
+    n_orbital_outputs = 2 * arch.n_electrons * arch.n_determinants
+    params = {
+        "embed": dense_init(key_embed, 5, arch.width, bias=False),
+        "layers": [],
+        "orbital": dense_init(key_orbital, arch.width, n_orbital_outputs, bias=False),
+    }
+    for layer_key in layer_keys:
+        perceptron_keys = jax.random.split(layer_key, arch.perceptrons_per_layer)
+        params["layers"].append({
+            "perceptrons": [dense_init(k, arch.width, arch.width) for k in perceptron_keys],
+            "norm": layer_norm_init(arch.width),
+        })
+    return params
+
+
+def hidden_states_released(params: dict, positions: jax.Array, G: jax.Array) -> jax.Array:
+    """(N,2) -> (N,width).  Still every electron on its own: Hartree-Fock with D = 1."""
+    h = dense(released_inputs(positions, G), params["embed"])
+    for layer in params["layers"]:
+        h = layer_norm(layer["norm"], h + perceptrons(layer["perceptrons"], h))
+    return h
+
+
+def log_psi_released(params: dict, positions: jax.Array, G: jax.Array,
+                     arch: ReleasedArchitecture) -> LogPsi:
+    """SlaterNet with the released settings: log|Psi| and arg Psi."""
+    h = hidden_states_released(params, positions, G)
+    return sum_of_determinants(released_orbitals(params["orbital"], h, arch.n_determinants))
 
 
 if __name__ == "__main__":

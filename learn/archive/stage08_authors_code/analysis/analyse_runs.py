@@ -3,9 +3,9 @@ Stage 8 -- read the training runs, compare with the paper's Fig. 5.
 
 Run (needs matplotlib, which the pinned project environment does not have):
     uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
-(from learn/stage08_first_run/analysis; writes runs/stage08/figures/1_training_curves_vs_fig5.png)
+(from learn/archive/stage08_authors_code/analysis; writes runs/archive/stage08_authors_code/figures/1_training_curves_vs_fig5.png)
 
-For every run folder in runs/stage08/training/ it
+For every run folder in runs/archive/stage08_authors_code/training/ it
   1. joins the run's history files in the order they were written (see
      load_history) and converts the energy to meV per electron, as the paper
      reports it;
@@ -48,7 +48,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-STAGE08 = Path(__file__).resolve().parents[3] / "runs" / "stage08"
+STAGE08 = Path(__file__).resolve().parents[4] / "runs" / "archive" / "stage08_authors_code"
 RUNS = STAGE08 / "training"
 ENERGY_UNIT_MEV = 3.375559          # hbar^2 / (m* a_M^2); learn/stage04_mcmc moire_units()
 N_ELECTRONS = 6

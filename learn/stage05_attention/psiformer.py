@@ -23,6 +23,9 @@ look different, but describe the SAME family of wave functions -- they differ
 only by constant rescalings that the learned weights absorb.  This file
 follows the paper; test_psiformer.py proves the two agree exactly after the
 rescaling.
+
+Stage 8 adds, at the end of this file, the same network with the settings of
+the authors' released code (init_released, log_psi_released).
 """
 import sys
 from dataclasses import dataclass
@@ -34,6 +37,9 @@ import jax.numpy as jnp
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "stage03_slater"))
 from slaternet import (LogPsi, periodic_features, orbitals_from_hidden,  # noqa: E402
                        sum_of_determinants)
+# For the Stage 8 section at the end of this file:
+from slaternet import (dense, dense_init, layer_norm, layer_norm_init,  # noqa: E402
+                       perceptrons, released_inputs, released_orbitals)
 
 
 @dataclass(frozen=True)
@@ -163,6 +169,103 @@ def appendix_c_parameter_count(arch: AttentionArchitecture) -> int:
     return (2 * d_dim * arch.width
             + arch.n_layers * per_layer
             + 2 * arch.width * arch.n_electrons * arch.n_determinants)
+
+
+# ---------------------------------------------------------------------------
+#  Stage 8: the same network with the settings of the authors' released code
+# ---------------------------------------------------------------------------
+#
+# Everything above follows the paper and is unchanged.  As in slaternet.py,
+# Stage 8 uses the settings of the authors' released moire config.  On top of
+# the SlaterNet differences listed there (spin input, GELU, 2 perceptrons,
+# layer norm, initialisation), the attention network differs in:
+#
+#                          above (paper)               released code (below)
+#   layers, heads          3, 6                        4, 4
+#   layer norm             none                        after BOTH residual additions
+#   attention              softmax_j(k_i . q_j),       softmax_j(q_i . k_j / sqrt(d_attn)),
+#                          then 1 / sqrt(d_values)     no 1 / sqrt(d_values)
+#   weights of the heads   one matrix per head         one matrix for all heads
+#
+# The attention is the same family of functions either way (test_psiformer.py
+# shows the rescaling); here we take the authors' parameterisation, so that
+# initial values and KFAC see the same thing.
+
+@dataclass(frozen=True)
+class ReleasedAttentionArchitecture:
+    """Attention-network sizes in the authors' released moire config."""
+    n_electrons: int
+    n_determinants: int = 4
+    n_layers: int = 4
+    n_heads: int = 4
+    attention_dim: int = 16
+    value_dim: int = 16
+    width: int = 64
+    perceptrons_per_layer: int = 2
+
+
+def init_released(key, arch: ReleasedAttentionArchitecture) -> dict:
+    """Attention-network parameters with the released settings."""
+    key_embed, key_orbital, *layer_keys = jax.random.split(key, arch.n_layers + 2)
+    width = arch.width
+    n_orbital_outputs = 2 * arch.n_electrons * arch.n_determinants
+    params = {
+        "embed": dense_init(key_embed, 5, width, bias=False),
+        "layers": [],
+        "orbital": dense_init(key_orbital, width, n_orbital_outputs, bias=False),
+    }
+    for layer_key in layer_keys:
+        key_q, key_k, key_v, key_o, *perceptron_keys = jax.random.split(
+            layer_key, 4 + arch.perceptrons_per_layer)
+        params["layers"].append({
+            "attention": {
+                "queries": dense_init(key_q, width, arch.n_heads * arch.attention_dim, bias=False),
+                "keys":    dense_init(key_k, width, arch.n_heads * arch.attention_dim, bias=False),
+                "values":  dense_init(key_v, width, arch.n_heads * arch.value_dim, bias=False),
+                "output":  dense_init(key_o, arch.n_heads * arch.value_dim, width, bias=False),
+            },
+            "attention_norm": layer_norm_init(width),
+            "perceptrons": [dense_init(k, width, width) for k in perceptron_keys],
+            "perceptron_norm": layer_norm_init(width),
+        })
+    return params
+
+
+def self_attention_released(attention: dict, h: jax.Array, n_heads: int) -> jax.Array:
+    """The authors' attention (jax.nn.dot_product_attention, written out).
+
+    For each head, electron i receives
+        sum_j softmax_j( q_i . k_j / sqrt(d_attn) ) v_j
+    The heads are concatenated and projected back to the width.
+    """
+    n = h.shape[0]
+    queries = dense(h, attention["queries"]).reshape(n, n_heads, -1)    # (N, heads, d_attn)
+    keys = dense(h, attention["keys"]).reshape(n, n_heads, -1)          # (N, heads, d_attn)
+    values = dense(h, attention["values"]).reshape(n, n_heads, -1)      # (N, heads, d_values)
+
+    scores = jnp.einsum("ihd,jhd->hij", queries, keys) / jnp.sqrt(queries.shape[-1])
+    weights = jax.nn.softmax(scores, axis=-1)                           # each row sums to 1 over j
+    received = jnp.einsum("hij,jhd->ihd", weights, values)              # (N, heads, d_values)
+    return dense(received.reshape(n, -1), attention["output"])          # (N, width)
+
+
+def hidden_states_released(params: dict, positions: jax.Array, G: jax.Array,
+                           arch: ReleasedAttentionArchitecture) -> jax.Array:
+    """(N,2) -> (N,width).  Each layer: attention, then perceptrons, each with
+    a residual addition followed by a layer norm."""
+    h = dense(released_inputs(positions, G), params["embed"])
+    for layer in params["layers"]:
+        h = layer_norm(layer["attention_norm"],
+                       h + self_attention_released(layer["attention"], h, arch.n_heads))
+        h = layer_norm(layer["perceptron_norm"], h + perceptrons(layer["perceptrons"], h))
+    return h
+
+
+def log_psi_released(params: dict, positions: jax.Array, G: jax.Array,
+                     arch: ReleasedAttentionArchitecture) -> LogPsi:
+    """The attention network with the released settings: log|Psi| and arg Psi."""
+    h = hidden_states_released(params, positions, G, arch)
+    return sum_of_determinants(released_orbitals(params["orbital"], h, arch.n_determinants))
 
 
 if __name__ == "__main__":

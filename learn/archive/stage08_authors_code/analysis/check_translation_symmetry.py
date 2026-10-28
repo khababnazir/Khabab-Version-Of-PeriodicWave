@@ -30,7 +30,7 @@ os.environ["JAX_PLATFORMS"] = "cpu"      # before JAX is imported: always off th
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[2] / "runs" / "stage08" / "training"
+RUNS = HERE.parents[3] / "runs" / "archive" / "stage08_authors_code" / "training"
 sys.path.insert(0, str(HERE))
 WALKERS = 256
 

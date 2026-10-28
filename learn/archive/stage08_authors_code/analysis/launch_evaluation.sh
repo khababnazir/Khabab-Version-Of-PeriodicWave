@@ -7,18 +7,18 @@
 # SlaterNet one about 3, so both queues finish in about 12 minutes.
 #
 # Safe to start twice: every evaluate_weights.py takes the lock of its GPU
-# (runs/stage08/gpu_locks/gpuN.lock, which the training queues of
+# (runs/gpu_locks/gpuN.lock, which the training queues of
 # launch_fig5.sh hold too) and of its output folder, and exits with code 75
 # if either is taken.  A queue that sees 75 stops, rather than starting its
 # next evaluation on a busy GPU.  A finished evaluation is not repeated
 # (exit code 0).  The exit status of this script is 0 only if every
 # evaluation succeeded.
 #
-# Run:   bash learn/stage08_first_run/analysis/launch_evaluation.sh    (returns when both queues are done)
-# Logs:  runs/stage08/evaluation/logs/gpuN.log  (appended to, never truncated)
+# Run:   bash learn/archive/stage08_authors_code/analysis/launch_evaluation.sh    (returns when both queues are done)
+# Logs:  runs/archive/stage08_authors_code/evaluation/logs/gpuN.log  (appended to, never truncated)
 cd "$(dirname "$0")" || exit 1
-PY=../../../.venv/bin/python
-RUNS=../../../runs/stage08
+PY=../../../../.venv/bin/python
+RUNS=../../../../runs/archive/stage08_authors_code
 LOGS=$RUNS/evaluation/logs
 ALREADY_RUNNING=75
 mkdir -p "$LOGS"

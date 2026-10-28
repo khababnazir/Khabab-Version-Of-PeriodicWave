@@ -2,10 +2,10 @@
 Stage 8 -- evaluate a trained network with its weights FROZEN.
 
 Run (one GPU, one evaluation):
-    CUDA_VISIBLE_DEVICES=0 python evaluate_weights.py ../../../runs/stage08/training/psiformer_eps5
+    CUDA_VISIBLE_DEVICES=0 python evaluate_weights.py ../../../../runs/archive/stage08_authors_code/training/psiformer_eps5
 Options: --steps N     evaluation steps after burn-in (default 10000)
          --burn-in N   steps that only move the walkers, first (default 200)
-         --out DIR     default runs/stage08/evaluation/<run name>
+         --out DIR     default runs/archive/stage08_authors_code/evaluation/<run name>
          --overwrite   replace an evaluation that is already in DIR
 
 Why a separate evaluation.  The energies in train_stats.csv were measured
@@ -45,7 +45,7 @@ energy was 0.08 below its frozen final weights, and it failed the check.
 
 Safety, as for the training: only one process may evaluate into a folder
 (a lock on <out>/.evaluation.lock), and only one job may use a GPU (the lock
-runs/stage08/gpu_locks/gpuN.lock, which the training queues of launch_fig5.sh
+runs/gpu_locks/gpuN.lock, which the training queues of launch_fig5.sh
 hold too -- two processes on one GPU crashed the machine on 2026-10-01).  A
 refused start exits with code 75.  A finished evaluation is not repeated and
 never replaced without --overwrite; "the same evaluation" means the same
@@ -77,7 +77,8 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[2] / "runs" / "stage08"
+RUNS = HERE.parents[3] / "runs" / "archive" / "stage08_authors_code"
+GPU_LOCKS = HERE.parents[3] / "runs" / "gpu_locks"           # shared by every stage
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent))      # run_moire.py, one folder up
 
@@ -134,7 +135,7 @@ def existing_evaluation(folder, wanted):
 
 
 def hold_gpu_lock():
-    """Take runs/stage08/gpu_locks/gpuN.lock for the one GPU in CUDA_VISIBLE_DEVICES, or stop.
+    """Take runs/gpu_locks/gpuN.lock for the one GPU in CUDA_VISIBLE_DEVICES, or stop.
 
     The training queues of launch_fig5.sh hold the same file with `flock`,
     the same operating-system lock as fcntl.flock here, so an evaluation never
@@ -143,8 +144,8 @@ def hold_gpu_lock():
     gpu = os.environ.get("CUDA_VISIBLE_DEVICES", "")
     if not gpu.isdigit():
         sys.exit("make exactly one GPU visible, e.g. CUDA_VISIBLE_DEVICES=0")
-    (RUNS / "gpu_locks").mkdir(parents=True, exist_ok=True)
-    handle = open(RUNS / "gpu_locks" / f"gpu{gpu}.lock", "w")
+    GPU_LOCKS.mkdir(parents=True, exist_ok=True)
+    handle = open(GPU_LOCKS / f"gpu{gpu}.lock", "w")
     try:
         fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
@@ -323,7 +324,7 @@ def save(out, rows, totals, summary):
 
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/training/psiformer_eps5")
+    parser.add_argument("run", type=Path, help="training folder, e.g. runs/archive/stage08_authors_code/training/psiformer_eps5")
     parser.add_argument("--steps", type=int, default=10000)
     parser.add_argument("--burn-in", type=int, default=200)
     parser.add_argument("--out", type=Path, default=None)

@@ -3,17 +3,17 @@ Stage 8 -- figures and table from the frozen-weight evaluations.
 
 Run after evaluate_weights.py (CPU is enough; matplotlib is layered on top of
 the project environment without changing it):
-    uv run --no-project --python ../../../.venv/bin/python --with matplotlib python plot_weights.py
-(from learn/stage08_first_run/analysis)
+    uv run --no-project --python ../../../../.venv/bin/python --with matplotlib python plot_weights.py
+(from learn/archive/stage08_authors_code/analysis)
 
-Reads runs/stage08/evaluation/<run>/ and runs/stage08/training/<run>/, writes
-    runs/stage08/results/energies_meV_per_electron.csv   energies, one row per run
-    runs/stage08/results/electron_structure.csv          where the electrons are, one row per run
-    runs/stage08/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
-    runs/stage08/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
-    runs/stage08/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
-    runs/stage08/figures/5_site_filling_and_structure_factor.png
-    runs/stage08/figures/6_site_occupation_during_evaluation.png
+Reads runs/archive/stage08_authors_code/evaluation/<run>/ and runs/archive/stage08_authors_code/training/<run>/, writes
+    runs/archive/stage08_authors_code/results/energies_meV_per_electron.csv   energies, one row per run
+    runs/archive/stage08_authors_code/results/electron_structure.csv          where the electrons are, one row per run
+    runs/archive/stage08_authors_code/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
+    runs/archive/stage08_authors_code/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
+    runs/archive/stage08_authors_code/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
+    runs/archive/stage08_authors_code/figures/5_site_filling_and_structure_factor.png
+    runs/archive/stage08_authors_code/figures/6_site_occupation_during_evaluation.png
 (Figure 1, the training curves, comes from analyse_runs.py.)
 
 It refuses evaluation folders whose three files disagree about the number of
@@ -47,7 +47,7 @@ sys.path.insert(0, str(HERE))
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, FIG5, COLOURS, LABELS, blocked_mean, describe  # noqa: E402
 
-STAGE08 = HERE.parents[2] / "runs" / "stage08"
+STAGE08 = HERE.parents[3] / "runs" / "archive" / "stage08_authors_code"
 TRAINING, EVALUATION = STAGE08 / "training", STAGE08 / "evaluation"
 FIGURES, RESULTS = STAGE08 / "figures", STAGE08 / "results"
 ORDER = ["psiformer_eps10", "slaternet_eps10", "psiformer_eps5", "slaternet_eps5"]
@@ -161,7 +161,7 @@ def energy_table(runs):
 
 
 def structure_table(runs):
-    """Where the electrons are, one row per run (definitions in runs/stage08/results/README.md)."""
+    """Where the electrons are, one row per run (definitions in runs/archive/stage08_authors_code/results/README.md)."""
     return pd.DataFrame([dict(
         run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
         P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),

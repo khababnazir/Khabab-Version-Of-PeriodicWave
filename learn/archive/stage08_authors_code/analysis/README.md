@@ -1,8 +1,10 @@
 # Stage 8 analysis — everything after training
 
-These files read the four trained runs in `runs/stage08/training/` and write
-to `runs/stage08/evaluation/`, `runs/stage08/figures/` and
-`runs/stage08/results/`. Nothing here changes a training run.
+**Archived on 2026-10-28**, with the rest of this Stage 8 (see `../README.md`).
+
+These files read the four trained runs in `runs/archive/stage08_authors_code/training/` and write
+to `runs/archive/stage08_authors_code/evaluation/`, `runs/archive/stage08_authors_code/figures/` and
+`runs/archive/stage08_authors_code/results/`. Nothing here changes a training run.
 
 ## Files, in the order they are used
 
@@ -18,16 +20,16 @@ to `runs/stage08/evaluation/`, `runs/stage08/figures/` and
 
 ## How to run
 
-From this folder (`learn/stage08_first_run/analysis`):
+From this folder (`learn/archive/stage08_authors_code/analysis`):
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"            # for uv
-JAX_PLATFORMS=cpu ../../../.venv/bin/python test_observables.py
+JAX_PLATFORMS=cpu ../../../../.venv/bin/python test_observables.py
 
 uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
 bash launch_evaluation.sh                                         # GPUs, about 12 minutes
-uv run --no-project --python ../../../.venv/bin/python --with matplotlib python plot_weights.py
-../../../.venv/bin/python check_translation_symmetry.py                # CPU, under a minute
+uv run --no-project --python ../../../../.venv/bin/python --with matplotlib python plot_weights.py
+../../../../.venv/bin/python check_translation_symmetry.py                # CPU, under a minute
 ```
 
 The project environment has no matplotlib; `uv run --no-project ... --with
@@ -39,4 +41,4 @@ matplotlib` adds it for one command without changing the environment.
    order that the density alone can hide.
 2. `evaluate_weights.py` — how the authors' code is used with frozen weights.
 3. `plot_weights.py` — the normalisations and the figures.
-4. `runs/stage08/figures/README.md` — why each figure looks the way it does.
+4. `runs/archive/stage08_authors_code/figures/README.md` — why each figure looks the way it does.

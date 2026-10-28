@@ -1,6 +1,8 @@
 #!/bin/bash
-# Stage 8: the four runs behind the paper's Fig. 5 (6 electrons, 9 sites),
-# with the authors' code and configuration, 200,000 iterations each.
+# Stage 8, ARCHIVED (the run with the authors' code, kept as the reference for
+# our own Stage 8 in learn/stage08_own_code): the four runs behind the paper's
+# Fig. 5 (6 electrons, 9 sites), with the authors' code and configuration,
+# 200,000 iterations each.
 #
 #   GPU 0 queue:  self-attention eps = 5,   then SlaterNet eps = 5
 #   GPU 1 queue:  self-attention eps = 10,  then SlaterNet eps = 10
@@ -14,7 +16,8 @@
 # exits at once.
 #
 # Running it while jobs are alive does no harm, by two locks:
-#   - each GPU queue holds runs/stage08/gpu_locks/gpuN.lock while it runs, so a
+#   - each GPU queue holds runs/gpu_locks/gpuN.lock while it runs (the lock every
+#     stage uses), so a
 #     second queue for the same GPU stops immediately;
 #   - run_moire.py exits with code 75 if its folder is already being trained
 #     The queue then stops too, rather than starting its next run on a GPU
@@ -22,9 +25,9 @@
 # A run that fails for any other reason is logged as FAILED with its exit
 # code, and the queue goes on to its next run, which is independent.
 #
-# Usage:   bash learn/stage08_first_run/launch_fig5.sh        (from ~/moire-nnvmc)
-# Watch:   tail -f runs/stage08/training/logs/gpu0.log
-#          tail -1 runs/stage08/training/psiformer_eps5/train_stats.csv
+# Usage:   bash learn/archive/stage08_authors_code/launch_fig5.sh        (from ~/moire-nnvmc)
+# Watch:   tail -f runs/archive/stage08_authors_code/training/logs/gpu0.log
+#          tail -1 runs/archive/stage08_authors_code/training/psiformer_eps5/train_stats.csv
 ALREADY_RUNNING=75
 
 run () {   # gpu network eps folder;  returns run_moire.py's exit code
@@ -43,7 +46,7 @@ run () {   # gpu network eps folder;  returns run_moire.py's exit code
 
 queue () {   # gpu, then groups of three: network eps folder
     gpu=$1; shift
-    exec 9> "$RUNS/gpu_locks/gpu$gpu.lock"
+    exec 9> "$LOCKS/gpu$gpu.lock"
     if ! flock --nonblock 9; then
         echo "=== $(date '+%F %T')  a queue for GPU $gpu is already running; this one stops"
         return 0
@@ -65,12 +68,13 @@ if [ "${1:-}" = "--functions-only" ]; then return 0 2>/dev/null || exit 0; fi
 
 set -e
 cd "$(dirname "$0")"
-PY=../../.venv/bin/python
-RUNS=../../runs/stage08
-mkdir -p $RUNS/training/logs $RUNS/gpu_locks
+PY=../../../.venv/bin/python
+RUNS=../../../runs/archive/stage08_authors_code
+LOCKS=../../../runs/gpu_locks
+mkdir -p $RUNS/training/logs $LOCKS
 
 export -f run queue
-export PY RUNS ALREADY_RUNNING
+export PY RUNS LOCKS ALREADY_RUNNING
 setsid nohup bash -c "queue 0 CustomPsiformer 5 psiformer_eps5   SlaterNet 5 slaternet_eps5"   >> $RUNS/training/logs/gpu0.log 2>&1 &
 setsid nohup bash -c "queue 1 CustomPsiformer 10 psiformer_eps10 SlaterNet 10 slaternet_eps10" >> $RUNS/training/logs/gpu1.log 2>&1 &
-echo "launched; logs in runs/stage08/training/logs/"
+echo "launched; logs in runs/archive/stage08_authors_code/training/logs/"
