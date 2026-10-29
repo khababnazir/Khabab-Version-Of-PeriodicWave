@@ -410,6 +410,10 @@ def main():
 
     import jax
     import kfac_jax
+    # If CUDA cannot start, JAX quietly falls back to the CPU and the run would
+    # crawl on unnoticed (it happened on 2026-10-29, after GPU 1 failed).
+    if jax.default_backend() != "gpu":
+        sys.exit(f"JAX found no working GPU (backend: {jax.default_backend()}); not starting")
     wanted = dict(network=args.network, eps=args.eps, gradient=args.gradient, seed=args.seed,
                   iterations=200000 if args.iterations is None else args.iterations,
                   settings=dataclasses.asdict(Settings()))

@@ -29,7 +29,11 @@ run is archived in `learn/archive/stage08_authors_code/`, its data in
    for both networks: about 41 iterations/s (SlaterNet) and 12 (attention
    network) on an RTX 3090. Done.
 4. **The four runs** of Fig. 5 (`launch_fig5.sh`), compared with the
-   reference; SlaterNet first on each GPU. Started 2026-10-28.
+   reference; SlaterNet first on each GPU. Started 2026-10-28 09:02.
+   Three finished (200,000 iterations). `attention_eps5` stopped at iteration
+   190,863 when GPU 1 failed (2026-10-28 16:00, CUDA_ERROR_LAUNCH_FAILED;
+   afterwards CUDA could not start on the machine at all). It continues from
+   `checkpoint_174540.npz` with the same command once the GPUs work again.
 5. The full gradient (imaginary part of E_loc kept) as a separate experiment.
 
 ## Files in this folder
