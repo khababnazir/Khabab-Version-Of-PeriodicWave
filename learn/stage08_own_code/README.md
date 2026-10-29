@@ -19,7 +19,7 @@ our runs can be compared with the reference run made with their code. That
 run is archived in `learn/archive/stage08_authors_code/`, its data in
 `runs/archive/stage08_authors_code/`.
 
-## Status (2026-10-28)
+## Status (2026-10-29)
 
 1. **Networks** — the released settings added to Stages 3 and 5;
    `test_networks.py` checks they are the authors' networks. Done.
@@ -29,11 +29,11 @@ run is archived in `learn/archive/stage08_authors_code/`, its data in
    for both networks: about 41 iterations/s (SlaterNet) and 12 (attention
    network) on an RTX 3090. Done.
 4. **The four runs** of Fig. 5 (`launch_fig5.sh`), compared with the
-   reference; SlaterNet first on each GPU. Started 2026-10-28 09:02.
-   Three finished (200,000 iterations). `attention_eps5` stopped at iteration
-   190,863 when GPU 1 failed (2026-10-28 16:00, CUDA_ERROR_LAUNCH_FAILED;
-   afterwards CUDA could not start on the machine at all). It continues from
-   `checkpoint_174540.npz` with the same command once the GPUs work again.
+   reference; SlaterNet first on each GPU. Started 2026-10-28 09:02. All
+   four finished (200,000 iterations); the results are in
+   `runs/stage08/training/README.md`. `attention_eps5` was interrupted once:
+   GPU 1 dropped off the PCIe bus at iteration 190,863 (2026-10-28 16:00), and
+   after a reboot the run continued from `checkpoint_174540.npz` on GPU 0. Done.
 5. The full gradient (imaginary part of E_loc kept) as a separate experiment.
 
 ## Files in this folder

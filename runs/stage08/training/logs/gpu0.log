@@ -420,3 +420,34 @@ Traceback (most recent call last):
 RuntimeError: jaxlib/cuda/versions_helpers.cc:113: operation cuInit(0) failed: CUDA_ERROR_UNKNOWN
 WARNING:2026-10-29 00:17:28,839:jax._src.xla_bridge:850: An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
 continuing from checkpoint_174540.npz
+=== 2026-10-29 05:41:15  note: the start above (2026-10-29 00:17) found no working GPU (cuInit failed after GPU 1 dropped off the bus), fell back to the CPU and was stopped by hand; train_stats.csv was cut back to 174540 rows.  Server rebooted; now on GPU 0.
+=== 2026-10-29 05:41:15  start attention_eps5 on GPU 0
+continuing from checkpoint_174540.npz
+step  175000  energy -105.83775  pmove 0.53  width 0.077  2.41 it/s
+step  176000  energy -105.82305  pmove 0.53  width 0.077  5.18 it/s
+step  177000  energy -105.81448  pmove 0.53  width 0.077  6.51 it/s
+step  178000  energy -105.80812  pmove 0.53  width 0.077  7.28 it/s
+step  179000  energy -105.85233  pmove 0.53  width 0.077  7.78 it/s
+step  180000  energy -105.83524  pmove 0.53  width 0.077  8.14 it/s
+step  181000  energy -105.74187  pmove 0.52  width 0.077  8.41 it/s
+step  182000  energy -105.81818  pmove 0.52  width 0.077  8.62 it/s
+step  183000  energy -105.80934  pmove 0.52  width 0.077  8.79 it/s
+step  184000  energy -105.82831  pmove 0.53  width 0.077  8.93 it/s
+step  185000  energy -105.83163  pmove 0.52  width 0.077  9.04 it/s
+step  186000  energy -105.80825  pmove 0.52  width 0.077  9.14 it/s
+step  187000  energy -105.82091  pmove 0.52  width 0.077  9.22 it/s
+step  188000  energy -105.81476  pmove 0.52  width 0.077  9.29 it/s
+step  189000  energy -105.82349  pmove 0.53  width 0.077  9.35 it/s
+step  190000  energy -105.81015  pmove 0.53  width 0.077  9.40 it/s
+step  191000  energy -105.82537  pmove 0.52  width 0.077  9.46 it/s
+step  192000  energy -105.77686  pmove 0.53  width 0.077  9.50 it/s
+step  193000  energy -105.82818  pmove 0.52  width 0.077  9.54 it/s
+step  194000  energy -105.82277  pmove 0.52  width 0.077  9.58 it/s
+step  195000  energy -105.85296  pmove 0.52  width 0.077  9.60 it/s
+step  196000  energy -105.80180  pmove 0.53  width 0.077  9.63 it/s
+step  197000  energy -105.83255  pmove 0.52  width 0.077  9.66 it/s
+step  198000  energy -105.77721  pmove 0.52  width 0.077  9.69 it/s
+step  199000  energy -105.78549  pmove 0.53  width 0.077  9.71 it/s
+step  200000  energy -105.87897  pmove 0.53  width 0.077  9.74 it/s
+finished
+=== 2026-10-29 06:24:58  attention_eps5 ended with exit code 0
