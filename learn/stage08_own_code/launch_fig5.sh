@@ -11,6 +11,10 @@
 # busy exits with code 75, which stops its queue.  A run that fails for any
 # other reason is logged with its exit code, and the queue goes on.
 #
+# Each queue also records its GPU every 10 s while it runs (utilization,
+# memory, temperature, power, clock, fan, why the clock is lowered) in
+# runs/stage08/training/logs/gpuN_monitor_<date>_<time>.csv, one file per start.
+#
 # Run (from ~/moire-nnvmc):   bash learn/stage08_own_code/launch_fig5.sh
 # Watch:                      tail -f runs/stage08/training/logs/gpu0.log
 cd "$(dirname "$0")" || exit 1
@@ -21,6 +25,10 @@ mkdir -p $RUNS/logs
 queue () {   # gpu, then pairs: network eps
     gpu=$1
     shift
+    nvidia-smi -i $gpu --format=csv -l 10 \
+        --query-gpu=timestamp,index,utilization.gpu,memory.used,memory.total,temperature.gpu,power.draw,clocks.sm,fan.speed,clocks_event_reasons.active \
+        >> $RUNS/logs/gpu${gpu}_monitor_$(date '+%F_%H%M%S').csv 2>&1 &
+    monitor=$!
     while [ $# -gt 0 ]; do
         name="${1}_eps${2}"
         echo "=== $(date '+%F %T')  start $name on GPU $gpu"
@@ -29,10 +37,12 @@ queue () {   # gpu, then pairs: network eps
         echo "=== $(date '+%F %T')  $name ended with exit code $status"
         if [ $status -eq 75 ]; then
             echo "=== GPU $gpu or $name is busy; this queue stops"
+            kill $monitor
             return
         fi
         shift 2
     done
+    kill $monitor
 }
 
 export -f queue

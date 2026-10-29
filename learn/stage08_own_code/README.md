@@ -34,16 +34,23 @@ run is archived in `learn/archive/stage08_authors_code/`, its data in
    `runs/stage08/training/README.md`. `attention_eps5` was interrupted once:
    GPU 1 dropped off the PCIe bus at iteration 190,863 (2026-10-28 16:00), and
    after a reboot the run continued from `checkpoint_174540.npz` on GPU 0. Done.
-5. The full gradient (imaginary part of E_loc kept) as a separate experiment.
+5. **Frozen-weight evaluation and figures** (`analysis/`): the four final
+   wave functions evaluated with their weights fixed, the same figures and
+   tables as for the reference run, and a comparison with it. Frozen-weight
+   energies within 0.026 meV per electron of the reference run; no
+   honeycomb at 9 sites, as for the reference run. Results in
+   `runs/stage08/results/`, figures in `runs/stage08/figures/`. Done.
+6. The full gradient (imaginary part of E_loc kept) as a separate experiment.
 
 ## Files in this folder
 
 | File | What it is for |
 |---|---|
 | `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
-| `launch_fig5.sh` | Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Data in `runs/stage08/training/`. |
+| `launch_fig5.sh` | Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power). Data in `runs/stage08/training/`. |
 | `test_train_moire.py` | The settings equal the reference run's; KFAC receives Stage 6's gradient; one complete update (local energies, gradient, KFAC step) from the reference run's trained weights equals one of the authors' code; a restart continues exactly. |
 | `test_networks.py` | Our networks with the released settings against the authors' networks: same settings, parameters, initial distribution, function and derivatives with their trained weights, local energy, and the same layers for KFAC. |
+| `analysis/` | Everything after training: frozen-weight evaluation, observables, figures 1–7 and the result tables — the archived analysis, for our runs. See `analysis/README.md`. |
 
 ## Run
 

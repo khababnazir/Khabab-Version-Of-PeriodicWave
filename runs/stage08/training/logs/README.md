@@ -15,3 +15,9 @@ lanes, and why the clock is lowered (`0x20` = software thermal slowdown,
 maximum operating temperature is 93 °C), its fan reached 100 %, and it was in
 thermal slowdown in 238 of its 246 samples during training.  That is why this
 part ran at about 10 iterations per second instead of 12.
+
+From now on each queue of `launch_fig5.sh` also writes
+`gpuN_monitor_<date>_<time>.csv` (one file per start): its GPU every 10
+seconds, with utilization, memory used and total, temperature, power,
+clock, fan, and why the clock is lowered.  `gpu_monitor_2026-10-29.csv`
+above was written before this, without utilization and memory.

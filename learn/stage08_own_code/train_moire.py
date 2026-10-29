@@ -256,20 +256,34 @@ def save_checkpoint(folder, done, params, opt_state, walkers, width, key):
     os.replace(temporary, path)
 
 
-def load_checkpoint(path, params_like, opt_state_like):
-    """The arrays of a checkpoint, put back into the structure of params_like / opt_state_like."""
+def restore_tree(saved, like, prefix, path):
+    """The arrays prefix_0, prefix_1, ... of an open checkpoint, in the structure of `like`."""
     import jax
     import jax.numpy as jnp
+    leaves, structure = jax.tree.flatten(like)
+    names = [f"{prefix}_{i}" for i in range(len(leaves))]
+    if (any(name not in saved.files for name in names) or f"{prefix}_{len(leaves)}" in saved.files
+            or any(saved[name].shape != np.shape(leaf) for name, leaf in zip(names, leaves))):
+        raise ValueError(f"{path.name} does not fit this network or optimiser")
+    return jax.tree.unflatten(structure, [jnp.asarray(saved[name], dtype=jnp.asarray(leaf).dtype)
+                                          for name, leaf in zip(names, leaves)])
+
+
+def load_checkpoint(path, params_like, opt_state_like):
+    """The arrays of a checkpoint, put back into the structure of params_like / opt_state_like."""
+    import jax.numpy as jnp
     with np.load(path) as saved:
-        def restore(like, prefix):
-            leaves, structure = jax.tree.flatten(like)
-            stored = [saved[f"{prefix}_{i}"] for i in range(len(leaves))]
-            if f"{prefix}_{len(leaves)}" in saved.files or any(a.shape != np.shape(b) for a, b in zip(stored, leaves)):
-                raise ValueError(f"{path.name} does not fit this network or optimiser")
-            return jax.tree.unflatten(structure, [jnp.asarray(a, dtype=jnp.asarray(b).dtype)
-                                                  for a, b in zip(stored, leaves)])
-        return (int(saved["done"]), restore(params_like, "params"), restore(opt_state_like, "opt_state"),
+        return (int(saved["done"]), restore_tree(saved, params_like, "params", path),
+                restore_tree(saved, opt_state_like, "opt_state", path),
                 jnp.asarray(saved["walkers"]), float(saved["width"]), jnp.asarray(saved["key"]))
+
+
+def load_parameters(path, params_like):
+    """What an evaluation needs from a checkpoint: iterations done, parameters, walkers, step width."""
+    import jax.numpy as jnp
+    with np.load(path) as saved:
+        return (int(saved["done"]), restore_tree(saved, params_like, "params", path),
+                jnp.asarray(saved["walkers"]), float(saved["width"]))
 
 
 def checkpoints_newest_first(folder):

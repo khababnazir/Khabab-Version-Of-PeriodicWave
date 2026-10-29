@@ -1,0 +1,60 @@
+=== 2026-10-29 06:51:22  start attention_eps5 on GPU 0
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -105.81773, end of training -105.82033
+step   1000  mean energy -105.81949  pmove 0.523  4.86 steps/s
+step   2000  mean energy -105.81901  pmove 0.518  7.03 steps/s
+step   3000  mean energy -105.81891  pmove 0.529  8.20 steps/s
+step   4000  mean energy -105.81835  pmove 0.524  8.94 steps/s
+step   5000  mean energy -105.81849  pmove 0.523  9.44 steps/s
+step   6000  mean energy -105.81835  pmove 0.527  9.81 steps/s
+step   7000  mean energy -105.81846  pmove 0.528  10.09 steps/s
+step   8000  mean energy -105.81849  pmove 0.522  10.32 steps/s
+step   9000  mean energy -105.81821  pmove 0.523  10.50 steps/s
+step  10000  mean energy -105.81825  pmove 0.522  10.65 steps/s
+finished
+=== 2026-10-29 07:07:14  attention_eps5 ended with exit code 0
+=== 2026-10-29 07:07:14  start attention_eps10 on GPU 0
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -57.36967, end of training -57.37237
+step   1000  mean energy -57.37212  pmove 0.517  5.13 steps/s
+step   2000  mean energy -57.37253  pmove 0.512  7.30 steps/s
+step   3000  mean energy -57.37259  pmove 0.519  8.46 steps/s
+step   4000  mean energy -57.37274  pmove 0.515  9.17 steps/s
+step   5000  mean energy -57.37279  pmove 0.515  9.65 steps/s
+step   6000  mean energy -57.37275  pmove 0.520  9.98 steps/s
+step   7000  mean energy -57.37280  pmove 0.517  10.24 steps/s
+step   8000  mean energy -57.37278  pmove 0.515  10.44 steps/s
+step   9000  mean energy -57.37280  pmove 0.514  10.61 steps/s
+step  10000  mean energy -57.37293  pmove 0.513  10.75 steps/s
+finished
+=== 2026-10-29 07:22:57  attention_eps10 ended with exit code 0
+=== 2026-10-29 07:22:57  start slaternet_eps5 on GPU 0
+burn-in of 200 steps done after 8 s (includes compiling)
+sanity check: evaluation -102.90130, end of training -102.93887
+step   1000  mean energy -102.89696  pmove 0.517  8.87 steps/s
+step   2000  mean energy -102.89890  pmove 0.510  14.92 steps/s
+step   3000  mean energy -102.89946  pmove 0.517  19.27 steps/s
+step   4000  mean energy -102.90101  pmove 0.509  22.54 steps/s
+step   5000  mean energy -102.90224  pmove 0.510  25.07 steps/s
+step   6000  mean energy -102.90467  pmove 0.508  27.09 steps/s
+step   7000  mean energy -102.90513  pmove 0.512  28.73 steps/s
+step   8000  mean energy -102.90631  pmove 0.513  30.07 steps/s
+step   9000  mean energy -102.90597  pmove 0.506  31.20 steps/s
+step  10000  mean energy -102.90547  pmove 0.510  32.17 steps/s
+finished
+=== 2026-10-29 07:28:21  slaternet_eps5 ended with exit code 0
+=== 2026-10-29 07:28:21  start slaternet_eps10 on GPU 0
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -56.22117, end of training -56.21419
+step   1000  mean energy -56.21123  pmove 0.514  8.91 steps/s
+step   2000  mean energy -56.21301  pmove 0.511  14.98 steps/s
+step   3000  mean energy -56.21551  pmove 0.517  19.32 steps/s
+step   4000  mean energy -56.21412  pmove 0.511  22.57 steps/s
+step   5000  mean energy -56.21201  pmove 0.509  25.10 steps/s
+step   6000  mean energy -56.21073  pmove 0.517  27.11 steps/s
+step   7000  mean energy -56.21120  pmove 0.513  28.75 steps/s
+step   8000  mean energy -56.21068  pmove 0.508  30.10 steps/s
+step   9000  mean energy -56.21144  pmove 0.515  31.23 steps/s
+step  10000  mean energy -56.21135  pmove 0.513  32.20 steps/s
+finished
+=== 2026-10-29 07:33:44  slaternet_eps10 ended with exit code 0
