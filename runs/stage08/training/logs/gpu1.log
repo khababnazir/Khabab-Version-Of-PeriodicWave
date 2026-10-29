@@ -1,0 +1,600 @@
+=== 2026-10-28 09:02:18  start slaternet_eps5 on GPU 1
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -102.99004  pmove 0.51  width 0.077  6.08 it/s
+step    2000  energy -102.89085  pmove 0.51  width 0.077  10.61 it/s
+step    3000  energy -103.19884  pmove 0.51  width 0.077  14.07 it/s
+step    4000  energy -103.22972  pmove 0.51  width 0.077  16.78 it/s
+step    5000  energy -102.77661  pmove 0.51  width 0.077  18.94 it/s
+step    6000  energy -103.23015  pmove 0.51  width 0.077  20.71 it/s
+step    7000  energy -103.34983  pmove 0.51  width 0.077  22.18 it/s
+step    8000  energy -103.13235  pmove 0.51  width 0.077  23.43 it/s
+step    9000  energy -102.87158  pmove 0.52  width 0.077  24.50 it/s
+step   10000  energy -102.80828  pmove 0.52  width 0.077  25.43 it/s
+step   11000  energy -102.92371  pmove 0.52  width 0.077  26.22 it/s
+step   12000  energy -103.03141  pmove 0.52  width 0.077  26.92 it/s
+step   13000  energy -102.99142  pmove 0.51  width 0.077  27.55 it/s
+step   14000  energy -103.26820  pmove 0.51  width 0.077  28.12 it/s
+step   15000  energy -103.10712  pmove 0.50  width 0.077  28.63 it/s
+step   16000  energy -102.89418  pmove 0.50  width 0.077  29.09 it/s
+step   17000  energy -103.10979  pmove 0.52  width 0.077  29.51 it/s
+step   18000  energy -102.45295  pmove 0.51  width 0.077  29.89 it/s
+step   19000  energy -102.56374  pmove 0.52  width 0.077  30.24 it/s
+step   20000  energy -102.77284  pmove 0.51  width 0.077  30.56 it/s
+step   21000  energy -102.28566  pmove 0.51  width 0.077  30.85 it/s
+step   22000  energy -102.47490  pmove 0.52  width 0.077  31.12 it/s
+step   23000  energy -102.87901  pmove 0.52  width 0.077  31.37 it/s
+step   24000  energy -103.13939  pmove 0.51  width 0.077  31.61 it/s
+step   25000  energy -103.11245  pmove 0.51  width 0.077  31.82 it/s
+step   26000  energy -103.16916  pmove 0.52  width 0.077  32.03 it/s
+step   27000  energy -103.01140  pmove 0.51  width 0.077  32.23 it/s
+step   28000  energy -102.96298  pmove 0.51  width 0.077  32.41 it/s
+step   29000  energy -102.91568  pmove 0.51  width 0.077  32.57 it/s
+step   30000  energy -103.29265  pmove 0.51  width 0.077  32.73 it/s
+step   31000  energy -102.95326  pmove 0.51  width 0.077  32.88 it/s
+step   32000  energy -102.72672  pmove 0.51  width 0.077  33.02 it/s
+step   33000  energy -103.02626  pmove 0.52  width 0.077  33.16 it/s
+step   34000  energy -102.79115  pmove 0.51  width 0.077  33.29 it/s
+step   35000  energy -102.94875  pmove 0.52  width 0.077  33.41 it/s
+step   36000  energy -102.87282  pmove 0.51  width 0.077  33.52 it/s
+step   37000  energy -102.95474  pmove 0.51  width 0.077  33.63 it/s
+step   38000  energy -102.81163  pmove 0.51  width 0.077  33.73 it/s
+step   39000  energy -103.27315  pmove 0.51  width 0.077  33.84 it/s
+step   40000  energy -103.32933  pmove 0.51  width 0.077  33.93 it/s
+step   41000  energy -103.11725  pmove 0.52  width 0.077  34.02 it/s
+step   42000  energy -103.04416  pmove 0.51  width 0.077  34.11 it/s
+step   43000  energy -103.09869  pmove 0.51  width 0.077  34.19 it/s
+step   44000  energy -102.88906  pmove 0.51  width 0.077  34.27 it/s
+step   45000  energy -103.33849  pmove 0.52  width 0.077  34.34 it/s
+step   46000  energy -103.18730  pmove 0.52  width 0.077  34.42 it/s
+step   47000  energy -102.59966  pmove 0.51  width 0.077  34.49 it/s
+step   48000  energy -102.91525  pmove 0.52  width 0.077  34.56 it/s
+step   49000  energy -102.64262  pmove 0.50  width 0.077  34.62 it/s
+step   50000  energy -102.89700  pmove 0.51  width 0.077  34.69 it/s
+step   51000  energy -102.92511  pmove 0.52  width 0.077  34.74 it/s
+step   52000  energy -103.15343  pmove 0.51  width 0.077  34.80 it/s
+step   53000  energy -102.83070  pmove 0.52  width 0.077  34.85 it/s
+step   54000  energy -102.99863  pmove 0.51  width 0.077  34.91 it/s
+step   55000  energy -102.92384  pmove 0.51  width 0.077  34.97 it/s
+step   56000  energy -102.95721  pmove 0.52  width 0.077  35.02 it/s
+step   57000  energy -103.25601  pmove 0.51  width 0.077  35.07 it/s
+step   58000  energy -103.19469  pmove 0.52  width 0.077  35.12 it/s
+step   59000  energy -103.38716  pmove 0.51  width 0.077  35.16 it/s
+step   60000  energy -103.36165  pmove 0.51  width 0.077  35.21 it/s
+step   61000  energy -103.30097  pmove 0.51  width 0.077  35.25 it/s
+step   62000  energy -103.00285  pmove 0.50  width 0.077  35.30 it/s
+step   63000  energy -103.31114  pmove 0.51  width 0.077  35.34 it/s
+step   64000  energy -102.83963  pmove 0.51  width 0.077  35.37 it/s
+step   65000  energy -102.75112  pmove 0.51  width 0.077  35.41 it/s
+step   66000  energy -102.75864  pmove 0.51  width 0.077  35.45 it/s
+step   67000  energy -102.73104  pmove 0.51  width 0.077  35.49 it/s
+step   68000  energy -102.99247  pmove 0.51  width 0.077  35.52 it/s
+step   69000  energy -103.00594  pmove 0.51  width 0.077  35.56 it/s
+step   70000  energy -102.60485  pmove 0.51  width 0.077  35.59 it/s
+step   71000  energy -103.08974  pmove 0.52  width 0.077  35.63 it/s
+step   72000  energy -103.36649  pmove 0.51  width 0.077  35.66 it/s
+step   73000  energy -102.76302  pmove 0.51  width 0.077  35.69 it/s
+step   74000  energy -103.08067  pmove 0.52  width 0.077  35.73 it/s
+step   75000  energy -103.07419  pmove 0.52  width 0.077  35.75 it/s
+step   76000  energy -102.82961  pmove 0.51  width 0.077  35.79 it/s
+step   77000  energy -102.89719  pmove 0.51  width 0.077  35.81 it/s
+step   78000  energy -102.68425  pmove 0.51  width 0.077  35.84 it/s
+step   79000  energy -102.86162  pmove 0.52  width 0.077  35.87 it/s
+step   80000  energy -102.80721  pmove 0.52  width 0.077  35.90 it/s
+step   81000  energy -102.82573  pmove 0.51  width 0.077  35.93 it/s
+step   82000  energy -102.85327  pmove 0.52  width 0.077  35.95 it/s
+step   83000  energy -103.08297  pmove 0.51  width 0.077  35.98 it/s
+step   84000  energy -102.63612  pmove 0.51  width 0.077  36.00 it/s
+step   85000  energy -103.35999  pmove 0.50  width 0.077  36.02 it/s
+step   86000  energy -103.10526  pmove 0.52  width 0.077  36.04 it/s
+step   87000  energy -102.80664  pmove 0.51  width 0.077  36.06 it/s
+step   88000  energy -102.70313  pmove 0.51  width 0.077  36.09 it/s
+step   89000  energy -102.89571  pmove 0.51  width 0.077  36.11 it/s
+step   90000  energy -102.96021  pmove 0.51  width 0.077  36.13 it/s
+step   91000  energy -102.90781  pmove 0.52  width 0.077  36.15 it/s
+step   92000  energy -102.47665  pmove 0.51  width 0.077  36.17 it/s
+step   93000  energy -103.44589  pmove 0.50  width 0.077  36.19 it/s
+step   94000  energy -102.70643  pmove 0.51  width 0.077  36.20 it/s
+step   95000  energy -103.24837  pmove 0.51  width 0.077  36.22 it/s
+step   96000  energy -103.27315  pmove 0.52  width 0.077  36.24 it/s
+step   97000  energy -102.89297  pmove 0.51  width 0.077  36.26 it/s
+step   98000  energy -102.54453  pmove 0.51  width 0.077  36.28 it/s
+step   99000  energy -103.13213  pmove 0.51  width 0.077  36.29 it/s
+step  100000  energy -103.02922  pmove 0.52  width 0.077  36.31 it/s
+step  101000  energy -102.89738  pmove 0.50  width 0.077  36.33 it/s
+step  102000  energy -103.10728  pmove 0.52  width 0.077  36.35 it/s
+step  103000  energy -103.18448  pmove 0.51  width 0.077  36.36 it/s
+step  104000  energy -102.73669  pmove 0.51  width 0.077  36.38 it/s
+step  105000  energy -102.63788  pmove 0.51  width 0.077  36.40 it/s
+step  106000  energy -102.87659  pmove 0.52  width 0.077  36.41 it/s
+step  107000  energy -102.82844  pmove 0.52  width 0.077  36.43 it/s
+step  108000  energy -102.84081  pmove 0.52  width 0.077  36.44 it/s
+step  109000  energy -102.83171  pmove 0.51  width 0.077  36.46 it/s
+step  110000  energy -102.78870  pmove 0.51  width 0.077  36.47 it/s
+step  111000  energy -102.77672  pmove 0.51  width 0.077  36.49 it/s
+step  112000  energy -102.86771  pmove 0.51  width 0.077  36.50 it/s
+step  113000  energy -102.75600  pmove 0.51  width 0.077  36.51 it/s
+step  114000  energy -102.44125  pmove 0.51  width 0.077  36.53 it/s
+step  115000  energy -102.59920  pmove 0.51  width 0.077  36.54 it/s
+step  116000  energy -103.16188  pmove 0.51  width 0.077  36.55 it/s
+step  117000  energy -102.92795  pmove 0.51  width 0.077  36.57 it/s
+step  118000  energy -102.80243  pmove 0.51  width 0.077  36.58 it/s
+step  119000  energy -103.00951  pmove 0.52  width 0.077  36.59 it/s
+step  120000  energy -102.74687  pmove 0.52  width 0.077  36.61 it/s
+step  121000  energy -103.02059  pmove 0.51  width 0.077  36.62 it/s
+step  122000  energy -103.12598  pmove 0.51  width 0.077  36.63 it/s
+step  123000  energy -102.83553  pmove 0.52  width 0.077  36.64 it/s
+step  124000  energy -103.11227  pmove 0.51  width 0.077  36.65 it/s
+step  125000  energy -102.77373  pmove 0.51  width 0.077  36.66 it/s
+step  126000  energy -103.43535  pmove 0.52  width 0.077  36.68 it/s
+step  127000  energy -102.64345  pmove 0.51  width 0.077  36.69 it/s
+step  128000  energy -103.42287  pmove 0.52  width 0.077  36.70 it/s
+step  129000  energy -102.95744  pmove 0.51  width 0.077  36.71 it/s
+step  130000  energy -102.68195  pmove 0.51  width 0.077  36.72 it/s
+step  131000  energy -102.71619  pmove 0.51  width 0.077  36.73 it/s
+step  132000  energy -102.68626  pmove 0.51  width 0.077  36.74 it/s
+step  133000  energy -102.78905  pmove 0.51  width 0.077  36.75 it/s
+step  134000  energy -103.05587  pmove 0.50  width 0.077  36.76 it/s
+step  135000  energy -102.58700  pmove 0.51  width 0.077  36.77 it/s
+step  136000  energy -103.10516  pmove 0.51  width 0.077  36.78 it/s
+step  137000  energy -103.01183  pmove 0.50  width 0.077  36.78 it/s
+step  138000  energy -102.44798  pmove 0.51  width 0.077  36.79 it/s
+step  139000  energy -102.87291  pmove 0.51  width 0.077  36.80 it/s
+step  140000  energy -102.96370  pmove 0.51  width 0.077  36.81 it/s
+step  141000  energy -102.86168  pmove 0.51  width 0.077  36.82 it/s
+step  142000  energy -102.76373  pmove 0.52  width 0.077  36.83 it/s
+step  143000  energy -102.63844  pmove 0.51  width 0.077  36.84 it/s
+step  144000  energy -103.50725  pmove 0.52  width 0.077  36.85 it/s
+step  145000  energy -103.32677  pmove 0.51  width 0.077  36.86 it/s
+step  146000  energy -102.85323  pmove 0.51  width 0.077  36.87 it/s
+step  147000  energy -102.94392  pmove 0.51  width 0.077  36.87 it/s
+step  148000  energy -102.76125  pmove 0.51  width 0.077  36.88 it/s
+step  149000  energy -102.94900  pmove 0.52  width 0.077  36.89 it/s
+step  150000  energy -102.69833  pmove 0.51  width 0.077  36.90 it/s
+step  151000  energy -103.02528  pmove 0.51  width 0.077  36.91 it/s
+step  152000  energy -102.35123  pmove 0.51  width 0.077  36.92 it/s
+step  153000  energy -103.14040  pmove 0.52  width 0.077  36.92 it/s
+step  154000  energy -102.99975  pmove 0.51  width 0.077  36.93 it/s
+step  155000  energy -102.87876  pmove 0.50  width 0.077  36.94 it/s
+step  156000  energy -103.09738  pmove 0.51  width 0.077  36.95 it/s
+step  157000  energy -103.05283  pmove 0.52  width 0.077  36.95 it/s
+step  158000  energy -103.09769  pmove 0.52  width 0.077  36.96 it/s
+step  159000  energy -102.64693  pmove 0.52  width 0.077  36.97 it/s
+step  160000  energy -102.75220  pmove 0.51  width 0.077  36.98 it/s
+step  161000  energy -102.75130  pmove 0.51  width 0.077  36.98 it/s
+step  162000  energy -102.96410  pmove 0.50  width 0.077  36.99 it/s
+step  163000  energy -102.97845  pmove 0.52  width 0.077  37.00 it/s
+step  164000  energy -102.86044  pmove 0.52  width 0.077  37.00 it/s
+step  165000  energy -102.87926  pmove 0.51  width 0.077  37.01 it/s
+step  166000  energy -102.86664  pmove 0.52  width 0.077  37.02 it/s
+step  167000  energy -102.78633  pmove 0.51  width 0.077  37.02 it/s
+step  168000  energy -102.81131  pmove 0.51  width 0.077  37.03 it/s
+step  169000  energy -103.10503  pmove 0.51  width 0.077  37.03 it/s
+step  170000  energy -102.88699  pmove 0.52  width 0.077  37.04 it/s
+step  171000  energy -102.79137  pmove 0.51  width 0.077  37.05 it/s
+step  172000  energy -103.35842  pmove 0.51  width 0.077  37.05 it/s
+step  173000  energy -103.31570  pmove 0.51  width 0.077  37.06 it/s
+step  174000  energy -103.04382  pmove 0.51  width 0.077  37.06 it/s
+step  175000  energy -102.55386  pmove 0.52  width 0.077  37.07 it/s
+step  176000  energy -103.16689  pmove 0.52  width 0.077  37.07 it/s
+step  177000  energy -102.86486  pmove 0.51  width 0.077  37.08 it/s
+step  178000  energy -102.86948  pmove 0.51  width 0.077  37.08 it/s
+step  179000  energy -102.63382  pmove 0.51  width 0.077  37.09 it/s
+step  180000  energy -103.05295  pmove 0.52  width 0.077  37.09 it/s
+step  181000  energy -102.98136  pmove 0.51  width 0.077  37.10 it/s
+step  182000  energy -103.04810  pmove 0.51  width 0.077  37.10 it/s
+step  183000  energy -102.99349  pmove 0.52  width 0.077  37.11 it/s
+step  184000  energy -102.84721  pmove 0.51  width 0.077  37.11 it/s
+step  185000  energy -103.23247  pmove 0.51  width 0.077  37.12 it/s
+step  186000  energy -102.60628  pmove 0.51  width 0.077  37.12 it/s
+step  187000  energy -103.11823  pmove 0.51  width 0.077  37.13 it/s
+step  188000  energy -102.77629  pmove 0.52  width 0.077  37.13 it/s
+step  189000  energy -102.72893  pmove 0.52  width 0.077  37.14 it/s
+step  190000  energy -103.04821  pmove 0.51  width 0.077  37.14 it/s
+step  191000  energy -102.46332  pmove 0.52  width 0.077  37.15 it/s
+step  192000  energy -103.46065  pmove 0.51  width 0.077  37.15 it/s
+step  193000  energy -103.21932  pmove 0.51  width 0.077  37.16 it/s
+step  194000  energy -103.04758  pmove 0.51  width 0.077  37.16 it/s
+step  195000  energy -102.64727  pmove 0.52  width 0.077  37.17 it/s
+step  196000  energy -102.71277  pmove 0.52  width 0.077  37.17 it/s
+step  197000  energy -102.87704  pmove 0.51  width 0.077  37.18 it/s
+step  198000  energy -102.59095  pmove 0.51  width 0.077  37.18 it/s
+step  199000  energy -103.02270  pmove 0.51  width 0.077  37.19 it/s
+step  200000  energy -102.85019  pmove 0.51  width 0.077  37.19 it/s
+finished
+=== 2026-10-28 10:32:12  slaternet_eps5 ended with exit code 0
+=== 2026-10-28 10:32:12  start attention_eps5 on GPU 1
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -105.39514  pmove 0.53  width 0.077  3.89 it/s
+step    2000  energy -105.53064  pmove 0.53  width 0.077  5.61 it/s
+step    3000  energy -105.56626  pmove 0.53  width 0.077  6.55 it/s
+step    4000  energy -105.72924  pmove 0.53  width 0.077  7.13 it/s
+step    5000  energy -105.74413  pmove 0.53  width 0.077  7.52 it/s
+step    6000  energy -105.57089  pmove 0.54  width 0.077  7.82 it/s
+step    7000  energy -105.80833  pmove 0.53  width 0.077  8.04 it/s
+step    8000  energy -105.73935  pmove 0.54  width 0.077  8.22 it/s
+step    9000  energy -105.77556  pmove 0.53  width 0.077  8.37 it/s
+step   10000  energy -105.73324  pmove 0.54  width 0.077  8.48 it/s
+step   11000  energy -105.82931  pmove 0.53  width 0.077  8.58 it/s
+step   12000  energy -105.79468  pmove 0.53  width 0.077  8.66 it/s
+step   13000  energy -105.69898  pmove 0.53  width 0.077  8.73 it/s
+step   14000  energy -105.76462  pmove 0.53  width 0.077  8.81 it/s
+step   15000  energy -105.79721  pmove 0.53  width 0.077  8.86 it/s
+step   16000  energy -105.72168  pmove 0.53  width 0.077  8.91 it/s
+step   17000  energy -105.79168  pmove 0.53  width 0.077  8.95 it/s
+step   18000  energy -105.83608  pmove 0.53  width 0.077  8.99 it/s
+step   19000  energy -105.78549  pmove 0.53  width 0.077  9.03 it/s
+step   20000  energy -105.87498  pmove 0.53  width 0.077  9.06 it/s
+step   21000  energy -105.80029  pmove 0.53  width 0.077  9.09 it/s
+step   22000  energy -105.74493  pmove 0.52  width 0.077  9.12 it/s
+step   23000  energy -105.86436  pmove 0.53  width 0.077  9.15 it/s
+step   24000  energy -105.83097  pmove 0.53  width 0.077  9.17 it/s
+step   25000  energy -105.82678  pmove 0.54  width 0.077  9.19 it/s
+step   26000  energy -105.80328  pmove 0.53  width 0.077  9.21 it/s
+step   27000  energy -105.81339  pmove 0.53  width 0.077  9.23 it/s
+step   28000  energy -105.82112  pmove 0.53  width 0.077  9.24 it/s
+step   29000  energy -105.84291  pmove 0.53  width 0.077  9.26 it/s
+step   30000  energy -105.82240  pmove 0.53  width 0.077  9.27 it/s
+step   31000  energy -105.77787  pmove 0.53  width 0.077  9.28 it/s
+step   32000  energy -105.77605  pmove 0.53  width 0.077  9.29 it/s
+step   33000  energy -105.89806  pmove 0.53  width 0.077  9.30 it/s
+step   34000  energy -105.83585  pmove 0.54  width 0.077  9.31 it/s
+step   35000  energy -105.84504  pmove 0.53  width 0.077  9.33 it/s
+step   36000  energy -105.79681  pmove 0.53  width 0.077  9.33 it/s
+step   37000  energy -105.79527  pmove 0.54  width 0.077  9.34 it/s
+step   38000  energy -105.78310  pmove 0.53  width 0.077  9.36 it/s
+step   39000  energy -105.83737  pmove 0.53  width 0.077  9.37 it/s
+step   40000  energy -105.76179  pmove 0.53  width 0.077  9.38 it/s
+step   41000  energy -105.79916  pmove 0.53  width 0.077  9.38 it/s
+step   42000  energy -105.80821  pmove 0.53  width 0.077  9.39 it/s
+step   43000  energy -105.84515  pmove 0.54  width 0.077  9.40 it/s
+step   44000  energy -105.80092  pmove 0.53  width 0.077  9.41 it/s
+step   45000  energy -105.83035  pmove 0.54  width 0.077  9.42 it/s
+step   46000  energy -105.87877  pmove 0.54  width 0.077  9.43 it/s
+step   47000  energy -105.84175  pmove 0.54  width 0.077  9.43 it/s
+step   48000  energy -105.80323  pmove 0.54  width 0.077  9.44 it/s
+step   49000  energy -105.77467  pmove 0.53  width 0.077  9.45 it/s
+step   50000  energy -105.84690  pmove 0.53  width 0.077  9.45 it/s
+step   51000  energy -105.82936  pmove 0.53  width 0.077  9.46 it/s
+step   52000  energy -105.84871  pmove 0.52  width 0.077  9.46 it/s
+step   53000  energy -105.83981  pmove 0.54  width 0.077  9.46 it/s
+step   54000  energy -105.73241  pmove 0.53  width 0.077  9.47 it/s
+step   55000  energy -105.81173  pmove 0.53  width 0.077  9.48 it/s
+step   56000  energy -105.81381  pmove 0.53  width 0.077  9.48 it/s
+step   57000  energy -105.79767  pmove 0.53  width 0.077  9.48 it/s
+step   58000  energy -105.85742  pmove 0.53  width 0.077  9.49 it/s
+step   59000  energy -105.84041  pmove 0.53  width 0.077  9.49 it/s
+step   60000  energy -105.81491  pmove 0.53  width 0.077  9.49 it/s
+step   61000  energy -105.81579  pmove 0.53  width 0.077  9.50 it/s
+step   62000  energy -105.82898  pmove 0.53  width 0.077  9.50 it/s
+step   63000  energy -105.78629  pmove 0.53  width 0.077  9.50 it/s
+step   64000  energy -105.81847  pmove 0.53  width 0.077  9.51 it/s
+step   65000  energy -105.81578  pmove 0.53  width 0.077  9.51 it/s
+step   66000  energy -105.81271  pmove 0.53  width 0.077  9.52 it/s
+step   67000  energy -105.76490  pmove 0.53  width 0.077  9.52 it/s
+step   68000  energy -105.85005  pmove 0.53  width 0.077  9.52 it/s
+step   69000  energy -105.83082  pmove 0.53  width 0.077  9.53 it/s
+step   70000  energy -105.79911  pmove 0.53  width 0.077  9.53 it/s
+step   71000  energy -105.81599  pmove 0.53  width 0.077  9.54 it/s
+step   72000  energy -105.81543  pmove 0.54  width 0.077  9.54 it/s
+step   73000  energy -105.76328  pmove 0.53  width 0.077  9.54 it/s
+step   74000  energy -105.81069  pmove 0.54  width 0.077  9.55 it/s
+step   75000  energy -105.79659  pmove 0.53  width 0.077  9.55 it/s
+step   76000  energy -105.75223  pmove 0.53  width 0.077  9.55 it/s
+step   77000  energy -105.81126  pmove 0.53  width 0.077  9.56 it/s
+step   78000  energy -105.82611  pmove 0.53  width 0.077  9.56 it/s
+step   79000  energy -105.82889  pmove 0.54  width 0.077  9.56 it/s
+step   80000  energy -105.86575  pmove 0.53  width 0.077  9.57 it/s
+step   81000  energy -105.81215  pmove 0.53  width 0.077  9.57 it/s
+step   82000  energy -105.83791  pmove 0.53  width 0.077  9.57 it/s
+step   83000  energy -105.76844  pmove 0.53  width 0.077  9.58 it/s
+step   84000  energy -105.77892  pmove 0.52  width 0.077  9.58 it/s
+step   85000  energy -105.78632  pmove 0.53  width 0.077  9.58 it/s
+step   86000  energy -105.80972  pmove 0.53  width 0.077  9.58 it/s
+step   87000  energy -105.84354  pmove 0.53  width 0.077  9.59 it/s
+step   88000  energy -105.83603  pmove 0.53  width 0.077  9.59 it/s
+step   89000  energy -105.83994  pmove 0.53  width 0.077  9.59 it/s
+step   90000  energy -105.82886  pmove 0.52  width 0.077  9.59 it/s
+step   91000  energy -105.76103  pmove 0.53  width 0.077  9.60 it/s
+step   92000  energy -105.80282  pmove 0.53  width 0.077  9.60 it/s
+step   93000  energy -105.80009  pmove 0.53  width 0.077  9.60 it/s
+step   94000  energy -105.77919  pmove 0.53  width 0.077  9.60 it/s
+step   95000  energy -105.62343  pmove 0.53  width 0.077  9.61 it/s
+step   96000  energy -105.78389  pmove 0.53  width 0.077  9.61 it/s
+step   97000  energy -105.76938  pmove 0.53  width 0.077  9.61 it/s
+step   98000  energy -105.82988  pmove 0.53  width 0.077  9.61 it/s
+step   99000  energy -105.82098  pmove 0.53  width 0.077  9.61 it/s
+step  100000  energy -105.79097  pmove 0.53  width 0.077  9.61 it/s
+step  101000  energy -105.76962  pmove 0.52  width 0.077  9.61 it/s
+step  102000  energy -105.80771  pmove 0.53  width 0.077  9.62 it/s
+step  103000  energy -105.79903  pmove 0.53  width 0.077  9.62 it/s
+step  104000  energy -105.84814  pmove 0.53  width 0.077  9.62 it/s
+step  105000  energy -105.81093  pmove 0.53  width 0.077  9.62 it/s
+step  106000  energy -105.83167  pmove 0.53  width 0.077  9.63 it/s
+step  107000  energy -105.82876  pmove 0.53  width 0.077  9.63 it/s
+step  108000  energy -105.80851  pmove 0.53  width 0.077  9.63 it/s
+step  109000  energy -105.87685  pmove 0.53  width 0.077  9.63 it/s
+step  110000  energy -105.73433  pmove 0.53  width 0.077  9.63 it/s
+step  111000  energy -105.80957  pmove 0.53  width 0.077  9.63 it/s
+step  112000  energy -105.79948  pmove 0.53  width 0.077  9.63 it/s
+step  113000  energy -105.81491  pmove 0.53  width 0.077  9.64 it/s
+step  114000  energy -105.82637  pmove 0.53  width 0.077  9.64 it/s
+step  115000  energy -105.78880  pmove 0.53  width 0.077  9.64 it/s
+step  116000  energy -105.79744  pmove 0.53  width 0.077  9.64 it/s
+step  117000  energy -105.81087  pmove 0.53  width 0.077  9.64 it/s
+step  118000  energy -105.84035  pmove 0.54  width 0.077  9.64 it/s
+step  119000  energy -105.81140  pmove 0.53  width 0.077  9.65 it/s
+step  120000  energy -105.78470  pmove 0.54  width 0.077  9.65 it/s
+step  121000  energy -105.81155  pmove 0.53  width 0.077  9.65 it/s
+step  122000  energy -105.80283  pmove 0.53  width 0.077  9.65 it/s
+step  123000  energy -105.73948  pmove 0.53  width 0.077  9.65 it/s
+step  124000  energy -105.84879  pmove 0.53  width 0.077  9.65 it/s
+step  125000  energy -105.78557  pmove 0.53  width 0.077  9.65 it/s
+step  126000  energy -105.85085  pmove 0.53  width 0.077  9.65 it/s
+step  127000  energy -105.79193  pmove 0.54  width 0.077  9.66 it/s
+step  128000  energy -105.82214  pmove 0.53  width 0.077  9.66 it/s
+step  129000  energy -105.81477  pmove 0.53  width 0.077  9.66 it/s
+step  130000  energy -105.77373  pmove 0.53  width 0.077  9.66 it/s
+step  131000  energy -105.80257  pmove 0.53  width 0.077  9.66 it/s
+step  132000  energy -105.85181  pmove 0.53  width 0.077  9.66 it/s
+step  133000  energy -105.69640  pmove 0.53  width 0.077  9.66 it/s
+step  134000  energy -105.87402  pmove 0.53  width 0.077  9.66 it/s
+step  135000  energy -105.83012  pmove 0.53  width 0.077  9.66 it/s
+step  136000  energy -105.84183  pmove 0.53  width 0.077  9.66 it/s
+step  137000  energy -105.80525  pmove 0.53  width 0.077  9.66 it/s
+step  138000  energy -105.82854  pmove 0.54  width 0.077  9.67 it/s
+step  139000  energy -105.81685  pmove 0.53  width 0.077  9.67 it/s
+step  140000  energy -105.82539  pmove 0.53  width 0.077  9.67 it/s
+step  141000  energy -105.78362  pmove 0.53  width 0.077  9.67 it/s
+step  142000  energy -105.81763  pmove 0.53  width 0.077  9.67 it/s
+step  143000  energy -105.83295  pmove 0.53  width 0.077  9.67 it/s
+step  144000  energy -105.81113  pmove 0.53  width 0.077  9.67 it/s
+step  145000  energy -105.79394  pmove 0.53  width 0.077  9.67 it/s
+step  146000  energy -105.83472  pmove 0.53  width 0.077  9.68 it/s
+step  147000  energy -105.83311  pmove 0.53  width 0.077  9.67 it/s
+step  148000  energy -105.83564  pmove 0.53  width 0.077  9.68 it/s
+step  149000  energy -105.81479  pmove 0.53  width 0.077  9.68 it/s
+step  150000  energy -105.80417  pmove 0.53  width 0.077  9.68 it/s
+step  151000  energy -105.86529  pmove 0.53  width 0.077  9.68 it/s
+step  152000  energy -105.72214  pmove 0.52  width 0.077  9.68 it/s
+step  153000  energy -105.81404  pmove 0.53  width 0.077  9.68 it/s
+step  154000  energy -105.78552  pmove 0.53  width 0.077  9.68 it/s
+step  155000  energy -105.80807  pmove 0.52  width 0.077  9.68 it/s
+step  156000  energy -105.82655  pmove 0.53  width 0.077  9.68 it/s
+step  157000  energy -105.80444  pmove 0.53  width 0.077  9.68 it/s
+step  158000  energy -105.80997  pmove 0.53  width 0.077  9.68 it/s
+step  159000  energy -105.84213  pmove 0.52  width 0.077  9.69 it/s
+step  160000  energy -105.80458  pmove 0.53  width 0.077  9.69 it/s
+step  161000  energy -105.81418  pmove 0.52  width 0.077  9.69 it/s
+step  162000  energy -105.79715  pmove 0.52  width 0.077  9.69 it/s
+step  163000  energy -105.83968  pmove 0.53  width 0.077  9.69 it/s
+step  164000  energy -105.69686  pmove 0.53  width 0.077  9.69 it/s
+step  165000  energy -105.80204  pmove 0.53  width 0.077  9.69 it/s
+step  166000  energy -105.80070  pmove 0.53  width 0.077  9.69 it/s
+step  167000  energy -105.79725  pmove 0.53  width 0.077  9.69 it/s
+step  168000  energy -105.83247  pmove 0.52  width 0.077  9.69 it/s
+step  169000  energy -105.83298  pmove 0.53  width 0.077  9.69 it/s
+step  170000  energy -105.80052  pmove 0.53  width 0.077  9.69 it/s
+step  171000  energy -105.84344  pmove 0.52  width 0.077  9.69 it/s
+step  172000  energy -105.77448  pmove 0.52  width 0.077  9.69 it/s
+step  173000  energy -105.82533  pmove 0.53  width 0.077  9.70 it/s
+step  174000  energy -105.76739  pmove 0.53  width 0.077  9.70 it/s
+step  175000  energy -105.83775  pmove 0.53  width 0.077  9.70 it/s
+step  176000  energy -105.82305  pmove 0.53  width 0.077  9.70 it/s
+step  177000  energy -105.81448  pmove 0.53  width 0.077  9.70 it/s
+step  178000  energy -105.80812  pmove 0.53  width 0.077  9.70 it/s
+step  179000  energy -105.85233  pmove 0.53  width 0.077  9.70 it/s
+step  180000  energy -105.83524  pmove 0.53  width 0.077  9.70 it/s
+step  181000  energy -105.74187  pmove 0.52  width 0.077  9.70 it/s
+step  182000  energy -105.81818  pmove 0.52  width 0.077  9.70 it/s
+step  183000  energy -105.80934  pmove 0.52  width 0.077  9.70 it/s
+step  184000  energy -105.82831  pmove 0.53  width 0.077  9.70 it/s
+step  185000  energy -105.83163  pmove 0.52  width 0.077  9.70 it/s
+step  186000  energy -105.80825  pmove 0.52  width 0.077  9.70 it/s
+step  187000  energy -105.82091  pmove 0.52  width 0.077  9.70 it/s
+step  188000  energy -105.81476  pmove 0.52  width 0.077  9.70 it/s
+step  189000  energy -105.82349  pmove 0.53  width 0.077  9.70 it/s
+step  190000  energy -105.81015  pmove 0.53  width 0.077  9.70 it/s
+E1028 16:00:16.608760 2720836 pjrt_stream_executor_client.cc:2974] Execution of replica 0 failed: INTERNAL: Failed to retrieve branch_index value on stream 0x3c4254f0: CUDA error: Could not synchronize CUDA stream: CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure.
+Traceback (most recent call last):
+  File "/home/khabab/moire-nnvmc/learn/stage08_own_code/train_moire.py", line 434, in <module>
+    main()
+    ~~~~^^
+  File "/home/khabab/moire-nnvmc/learn/stage08_own_code/train_moire.py", line 429, in main
+    train(folder, args.network, args.eps, args.gradient, args.seed, iterations)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/khabab/moire-nnvmc/learn/stage08_own_code/train_moire.py", line 337, in train
+    params, opt_state, _ = optimizer.step(
+                           ~~~~~~~~~~~~~~^
+        params, opt_state, key_kfac, batch=(walkers, e_for_gradient),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        momentum=jnp.asarray(0.0), damping=jnp.asarray(settings.damping))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/khabab/moire-nnvmc/.venv/lib/python3.13/site-packages/kfac_jax/_src/optimizer.py", line 1406, in step
+    return self._step(
+           ~~~~~~~~~~^
+        params, state, rng, batch, func_state, learning_rate, momentum, damping,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        should_update_estimate_curvature, should_update_damping)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/khabab/moire-nnvmc/.venv/lib/python3.13/site-packages/kfac_jax/_src/utils/staging.py", line 300, in decorated
+    outs = jitted_func(instance, *args, **kwargs)
+ValueError: INTERNAL: Failed to retrieve branch_index value on stream 0x3c4254f0: CUDA error: Could not synchronize CUDA stream: CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure.
+E1028 16:00:16.695768 2720836 cuda_executor.cc:265] failed to unload module 0x3de06fd0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.697784 2720836 cuda_executor.cc:265] failed to unload module 0x3e980600; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.699646 2720836 cuda_executor.cc:265] failed to unload module 0x3cc05e40; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.701285 2720836 cuda_executor.cc:265] failed to unload module 0x3e6656b0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.702609 2720836 cuda_executor.cc:265] failed to unload module 0x3e4cbb20; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.703426 2720836 cuda_executor.cc:265] failed to unload module 0x3dd69280; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.704248 2720836 cuda_executor.cc:265] failed to unload module 0x3d7a8920; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.705133 2720836 cuda_executor.cc:265] failed to unload module 0x3e781480; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.705941 2720836 cuda_executor.cc:265] failed to unload module 0x3dde98a0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.706215 2720836 cuda_executor.cc:265] failed to unload module 0x3d6e8cc0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.706472 2720836 cuda_executor.cc:265] failed to unload module 0x3d901d70; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.706833 2720836 cuda_executor.cc:265] failed to unload module 0x3cfc9c00; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.707579 2720836 cuda_executor.cc:265] failed to unload module 0x3cc4fc80; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.708183 2720836 cuda_executor.cc:265] failed to unload module 0x3d120840; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.708712 2720836 cuda_executor.cc:265] failed to unload module 0x3d1f3990; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.708956 2720836 cuda_executor.cc:265] failed to unload module 0x3d167b80; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.709211 2720836 cuda_executor.cc:265] failed to unload module 0x3ce66950; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.709431 2720836 cuda_executor.cc:265] failed to unload module 0x3f0090f0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.709757 2720836 cuda_executor.cc:265] failed to unload module 0x3ee939b0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.710479 2720836 cuda_executor.cc:265] failed to unload module 0x3f51e7b0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.714802 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.715087 2720836 cuda_executor.cc:265] failed to unload module 0x42ad5a60; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.721021 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c648a00; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.721207 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c648c00; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.721425 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c649000; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.721480 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c649200; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.722588 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c649600; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.722598 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c649800; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.752475 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.762651 2720836 cuda_executor.cc:265] failed to unload module 0x429fc100; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.808281 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c628400; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.808567 2720836 cuda_executor.cc:545] [0] failed to free device memory at 0x76787c649a00; result: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.840921 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.842377 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.844054 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.846913 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c800e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.847741 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.849240 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.851182 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.851521 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.851560 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.852597 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.852745 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.852801 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c801e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.852871 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.853354 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.853397 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854182 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854771 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854804 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854843 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854880 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c802e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.854946 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.855792 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856143 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856201 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856249 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856301 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856344 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856625 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c803e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856693 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.856918 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857036 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857086 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857177 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857295 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857348 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857469 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c804e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857575 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857627 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857729 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857859 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.857914 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858018 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858133 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858173 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c805e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858270 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858380 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858437 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858548 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858653 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858696 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858784 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858915 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c806e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.858968 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859072 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859180 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859225 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859337 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859443 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859485 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859578 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c807e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859683 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859729 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859825 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859946 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.859988 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860085 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860194 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860232 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c808e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860318 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860412 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860448 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809400: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860531 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809600: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860635 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809800: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860674 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809a00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860737 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809c00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860848 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c809e00: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.860889 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c80a000: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.861001 2720836 cuda_executor.cc:605] [0] error deallocating host memory at 0x76787c80a200: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+E1028 16:00:16.861460 2720836 cuda_executor.cc:265] failed to unload module 0x4e1c12b0; leaking: INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure
+F1028 16:00:17.081850 2720836 pjrt_stream_executor_client.cc:1394] Check failed: Release( false).status() is OK (INTERNAL: CUDA error: : CUDA_ERROR_LAUNCH_FAILED: unspecified launch failure) 
+[symbolize_elf.inc : 379] RAW: Unable to get high fd: rc=0, limit=1024
+*** Check failure stack trace: ***
+    @     0x76795882d8c4  absl::lts_20250814::log_internal::LogMessage::SendToLog()
+    @     0x76795882d846  absl::lts_20250814::log_internal::LogMessage::Flush()
+    @     0x76794e1e9f2a  xla::PjRtStreamExecutorBuffer::Delete()
+    @     0x76794e1e8dd8  xla::PjRtStreamExecutorBuffer::~PjRtStreamExecutorBuffer()
+    @     0x76794e1a89f9  PJRT_Buffer::~PJRT_Buffer()
+    @     0x76794e1a8916  pjrt::PJRT_Buffer_Destroy()
+    @     0x767a53edbff0  std::_Function_handler<>::_M_invoke()
+    @     0x767a53ecefa4  xla::PjRtCApiBuffer::~PjRtCApiBuffer()
+    @     0x767a53ecf03e  xla::PjRtCApiBuffer::~PjRtCApiBuffer()
+    @     0x767a50892e39  absl::lts_20250814::inlined_vector_internal::Storage<>::DestroyContents()
+    @     0x767a50890c79  xla::ifrt::PjRtArray::~PjRtArray()
+    @     0x767a50890d3e  xla::ifrt::PjRtArray::~PjRtArray()
+    @     0x767a507537c2  jax::PyArray_Storage::~PyArray_Storage()
+    @     0x767a50743893  PyArray_tp_dealloc
+    @     0x767a5075387b  jax::PyArray_Storage::~PyArray_Storage()
+    @     0x767a50743893  PyArray_tp_dealloc
+    @          0x1808806  subtype_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011d9  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x18011ae  tupledealloc
+    @          0x1808858  subtype_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011ae  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011d9  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011ae  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011ae  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011d9  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1817731  cell_dealloc
+    @          0x18011ae  tupledealloc
+    @          0x1869000  func_dealloc
+    @          0x1808806  subtype_dealloc
+    @          0x18042b0  dict_dealloc
+    @          0x1808a1d  subtype_dealloc
+    @          0x1808998  subtype_dealloc
+    @          0x18011d9  tupledealloc
+    @          0x18011ae  tupledealloc
+    @          0x18011ae  tupledealloc
+    @          0x1801167  tupledealloc
+    @          0x18011d9  tupledealloc
+    @          0x18043a0  dict_dealloc
+    @          0x18f925c  defdict_dealloc
+    @          0x18043d4  dict_dealloc
+    @          0x1808806  subtype_dealloc
+    @          0x185a624  PyDict_SetItem
+    @          0x1859e8d  _PyModule_ClearDict
+    @          0x1910275  finalize_modules
+    @          0x190f427  _Py_Finalize.llvm.5268175901800864281
+    @          0x19ba289  Py_RunMain
+    @          0x19b9fa9  pymain_main.llvm.10128727890410642568
+    @          0x19b9dac  main
+    @     0x767a9022a1ca  (unknown)
+    @     0x767a9022a28b  __libc_start_main
+    @          0x19daa07  _start
+environment: line 1: 2720836 Aborted                 (core dumped) CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY train_moire.py --network $1 --eps $2 --out $RUNS/$name
+=== 2026-10-28 16:00:18  attention_eps5 ended with exit code 134

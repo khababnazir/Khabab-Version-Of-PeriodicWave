@@ -1,0 +1,27 @@
+one electron, 2304 parameters
+
+complex wave function   (grid 48 x 48)
+  energy: exact +3.3670856056   from <Re E_loc> +3.3670856056   difference 2.9e-12
+  |exact gradient| = 4.572743e+00
+  full (gradient.py)           relative error vs exact: 9.94e-11
+  real only (gradient.py)      relative error vs exact: 6.88e-01
+  authors, complex E_loc       relative error vs exact: 9.94e-11
+  authors, real E_loc (folx)   relative error vs exact: 6.88e-01
+
+complex wave function   (grid 64 x 64)
+  energy: exact +3.3670856056   from <Re E_loc> +3.3670856056   difference 8.9e-16
+  |exact gradient| = 4.572743e+00
+  full (gradient.py)           relative error vs exact: 1.57e-14
+  real only (gradient.py)      relative error vs exact: 6.87e-01
+  authors, complex E_loc       relative error vs exact: 1.58e-14
+  authors, real E_loc (folx)   relative error vs exact: 6.87e-01
+
+  exact gradient, grid 48 vs 64: relative change 4.9e-11
+
+real wave function (imaginary projection zero)   (grid 64 x 64)
+  energy: exact +3.6271014147   from <Re E_loc> +3.6271014147   difference 1.3e-15
+  |exact gradient| = 9.087291e+00
+  full (gradient.py)           relative error vs exact: 1.67e-14
+  real only (gradient.py)      relative error vs exact: 1.67e-14
+  authors, complex E_loc       relative error vs exact: 1.67e-14
+  authors, real E_loc (folx)   relative error vs exact: 1.67e-14

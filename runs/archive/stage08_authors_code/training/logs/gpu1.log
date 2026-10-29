@@ -1,0 +1,48 @@
+=== 2026-10-26 02:14:32  start psiformer_eps10 on GPU 1
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x7200d9e49ee0>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py', '6_0', '9', '0.35', '0.1', '8.031', '15', '45', 'CustomPsiformer']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 5.31173668100789
+Folder 'results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U5.31173668' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U5.31173668/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U5.31173668'.
+Configuration saved as JSON to results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U5.31173668/config.json
+Configuration saved as JSON to /home/khabab/moire-nnvmc/runs/stage08/psiformer_eps10/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 5.31173668100789
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+'train_stats.csv' does not exist in the folder '/home/khabab/moire-nnvmc/runs/stage08/psiformer_eps10'.
+=== 2026-10-26 13:46:26  finished psiformer_eps10
+=== 2026-10-26 13:46:26  start slaternet_eps10 on GPU 1
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x7f1f748a3a70>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py', '6_0', '9', '0.35', '0.1', '8.031', '15', '45', 'SlaterNet']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 5.31173668100789
+Folder 'results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U5.31173668' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U5.31173668/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U5.31173668'.
+Configuration saved as JSON to results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U5.31173668/config.json
+Configuration saved as JSON to /home/khabab/moire-nnvmc/runs/stage08/slaternet_eps10/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 5.31173668100789
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+'train_stats.csv' does not exist in the folder '/home/khabab/moire-nnvmc/runs/stage08/slaternet_eps10'.
+=== 2026-10-26 22:55:46  finished slaternet_eps10
+=== 2026-10-28 05:56:29  start psiformer_eps10 on GPU 1
+/home/khabab/moire-nnvmc/runs/archive/stage08_authors_code/training/psiformer_eps10 has already finished: its last checkpoint is the final step
+=== 2026-10-28 05:56:29  finished psiformer_eps10
+=== 2026-10-28 05:56:29  start slaternet_eps10 on GPU 1
+/home/khabab/moire-nnvmc/runs/archive/stage08_authors_code/training/slaternet_eps10 has already finished: its last checkpoint is the final step
+=== 2026-10-28 05:56:29  finished slaternet_eps10

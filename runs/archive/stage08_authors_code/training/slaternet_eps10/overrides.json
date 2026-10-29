@@ -1,0 +1,16 @@
+{
+  "authors_command_line": [
+    "6_0",
+    "9",
+    "0.35",
+    "0.1",
+    "8.031",
+    "15",
+    "45",
+    "SlaterNet"
+  ],
+  "overrides": {
+    "log.save_path": "/home/khabab/moire-nnvmc/runs/stage08/slaternet_eps10",
+    "debug.deterministic": true
+  }
+}

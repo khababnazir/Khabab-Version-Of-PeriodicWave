@@ -1,0 +1,32 @@
+{
+  "estimator": "real_only",
+  "exact_energy": -10.527754107168345,
+  "final_energy": -10.19489860534668,
+  "final_error": 0.006698723406892438,
+  "final_variance": 9.350576400756836,
+  "energy_above_exact": 0.33285550182166546,
+  "energy_above_exact_meV": 1.123573221090983,
+  "n_params": 2624,
+  "seconds": 300.80593818,
+  "settings": {
+    "estimator": "real_only",
+    "iterations": 3000,
+    "walkers": 1024,
+    "mcmc_steps": 10,
+    "learning_rate": 0.05,
+    "lr_delay": 500.0,
+    "damping": 0.001,
+    "max_step_norm": 0.01,
+    "seed": 1,
+    "out": "/home/khabab/moire-nnvmc/runs/stage06/real_only_seed1"
+  },
+  "architecture": {
+    "n_electrons": 6,
+    "n_determinants": 1,
+    "n_layers": 2,
+    "width": 32,
+    "init_scale": 0.1
+  },
+  "jax_version": "0.8.0",
+  "device": "NVIDIA GeForce RTX 3090"
+}

@@ -1,0 +1,23 @@
+{
+  "estimator": "full",
+  "exact_energy": -10.527754107168345,
+  "final_energy": -10.510587692260742,
+  "final_error": 0.008306987379807068,
+  "final_variance": 1.1907598972320557,
+  "energy_above_exact": 0.017166414907602956,
+  "energy_above_exact_meV": 0.057946237892301806,
+  "n_params": 2624,
+  "seconds": 319.9859614870511,
+  "settings": {
+    "estimator": "full",
+    "iterations": 3000,
+    "walkers": 1024,
+    "mcmc_steps": 10,
+    "learning_rate": 0.05,
+    "lr_delay": 500.0,
+    "damping": 0.001,
+    "max_step_norm": 0.01,
+    "seed": 0,
+    "out": "../../runs/stage06/full"
+  }
+}

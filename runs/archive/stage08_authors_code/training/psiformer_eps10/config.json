@@ -1,0 +1,112 @@
+{
+    "batch_size": 1024,
+    "optim": {
+        "objective": "vmc",
+        "iterations": 200000,
+        "optimizer": "kfac",
+        "laplacian": "default",
+        "lr": {
+            "rate": 0.1,
+            "decay": 1.0,
+            "delay": 20000.0
+        },
+        "clip_local_energy": 5.0,
+        "clip_median": false,
+        "center_at_clip": true,
+        "reset_if_nan": false,
+        "kfac": {
+            "invert_every": 1,
+            "cov_update_every": 1,
+            "damping": 0.001,
+            "cov_ema_decay": 0.95,
+            "momentum": 0.0,
+            "momentum_type": "regular",
+            "min_damping": 1e-06,
+            "norm_constraint": 0.001,
+            "mean_center": true,
+            "l2_reg": 0.0,
+            "register_only_generic": false
+        },
+        "adam": {
+            "b1": 0.9,
+            "b2": 0.999,
+            "eps": 1e-08,
+            "eps_root": 0.0
+        }
+    },
+    "log": {
+        "stats_frequency": 1,
+        "save_frequency": 30.0,
+        "save_path": "/home/khabab/moire-nnvmc/runs/stage08/psiformer_eps10",
+        "restore_path": ""
+    },
+    "system": {
+        "electrons": [
+            6,
+            0
+        ],
+        "ndim": 2,
+        "make_local_energy_fn": "periodicwave.pbc.hamiltonian.local_energy",
+        "make_local_energy_kwargs": {
+            "lattice": "unserializable object: [[ 3.         -1.5       ]\n [ 0.          2.59807621]]",
+            "potential_type": "CoulombMoire",
+            "potential_kwargs": {
+                "moire_lattice_vectors": "unserializable object: [[ 1.        -0.5      ]\n [ 0.         0.8660254]]",
+                "moire_potential_strength": 4.443709082419185,
+                "moire_potential_phi": 0.7853981633974483,
+                "interaction_energy_scale": 5.31173668100789
+            },
+            "kinetic_kwargs": {
+                "laplacian_method": "folx"
+            }
+        },
+        "pbc_lattice": "unserializable object: [[ 3.         -1.5       ]\n [ 0.          2.59807621]]"
+    },
+    "mcmc": {
+        "burn_in": 300,
+        "steps": 30,
+        "init_width": 1.0,
+        "move_width": 0.2,
+        "move_width_updater": "adaptive",
+        "adapt_frequency": 100,
+        "blocks": 1
+    },
+    "network": {
+        "network_type": "CustomPsiformer",
+        "complex": true,
+        "CustomPsiformer": {
+            "num_layers": 4,
+            "num_heads": 4,
+            "attn_dim": 16,
+            "value_dim": 16,
+            "mlp_dim": 64,
+            "num_perceptrons_per_layer": 2,
+            "use_layer_norm": true,
+            "mlp_activation_fct": "GELU"
+        },
+        "SlaterNet": {
+            "num_layers": 4,
+            "mlp_dim": 128,
+            "num_perceptrons_per_layer": 2,
+            "use_layer_norm": true,
+            "mlp_activation_fct": "GELU"
+        },
+        "determinants": 4,
+        "bias_orbitals": false,
+        "jastrow": "NONE",
+        "jastrow_kwargs": {
+            "ndim": 2
+        },
+        "make_feature_layer_fn": "periodicwave.pbc.feature_layer.make_pbc_feature_layer",
+        "make_feature_layer_kwargs": {
+            "lattice": "unserializable object: [[ 3.         -1.5       ]\n [ 0.          2.59807621]]",
+            "include_r_ae": false
+        },
+        "make_envelope_fn": "periodicwave.envelopes.make_null_envelope",
+        "make_envelope_kwargs": {}
+    },
+    "debug": {
+        "check_nan": false,
+        "deterministic": true
+    }
+}

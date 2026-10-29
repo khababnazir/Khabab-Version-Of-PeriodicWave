@@ -1,0 +1,23 @@
+{
+  "network": "attention",
+  "eps": 5.0,
+  "gradient": "real",
+  "seed": 0,
+  "iterations": 200000,
+  "settings": {
+    "batch": 1024,
+    "mcmc_steps": 30,
+    "burn_in": 300,
+    "init_width": 1.0,
+    "move_width": 0.2,
+    "adapt_every": 100,
+    "learning_rate": 0.1,
+    "learning_rate_delay": 20000.0,
+    "learning_rate_decay": 1.0,
+    "damping": 0.001,
+    "norm_constraint": 0.001,
+    "curvature_ema": 0.95,
+    "min_damping": 1e-06,
+    "clip_scale": 5.0
+  }
+}

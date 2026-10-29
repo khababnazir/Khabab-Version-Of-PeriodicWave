@@ -1,0 +1,144 @@
+=== 1/6  userspace toolchain (uv) ===
+downloading uv 0.12.17 x86_64-unknown-linux-gnu
+installing to /home/khabab/.local/bin
+  uv
+  uvx
+everything's installed!
+
+To add $HOME/.local/bin to your PATH, either restart your shell or run:
+
+    source $HOME/.local/bin/env (sh, bash, zsh)
+    source $HOME/.local/bin/env.fish (fish)
+uv 0.12.17 (x86_64-unknown-linux-gnu)
+=== 2/6  venv on Python 3.13 ===
+Downloading cpython-3.13.15-linux-x86_64-gnu (download) (33.2MiB)
+ Downloaded cpython-3.13.15-linux-x86_64-gnu (download)
+Using CPython 3.13.15
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+Python 3.13.15
+=== 3/6  pinned package set ===
+   Updating https://github.com/deepmind/kfac-jax (55111a15e51b38a4cefbfd16cdda52472cda2632)
+   Updating https://github.com/microsoft/folx (d05c107028e3f88239ebf9e894d4a8c01abf90f6)
+    Updated https://github.com/deepmind/kfac-jax (55111a15e51b38a4cefbfd16cdda52472cda2632)
+    Updated https://github.com/microsoft/folx (d05c107028e3f88239ebf9e894d4a8c01abf90f6)
+Resolved 47 packages in 3.54s
+   Building pyblock==0.6
+Downloading h5py (4.9MiB)
+   Building kfac-jax @ git+https://github.com/deepmind/kfac-jax@55111a15e51b38a4cefbfd16cdda52472cda2632
+   Building folx @ git+https://github.com/microsoft/folx@d05c107028e3f88239ebf9e894d4a8c01abf90f6
+Downloading pandas (11.7MiB)
+Downloading numpy (15.9MiB)
+Downloading nvidia-cuda-cupti-cu12 (10.3MiB)
+Downloading scipy (34.0MiB)
+Downloading nvidia-cuda-runtime-cu12 (3.3MiB)
+Downloading jax-cuda12-pjrt (140.1MiB)
+Downloading nvidia-nvjitlink-cu12 (37.9MiB)
+Downloading nvidia-cusparse-cu12 (349.5MiB)
+Downloading jax (2.8MiB)
+Downloading nvidia-nvshmem-cu12 (132.7MiB)
+Downloading nvidia-nccl-cu12 (282.2MiB)
+Downloading nvidia-cusolver-cu12 (322.5MiB)
+Downloading nvidia-cufft-cu12 (191.6MiB)
+Downloading nvidia-cublas-cu12 (554.3MiB)
+Downloading ml-dtypes (4.7MiB)
+Downloading nvidia-cuda-nvcc-cu12 (38.7MiB)
+Downloading jaxlib (76.0MiB)
+Downloading jax-cuda12-plugin (5.3MiB)
+Downloading tfp-nightly (6.7MiB)
+Downloading nvidia-cudnn-cu12 (617.2MiB)
+      Built pyblock==0.6
+      Built kfac-jax @ git+https://github.com/deepmind/kfac-jax@55111a15e51b38a4cefbfd16cdda52472cda2632
+Downloading nvidia-cuda-nvrtc-cu12 (85.4MiB)
+      Built folx @ git+https://github.com/microsoft/folx@d05c107028e3f88239ebf9e894d4a8c01abf90f6
+ Downloaded jax
+ Downloaded nvidia-cuda-runtime-cu12
+ Downloaded h5py
+ Downloaded ml-dtypes
+ Downloaded jax-cuda12-plugin
+ Downloaded nvidia-cuda-cupti-cu12
+ Downloaded pandas
+ Downloaded tfp-nightly
+ Downloaded numpy
+ Downloaded scipy
+ Downloaded nvidia-nvjitlink-cu12
+ Downloaded nvidia-cuda-nvcc-cu12
+ Downloaded jaxlib
+ Downloaded nvidia-cuda-nvrtc-cu12
+ Downloaded nvidia-nvshmem-cu12
+ Downloaded nvidia-cufft-cu12
+ Downloaded jax-cuda12-pjrt
+ Downloaded nvidia-cusolver-cu12
+ Downloaded nvidia-cusparse-cu12
+ Downloaded nvidia-cublas-cu12
+ Downloaded nvidia-nccl-cu12
+ Downloaded nvidia-cudnn-cu12
+Prepared 47 packages in 2m 17s
+Installed 47 packages in 48ms
+ + absl-py==2.3.1
+ + attrs==25.4.0
+ + chex==0.1.91
+ + cloudpickle==3.1.1
+ + decorator==5.2.1
+ + distrax==0.1.7
+ + dm-tree==0.1.9
+ + folx==0.2.19 (from git+https://github.com/microsoft/folx@d05c107028e3f88239ebf9e894d4a8c01abf90f6)
+ + gast==0.6.0
+ + h5py==3.15.1
+ + immutabledict==4.2.2
+ + jax==0.8.0
+ + jax-cuda12-pjrt==0.8.0
+ + jax-cuda12-plugin==0.8.0
+ + jaxlib==0.8.0
+ + jaxtyping==0.3.3
+ + kfac-jax==0.0.7 (from git+https://github.com/deepmind/kfac-jax@55111a15e51b38a4cefbfd16cdda52472cda2632)
+ + ml-collections==1.1.0
+ + ml-dtypes==0.5.3
+ + numpy==2.3.4
+ + nvidia-cublas-cu12==12.9.1.4
+ + nvidia-cuda-cupti-cu12==12.9.79
+ + nvidia-cuda-nvcc-cu12==12.9.86
+ + nvidia-cuda-nvrtc-cu12==12.9.86
+ + nvidia-cuda-runtime-cu12==12.9.79
+ + nvidia-cudnn-cu12==9.14.0.64
+ + nvidia-cufft-cu12==11.4.1.4
+ + nvidia-cusolver-cu12==11.7.5.82
+ + nvidia-cusparse-cu12==12.5.10.65
+ + nvidia-nccl-cu12==2.28.3
+ + nvidia-nvjitlink-cu12==12.9.86
+ + nvidia-nvshmem-cu12==3.4.5
+ + opt-einsum==3.4.0
+ + optax==0.2.6
+ + pandas==2.3.3
+ + pyblock==0.6
+ + python-dateutil==2.9.0.post0
+ + pytz==2025.2
+ + pyyaml==6.0.3
+ + scipy==1.16.2
+ + six==1.17.0
+ + tfp-nightly==0.26.0.dev20251017
+ + toolz==1.1.0
+ + typing-extensions==4.15.0
+ + tzdata==2025.2
+ + wadler-lindig==0.1.7
+ + wrapt==1.17.3
+=== 4/6  PeriodicWave itself (--no-deps: the pins above are authoritative) ===
+Resolved 1 package in 620ms
+   Building periodicwave @ file:///home/khabab/moire-nnvmc/external/PeriodicWave
+      Built periodicwave @ file:///home/khabab/moire-nnvmc/external/PeriodicWave
+Prepared 1 package in 222ms
+Installed 1 package in 4ms
+ + periodicwave==0.0 (from file:///home/khabab/moire-nnvmc/external/PeriodicWave)
+=== 5/6  verify ===
+python       3.13.15
+jax          0.8.0
+jaxlib       0.8.0
+n_devices    2
+  device     0 gpu NVIDIA GeForce RTX 3090
+  device     1 gpu NVIDIA GeForce RTX 3090
+matmul_ok    True
+periodicwave /home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/__init__.py
+imports_ok   folx kfac_jax optax chex distrax
+=== 6/6  freeze ===
+48 env/freeze-actual.txt
+=== SETUP COMPLETE ===

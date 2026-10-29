@@ -1,0 +1,32 @@
+{
+  "estimator": "full",
+  "exact_energy": -10.527754107168345,
+  "final_energy": -10.51716136932373,
+  "final_error": 0.0074345012683713135,
+  "final_variance": 0.7631222009658813,
+  "energy_above_exact": 0.010592737844614675,
+  "energy_above_exact_meV": 0.0357564063538378,
+  "n_params": 2624,
+  "seconds": 320.92855658906046,
+  "settings": {
+    "estimator": "full",
+    "iterations": 3000,
+    "walkers": 1024,
+    "mcmc_steps": 10,
+    "learning_rate": 0.05,
+    "lr_delay": 500.0,
+    "damping": 0.001,
+    "max_step_norm": 0.01,
+    "seed": 1,
+    "out": "../../runs/stage06/full_seed1"
+  },
+  "architecture": {
+    "n_electrons": 6,
+    "n_determinants": 1,
+    "n_layers": 2,
+    "width": 32,
+    "init_scale": 0.1
+  },
+  "jax_version": "0.8.0",
+  "device": "NVIDIA GeForce RTX 3090"
+}

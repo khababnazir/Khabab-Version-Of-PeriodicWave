@@ -1,0 +1,92 @@
+=== 2026-10-27 02:51:11  start psiformer_eps5 on GPU 0
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x76a9c5193bc0>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py', '6_0', '9', '0.35', '0.2', '8.031', '15', '45', 'CustomPsiformer']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 10.62347336201578
+Folder 'results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U10.62347336' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U10.62347336/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U10.62347336'.
+Configuration saved as JSON to results/2deg-CoulombMoire/CustomPsiformer/el6_0_N9_V4.44370908_45.0_U10.62347336/config.json
+Configuration saved as JSON to /tmp/tmppe8kl_32/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 10.62347336201578
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+making 2DCoulomb potential with energy scale: 10.62347336201578
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -105.81710, end of training -105.82040
+step   1000  mean energy -105.81766  pmove 0.525  14.55 steps/s
+step   2000  mean energy -105.81713  pmove 0.522  18.04 steps/s
+step   3000  mean energy -105.81695  pmove 0.523  19.48 steps/s
+step   4000  mean energy -105.81689  pmove 0.523  20.20 steps/s
+step   5000  mean energy -105.81712  pmove 0.526  20.62 steps/s
+step   6000  mean energy -105.81703  pmove 0.520  20.89 steps/s
+step   7000  mean energy -105.81700  pmove 0.525  21.08 steps/s
+step   8000  mean energy -105.81712  pmove 0.529  21.20 steps/s
+step   9000  mean energy -105.81690  pmove 0.529  21.30 steps/s
+step  10000  mean energy -105.81693  pmove 0.522  21.36 steps/s
+=== 2026-10-27 02:59:16  psiformer_eps5 ended with exit code 0
+=== 2026-10-27 02:59:16  start slaternet_eps5 on GPU 0
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x779b7d1efbc0>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py', '6_0', '9', '0.35', '0.2', '8.031', '15', '45', 'SlaterNet']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 10.62347336201578
+Folder 'results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U10.62347336' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U10.62347336/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U10.62347336'.
+Configuration saved as JSON to results/2deg-CoulombMoire/SlaterNet/el6_0_N9_V4.44370908_45.0_U10.62347336/config.json
+Configuration saved as JSON to /tmp/tmp3kitu7cd/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 10.62347336201578
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+making 2DCoulomb potential with energy scale: 10.62347336201578
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -102.97657, end of training -102.94828
+step   1000  mean energy -102.95078  pmove 0.511  26.37 steps/s
+step   2000  mean energy -102.95011  pmove 0.511  39.22 steps/s
+step   3000  mean energy -102.94841  pmove 0.516  46.66 steps/s
+step   4000  mean energy -102.95038  pmove 0.518  51.52 steps/s
+step   5000  mean energy -102.95270  pmove 0.520  54.89 steps/s
+step   6000  mean energy -102.95145  pmove 0.510  57.40 steps/s
+step   7000  mean energy -102.95235  pmove 0.511  59.28 steps/s
+step   8000  mean energy -102.95073  pmove 0.514  60.77 steps/s
+step   9000  mean energy -102.94976  pmove 0.517  61.98 steps/s
+step  10000  mean energy -102.95120  pmove 0.512  62.99 steps/s
+=== 2026-10-27 03:02:11  slaternet_eps5 ended with exit code 0
+=== 2026-10-27 03:03:13  start psiformer_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/psiformer_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 03:03:13  psiformer_eps5 ended with exit code 0
+=== 2026-10-27 03:03:13  start slaternet_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 03:03:13  slaternet_eps5 ended with exit code 0
+=== 2026-10-27 03:27:59  start psiformer_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/psiformer_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 03:27:59  psiformer_eps5 ended with exit code 0
+=== 2026-10-27 03:27:59  start slaternet_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 03:27:59  slaternet_eps5 ended with exit code 0
+=== 2026-10-27 11:00:51  start psiformer_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/psiformer_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 11:00:51  psiformer_eps5 ended with exit code 0
+=== 2026-10-27 11:00:51  start slaternet_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-27 11:00:51  slaternet_eps5 ended with exit code 0
+=== 2026-10-28 05:56:28  start psiformer_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/archive/stage08_authors_code/evaluation/psiformer_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-28 05:56:28  psiformer_eps5 ended with exit code 0
+=== 2026-10-28 05:56:28  start slaternet_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/archive/stage08_authors_code/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-10-28 05:56:29  slaternet_eps5 ended with exit code 0

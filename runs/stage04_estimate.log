@@ -1,0 +1,18 @@
+energy unit = 3.375559 meV,  moire potential strength = 4.443709
+
+A. plane-wave determinant, no potential  (exact energy 14.621636)
+  burn-in done: step width 0.180, acceptance over last 30 steps 0.51
+  energy         = +14.621636 +- 0.000000   (+49.3562 +- 0.0000 meV)
+  per electron   = +8.2260 meV
+  variance E_loc = 3.639e-29
+  mean Im E_loc  = -8.812e-18 +- 4.258e-17   (should be 0 within the error)
+  largest |E_loc - exact| over all samples = 1.21e-13
+  (7 s)
+
+B. untrained SlaterNet (1 determinant) in the moire potential
+  burn-in done: step width 0.105, acceptance over last 30 steps 0.52
+  energy         = +46.198783 +- 0.342475   (+155.9467 +- 1.1560 meV)
+  per electron   = +25.9911 meV
+  variance E_loc = 7.828e+02
+  mean Im E_loc  = -2.273e-02 +- 9.614e-02   (should be 0 within the error)
+  (11 s)

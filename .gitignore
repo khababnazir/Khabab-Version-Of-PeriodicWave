@@ -1,10 +1,10 @@
-# --- run outputs: large, regenerable, never committed ---
-runs/*
-results/
-*.npy
-train_stats*.csv
-device_info*.log
-config*.json
+# --- run outputs ---
+# Kept in git since 2026-10-29 as the backup of every result: checkpoints,
+# training curves, figures.  Each file is small (the largest about 22 MB;
+# GitHub refuses files over 100 MB).  Only the lock files stay out: they are
+# empty and only matter while a job runs.
+*.lock
+*.tmp
 
 # --- python ---
 __pycache__/
@@ -17,6 +17,3 @@ __pycache__/
 .vscode/
 .idea/
 .env
-
-# keep the directory itself on a fresh clone
-!runs/.gitkeep
