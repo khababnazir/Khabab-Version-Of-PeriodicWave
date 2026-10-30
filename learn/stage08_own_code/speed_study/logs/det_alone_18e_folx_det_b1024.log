@@ -1,0 +1,6 @@
+W1030 06:50:12.354615   56780 bfc_allocator.cc:501] Allocator (GPU_0_bfc) ran out of memory trying to allocate 12.81GiB (rounded to 13759414272)requested by op 
+If the cause is memory fragmentation maybe the environment variable 'TF_GPU_ALLOCATOR=cuda_malloc_async' will improve the situation. 
+Current allocation summary follows.
+Current allocation summary follows.
+W1030 06:50:12.354949   56780 bfc_allocator.cc:512] *****************************************************************************_______________________
+{"n_electrons": 18, "route": "folx_det", "batch": 1024, "error": "JaxRuntimeError: INTERNAL: No valid config found!"}

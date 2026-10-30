@@ -1,0 +1,63 @@
+=== 06:49:10 start det_alone_6e_folx_det_b64
+=== 06:49:15 done  det_alone_6e_folx_det_b64 exit 0
+=== 06:49:15 start det_alone_6e_folx_det_b1024
+=== 06:49:21 done  det_alone_6e_folx_det_b1024 exit 0
+=== 06:49:21 start det_alone_6e_folx_slogdet_b64
+=== 06:49:26 done  det_alone_6e_folx_slogdet_b64 exit 0
+=== 06:49:26 start det_alone_6e_folx_slogdet_b1024
+=== 06:49:31 done  det_alone_6e_folx_slogdet_b1024 exit 0
+=== 06:49:31 start det_alone_6e_hessian_det_b64
+=== 06:49:36 done  det_alone_6e_hessian_det_b64 exit 0
+=== 06:49:36 start det_alone_6e_hessian_det_b1024
+=== 06:49:42 done  det_alone_6e_hessian_det_b1024 exit 0
+=== 06:49:42 start det_alone_6e_hessian_slogdet_b64
+=== 06:49:46 done  det_alone_6e_hessian_slogdet_b64 exit 0
+=== 06:49:46 start det_alone_6e_hessian_slogdet_b1024
+=== 06:49:51 done  det_alone_6e_hessian_slogdet_b1024 exit 0
+=== 06:49:51 start det_alone_18e_folx_det_b64
+=== 06:49:58 done  det_alone_18e_folx_det_b64 exit 0
+=== 06:49:58 start det_alone_18e_folx_det_b1024
+=== 06:50:12 done  det_alone_18e_folx_det_b1024 exit 0
+=== 06:50:12 start det_alone_18e_folx_slogdet_b64
+=== 06:50:17 done  det_alone_18e_folx_slogdet_b64 exit 0
+=== 06:50:17 start det_alone_18e_folx_slogdet_b1024
+=== 06:50:23 done  det_alone_18e_folx_slogdet_b1024 exit 0
+=== 06:50:23 start det_alone_18e_hessian_det_b64
+=== 06:50:30 done  det_alone_18e_hessian_det_b64 exit 0
+=== 06:50:30 start det_alone_18e_hessian_det_b1024
+=== 06:50:37 done  det_alone_18e_hessian_det_b1024 exit 0
+=== 06:50:37 start det_alone_18e_hessian_slogdet_b64
+=== 06:50:42 done  det_alone_18e_hessian_slogdet_b64 exit 0
+=== 06:50:42 start det_alone_18e_hessian_slogdet_b1024
+=== 06:50:48 done  det_alone_18e_hessian_slogdet_b1024 exit 0
+=== 06:50:48 start pieces_6e_ours_det_logpsi
+=== 06:50:55 done  pieces_6e_ours_det_logpsi exit 0
+=== 06:50:55 start pieces_6e_ours_det_eloc_hessian
+=== 06:52:52 done  pieces_6e_ours_det_eloc_hessian exit 0
+=== 06:52:52 start pieces_6e_ours_det_eloc_folx
+=== 06:53:17 done  pieces_6e_ours_det_eloc_folx exit 0
+=== 06:53:17 start pieces_6e_ours_slogdet_eloc_hessian
+=== 06:55:14 done  pieces_6e_ours_slogdet_eloc_hessian exit 0
+=== 06:55:14 start pieces_6e_ours_slogdet_eloc_folx
+=== 06:55:40 done  pieces_6e_ours_slogdet_eloc_folx exit 0
+=== 06:55:40 start pieces_6e_ours_slogdet_move
+=== 06:55:49 done  pieces_6e_ours_slogdet_move exit 0
+=== 06:55:49 start pieces_6e_ours_slogdet_kfac
+=== 06:56:29 done  pieces_6e_ours_slogdet_kfac exit 0
+=== 06:56:29 start pieces_6e_authors_logpsi
+=== 06:56:39 done  pieces_6e_authors_logpsi exit 0
+=== 06:56:39 start pieces_6e_authors_eloc_folx
+=== 06:57:08 done  pieces_6e_authors_eloc_folx exit 0
+=== 06:57:08 start full_6e_attention_folx_det
+=== 06:58:15 done  full_6e_attention_folx_det exit 0
+=== 06:58:15 start full_6e_attention_folx_slogdet
+=== 06:59:21 done  full_6e_attention_folx_slogdet exit 0
+=== 06:59:21 start full_18e_attention_folx_slogdet_b1024
+=== 07:00:45 done  full_18e_attention_folx_slogdet_b1024 exit 0
+=== 07:00:45 start full_18e_attention_folx_slogdet_b4096
+=== 07:02:29 done  full_18e_attention_folx_slogdet_b4096 exit 0
+=== 07:02:29 start full_18e_slaternet_folx_slogdet_b1024
+=== 07:03:45 done  full_18e_slaternet_folx_slogdet_b1024 exit 0
+=== 07:03:45 start full_18e_slaternet_folx_slogdet_b4096
+=== 07:05:10 done  full_18e_slaternet_folx_slogdet_b4096 exit 0
+== all done 07:05:10

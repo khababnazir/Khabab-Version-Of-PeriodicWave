@@ -1,0 +1,6 @@
+slaternet: Stage 4 [69.991274-12.458486j 77.997072 +5.501779j 72.987242 -2.281574j]
+slaternet: folx    [69.991274-12.458486j 77.997072 +5.501779j 72.987242 -2.281574j]
+slaternet: max |difference| / max |value|  real 7.0e-13  imag 4.2e-12
+attention: Stage 4 [83.141648+16.358209j 72.766293-12.126013j 75.862188 +9.808901j]
+attention: folx    [83.141556+16.358652j 72.766469-12.125239j 75.849716 +9.826407j]
+attention: max |difference| / max |value|  real 1.5e-04  imag 1.1e-03

@@ -1,0 +1,17 @@
+exact vs library attention, float32 inputs: max |diff| 0.0
+slaternet sparsity 0.0: max |difference| / max |value|  real 7.0e-13  imag 4.2e-12
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+slaternet sparsity 0.6: max |difference| / max |value|  real 7.0e-13  imag 4.2e-12
+attention sparsity 0.0: max |difference| / max |value|  real 1.7e-12  imag 3.3e-12
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+WARNING:[folx](/home/khabab/moire-nnvmc/learn/stage03_slater/slaternet.py:313:11 (released_inputs)) - Could not perform index operation concatenate. This is most likely due to data dependent indexing. We will default to materializing everything. Here is the caught exception:
+lax.concatenate requires arguments to have the same dtypes, got int64, int32. (Tip: jnp.concatenate is a similar function that does automatic type promotion on inputs).
+attention sparsity 0.6: max |difference| / max |value|  real 1.7e-12  imag 3.3e-12

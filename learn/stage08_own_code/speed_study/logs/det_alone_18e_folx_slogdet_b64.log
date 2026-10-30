@@ -1,0 +1,1 @@
+{"n_electrons": 18, "route": "folx_slogdet", "batch": 64, "compiled_scratch_GiB": 0.0381, "seconds_per_call": 0.0005, "peak_GiB": 0.0522, "mean_kinetic_real": 33.16499328613281, "mean_kinetic_imag": -1.0021133422851562}

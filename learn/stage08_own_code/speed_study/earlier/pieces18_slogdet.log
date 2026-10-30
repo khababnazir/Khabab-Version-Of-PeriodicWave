@@ -1,0 +1,9 @@
+{"determinant": "slogdet", "side": "ours", "piece": "logpsi", "batch": 1024, "parameters": 109376, "first_call_s": 3.2, "seconds_per_call": 0.0027, "peak_GiB": 0.07}
+--- slogdet ours logpsi 1024: exit 0  05:51:50
+{"determinant": "slogdet", "side": "ours", "piece": "eloc_folx", "batch": 1024, "parameters": 109376, "first_call_s": 26.0, "seconds_per_call": 0.1296, "peak_GiB": 1.37}
+--- slogdet ours eloc_folx 1024: exit 0  05:52:21
+{"determinant": "slogdet", "side": "ours", "piece": "eloc_hessian", "batch": 1024, "parameters": 109376, "first_call_s": 164.9, "seconds_per_call": 0.4316, "peak_GiB": 16.13}
+--- slogdet ours eloc_hessian 1024: exit 0  05:55:12
+{"determinant": "slogdet", "side": "ours", "piece": "eloc_folx", "batch": 4096, "parameters": 109376, "first_call_s": 55.6, "seconds_per_call": 0.4636, "peak_GiB": 4.87}
+--- slogdet ours eloc_folx 4096: exit 0  05:56:14
+== all done

@@ -1,0 +1,7 @@
+=== 02:44:41 start two_gpus_4096_240: GPUs 0,1, batch 4096, 240 iterations
+=== 02:50:02 two_gpus_4096_240 exit 0
+=== 02:50:02 start one_gpu_1024_240: GPUs 0, batch 1024, 240 iterations
+=== 02:53:55 one_gpu_1024_240 exit 0
+=== 02:53:56 start one_gpu_4096_240: GPUs 0, batch 4096, 240 iterations
+=== 03:01:36 one_gpu_4096_240 exit 0
+== all done
