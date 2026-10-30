@@ -200,6 +200,8 @@ def evaluate(run, out, steps, burn_in, seed, check_steps=CHECK_STEPS, log=print)
 
     # 1. The network, local energy and Metropolis moves of the training, and its final weights.
     settings, final = final_checkpoint(run)
+    if settings.get("electrons", 6) != 6:
+        sys.exit(f"{run.name}: this evaluation handles the 9-site runs (6 electrons) only, so far")
     problem = train_moire.make_problem(settings["network"], settings["eps"])
     move, _ = train_moire.make_sampler(problem, train_moire.Settings(), settings["gradient"])
     params_like = problem.init(jax.random.PRNGKey(0), problem.arch)

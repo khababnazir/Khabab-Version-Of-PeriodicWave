@@ -22,8 +22,10 @@ import jax.numpy as jnp
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "stage03_slater"))
 from slaternet import MOIRE_LATTICE as MOIRE_LATTICE_VECTORS, supercell_vectors  # noqa: E402
+from slaternet import (Architecture, init_parameters, orbital_matrices, reciprocal_vectors,  # noqa: E402
+                       sum_of_determinants, sum_of_determinants_slogdet)
 from local_energy import (moire_units, moire_potential, kinetic_energy,  # noqa: E402
-                          plane_wave_k_vectors, plane_wave_log_psi)
+                          kinetic_energy_folx, plane_wave_k_vectors, plane_wave_log_psi)
 from metropolis import run_metropolis  # noqa: E402
 from periodicwave.pbc.hamiltonian import make_triangular_potential  # noqa: E402
 
@@ -48,6 +50,30 @@ class KineticEnergyTest(absltest.TestCase):
             e_kin = complex(kinetic_energy(lambda R: plane_wave_log_psi(R, k), positions))
             np.testing.assert_allclose(e_kin.real, exact, rtol=1e-10)
             np.testing.assert_allclose(e_kin.imag, 0.0, atol=1e-10)
+
+    def test_folx_gives_the_same_kinetic_energy(self):
+        """Stage 8: kinetic_energy_folx must equal kinetic_energy, real and
+        imaginary part: on the exact eigenstate above, and on a 4-determinant
+        SlaterNet whose magnitude and phase both vary, with its determinants
+        added either way (det or slogdet)."""
+        lattice = supercell_vectors(9)
+        G = reciprocal_vectors(lattice)
+        k = plane_wave_k_vectors(lattice, 6)
+        params = init_parameters(jax.random.key(3), Architecture(n_electrons=6, n_determinants=4))
+        wave_functions = {
+            "plane waves": lambda R: plane_wave_log_psi(R, k),
+            "SlaterNet, det": lambda R: sum_of_determinants(orbital_matrices(params, R, G)),
+            "SlaterNet, slogdet": lambda R: sum_of_determinants_slogdet(orbital_matrices(params, R, G)),
+        }
+        rng = np.random.default_rng(1)
+        for name, log_psi_fn in wave_functions.items():
+            for _ in range(3):
+                positions = jnp.asarray(rng.uniform(0, 1, (6, 2)) @ lattice.T)
+                hessian = complex(kinetic_energy(log_psi_fn, positions))
+                folx = complex(kinetic_energy_folx(log_psi_fn, positions))
+                with self.subTest(name):
+                    np.testing.assert_allclose(folx.real, hessian.real, rtol=0, atol=1e-10 * abs(hessian))
+                    np.testing.assert_allclose(folx.imag, hessian.imag, rtol=0, atol=1e-10 * abs(hessian))
 
 
 class MoirePotentialTest(absltest.TestCase):

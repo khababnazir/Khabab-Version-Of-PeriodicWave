@@ -130,6 +130,45 @@ def kinetic_energy(log_psi_fn, positions):
     return -0.5 * (real_part + 1j * imag_part)
 
 
+def kinetic_energy_folx(log_psi_fn, positions):
+    """The same kinetic energy as kinetic_energy, with the Laplacians from folx (Stage 8).
+
+    kinetic_energy above builds two whole 2N x 2N Hessians and keeps only
+    their diagonals: at 18 electrons 1,296 second derivatives each, of which
+    36 are used.  folx's "forward Laplacian" goes through the network once,
+    forwards, and carries for every number only its value, its 2N first
+    derivatives and the running sum of its second derivatives -- the table
+    is never built.  At 18 electrons and 1024 walkers the local energy takes
+    0.13 s and 1.4 GiB instead of 0.48 s and 17 GiB
+    (learn/stage08_own_code/speed_study/speed_study_report.pdf).
+
+    The formula is that of kinetic_energy, real AND imaginary part.  folx
+    needs a fast rule for every operation in the network; for the
+    determinants added by jnp.linalg.det it has none and runs out of memory
+    at 18 electrons, so use it with Stage 3's sum_of_determinants_slogdet.
+    sparsity_threshold=0 (dense): folx's sparse mode crashes inside
+    jax.nn.dot_product_attention, as the authors' code also notes.
+    """
+    import folx          # imported here, so the rest of Stage 4 works where folx is not installed
+
+    shape = positions.shape
+    x = positions.reshape(-1)
+
+    def u_and_phi(x):
+        out = log_psi_fn(x.reshape(shape))
+        return jnp.stack([out.log_abs, out.phase])
+
+    result = folx.forward_laplacian(u_and_phi, sparsity_threshold=0)(x)
+    laplacian_u, laplacian_phi = result.laplacian[0], result.laplacian[1]
+    jacobian = result.jacobian.dense_array          # (2N, 2): d[log|Psi|, phase] / dx
+    grad_u, grad_phi = jacobian[:, 0], jacobian[:, 1]
+
+    real_part = laplacian_u + jnp.sum(grad_u**2) - jnp.sum(grad_phi**2)
+    imag_part = laplacian_phi + 2.0 * jnp.sum(grad_u * grad_phi)
+
+    return -0.5 * (real_part + 1j * imag_part)
+
+
 # ---------------------------------------------------------------------------
 #  Local energy
 # ---------------------------------------------------------------------------

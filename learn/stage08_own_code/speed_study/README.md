@@ -26,6 +26,8 @@ folder changes the training code. The code changes come in a separate commit.
 | speed_results.jsonl | one JSON line per run of run_all.sh (30 October 2026) |
 | singular_example.json | output of singular_example.py, float64 and float32 |
 | gpu_usage.csv | nvidia-smi every 2 s, both GPUs, during run_all.sh |
+| system_usage.csv | CPU and memory every 2 s (../system_monitor.py); written by run_all.sh from now on, so not for the 30 October run |
+| production_check.py | the fast and the reference local energy in a run's precision (single, GPU), Table II network at 18 electrons |
 | progress.txt | start and end time of every run |
 | logs/ | full output of every run |
 | earlier/ | the earlier 18-electron measurements quoted in the report (pieces18, bench18, folx checks, authors' smoke tests), with their logs |

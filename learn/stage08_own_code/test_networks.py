@@ -90,15 +90,16 @@ def ours_from_authors_psiformer(p):
 
 # ------------------------------------------------- the two networks to compare
 
-def authors_network(family, settings, determinants):
-    """The authors' network, built as their train.py builds it for the moire config."""
+def authors_network(family, settings, determinants, n_electrons=N_ELECTRONS, supercell=SUPERCELL):
+    """The authors' network, built as their train.py builds it for the moire config
+    (6 electrons on 9 sites unless told otherwise)."""
     features = feature_layer.make_pbc_feature_layer(
-        natoms=1, nspins=(N_ELECTRONS, 0), ndim=2, lattice=jnp.asarray(SUPERCELL), include_r_ae=False)
+        natoms=1, nspins=(n_electrons, 0), ndim=2, lattice=jnp.asarray(supercell), include_r_ae=False)
     return family.make_fermi_net(
-        (N_ELECTRONS, 0), jnp.array([0.0]), ndim=2, determinants=determinants,
+        (n_electrons, 0), jnp.array([0.0]), ndim=2, determinants=determinants,
         envelope=envelopes.make_null_envelope(), feature_layer=features,
         jastrow="NONE", jastrow_kwargs={"ndim": 2}, bias_orbitals=False,
-        complex_output=True, pbc_lattice=jnp.asarray(SUPERCELL), **settings)
+        complex_output=True, pbc_lattice=jnp.asarray(supercell), **settings)
 
 
 def setup_case(run, family, arch, init_ours, log_psi_ours, to_ours):

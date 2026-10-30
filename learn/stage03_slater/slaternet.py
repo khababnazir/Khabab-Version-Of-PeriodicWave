@@ -251,6 +251,12 @@ def random_walkers(key: jax.Array, n_walkers: int, n_electrons: int,
 # layout.  learn/stage08_own_code/test_networks.py checks that these networks
 # ARE the authors' networks: same function and same derivatives with their
 # trained weights, same initial distribution, and the same layers for KFAC.
+#
+# Added for 18 electrons (2026-10-30): determinants="slogdet" adds the
+# determinants with slogdet, as the authors' code does, instead of with
+# sum_of_determinants above.  Only then can folx compute the kinetic energy
+# fast (learn/stage08_own_code/speed_study/speed_study_report.pdf).  The
+# default "det" is what every earlier run used.
 
 @dataclass(frozen=True)
 class ReleasedArchitecture:
@@ -260,6 +266,7 @@ class ReleasedArchitecture:
     n_layers: int = 4
     width: int = 64
     perceptrons_per_layer: int = 2
+    determinants: str = "det"       # "det": sum_of_determinants;  "slogdet": sum_of_determinants_slogdet
 
 
 def dense_init(key: jax.Array, n_in: int, n_out: int, bias: bool = True) -> dict:
@@ -353,11 +360,50 @@ def hidden_states_released(params: dict, positions: jax.Array, G: jax.Array) -> 
     return h
 
 
+def sum_of_determinants_slogdet(matrices: jax.Array) -> LogPsi:
+    """The same as sum_of_determinants, but each determinant comes from slogdet.
+
+    Why a second version.  folx, the library that computes the kinetic energy
+    fast (Stage 4, kinetic_energy_folx), has a hand-written rule for the
+    second derivatives of slogdet and none for jnp.linalg.det.  With det it
+    falls back to a full table of second derivatives over every matrix
+    entry: at 18 electrons and 1024 walkers about 39 GiB, more than the GPU
+    has.  With slogdet the whole local energy needs 1.4 GiB
+    (learn/stage08_own_code/speed_study/speed_study_report.pdf).
+
+    The price, and why sum_of_determinants uses det.  If ONE determinant is
+    exactly zero while the others are not, Psi is smooth, but here the chain
+    rule multiplies d log|det A| = tr(A^-1 dA) = infinity by det A = 0, and
+    the derivatives are NaN.  test_slaternet.py shows it.  Random walkers
+    essentially never sit exactly there; the authors' code (FermiNet's
+    logdet_matmul) adds its determinants the same way.
+
+    The steps are those of sum_of_determinants: one common shift, found from
+    the values only, so that nothing over- or underflows; then add.
+    """
+    sign, log_abs = jnp.linalg.slogdet(matrices)       # sign: a complex number of size 1
+    largest = jax.lax.stop_gradient(jnp.max(log_abs))
+    shift = jnp.where(jnp.isfinite(largest), largest, 0.0)
+    total = jnp.sum(sign * jnp.exp(log_abs - shift))    # = Psi * exp(-shift)
+    return LogPsi(log_abs=shift + jnp.log(jnp.abs(total)),
+                  phase=jnp.angle(total))
+
+
+def determinant_sum(name: str):
+    """The function that adds the determinants: "det" or "slogdet"."""
+    if name == "det":
+        return sum_of_determinants
+    if name == "slogdet":
+        return sum_of_determinants_slogdet
+    raise ValueError(f"determinants must be 'det' or 'slogdet', not {name!r}")
+
+
 def log_psi_released(params: dict, positions: jax.Array, G: jax.Array,
                      arch: ReleasedArchitecture) -> LogPsi:
     """SlaterNet with the released settings: log|Psi| and arg Psi."""
     h = hidden_states_released(params, positions, G)
-    return sum_of_determinants(released_orbitals(params["orbital"], h, arch.n_determinants))
+    add = determinant_sum(arch.determinants)
+    return add(released_orbitals(params["orbital"], h, arch.n_determinants))
 
 
 if __name__ == "__main__":

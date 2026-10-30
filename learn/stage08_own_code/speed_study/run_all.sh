@@ -1,12 +1,15 @@
 #!/bin/bash
 # Stage 8 speed study: every measurement on GPU 0 only, one process at a time.
-# Output: speed_results.jsonl (one JSON line per run), logs/<run>.log (full output), gpu_usage.csv (both GPUs, every 2 s).
+# Output: speed_results.jsonl (one JSON line per run), logs/<run>.log (full output), gpu_usage.csv (both GPUs, every 2 s),
+#         system_usage.csv (CPU and memory of the machine and of the runs, every 2 s; added after the 30 October run).
 cd "$(dirname "$0")"
 PY=/home/khabab/moire-nnvmc/.venv/bin/python
 mkdir -p logs
 : > speed_results.jsonl
 nvidia-smi --format=csv -l 2 --query-gpu=timestamp,index,utilization.gpu,memory.used,temperature.gpu,power.draw,clocks_event_reasons.active > gpu_usage.csv 2>&1 &
 monitor=$!
+$PY ../system_monitor.py --parent $$ --every 2 --out system_usage.csv &
+system_monitor=$!
 run() {   # run NAME ENV... -- COMMAND...
     name=$1; shift
     echo "=== $(date +%T) start $name" >> progress.txt
@@ -32,5 +35,5 @@ done; done
 for p in float64 float32; do JAX_PLATFORMS=cpu $PY singular_example.py $p 2>/dev/null | grep '^{'; done |
     $PY -c "import json, sys; json.dump([json.loads(l) for l in sys.stdin], open('singular_example.json', 'w'), indent=1)"
 JAX_PLATFORMS=cpu $PY jaxpr_probe.py > logs/jaxpr_probe.log 2>&1
-kill $monitor
+kill $monitor $system_monitor
 echo "== all done $(date +%T)" >> progress.txt

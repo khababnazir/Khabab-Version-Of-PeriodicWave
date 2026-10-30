@@ -39,7 +39,7 @@ from slaternet import (LogPsi, periodic_features, orbitals_from_hidden,  # noqa:
                        sum_of_determinants)
 # For the Stage 8 section at the end of this file:
 from slaternet import (dense, dense_init, layer_norm, layer_norm_init,  # noqa: E402
-                       perceptrons, released_inputs, released_orbitals)
+                       perceptrons, released_inputs, released_orbitals, determinant_sum)
 
 
 @dataclass(frozen=True)
@@ -190,6 +190,9 @@ def appendix_c_parameter_count(arch: AttentionArchitecture) -> int:
 # The attention is the same family of functions either way (test_psiformer.py
 # shows the rescaling); here we take the authors' parameterisation, so that
 # initial values and KFAC see the same thing.
+#
+# determinants="slogdet" (added for 18 electrons, 2026-10-30): see the same
+# field in slaternet.py's ReleasedArchitecture.
 
 @dataclass(frozen=True)
 class ReleasedAttentionArchitecture:
@@ -202,6 +205,7 @@ class ReleasedAttentionArchitecture:
     value_dim: int = 16
     width: int = 64
     perceptrons_per_layer: int = 2
+    determinants: str = "det"       # "det" or "slogdet": see slaternet.sum_of_determinants_slogdet
 
 
 def init_released(key, arch: ReleasedAttentionArchitecture) -> dict:
@@ -268,7 +272,8 @@ def log_psi_released(params: dict, positions: jax.Array, G: jax.Array,
                      arch: ReleasedAttentionArchitecture) -> LogPsi:
     """The attention network with the released settings: log|Psi| and arg Psi."""
     h = hidden_states_released(params, positions, G, arch)
-    return sum_of_determinants(released_orbitals(params["orbital"], h, arch.n_determinants))
+    add = determinant_sum(arch.determinants)
+    return add(released_orbitals(params["orbital"], h, arch.n_determinants))
 
 
 if __name__ == "__main__":

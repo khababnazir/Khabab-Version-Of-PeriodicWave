@@ -6,7 +6,12 @@ Run (one GPU per run), from learn/stage08_own_code:
         --out ../../runs/stage08/training/slaternet_eps10
 
 Options:  --network slaternet | attention     --eps 5 | 10
-          --iterations N    (default 200,000, as the reference run)
+          --electrons 6 | 18    (default 6: 9 sites, Fig. 5;  18: 27 sites, Table I)
+          --settings released | table2    (default released, see below)
+          --laplacian hessian | folx      (default hessian;  folx for 18 electrons)
+          --determinants det | slogdet    (default det;  slogdet for 18 electrons)
+          --learning-rate ETA0    (default: that of --settings)
+          --iterations N    (default 200,000 released, 150,000 table2)
           --gradient real | full    (default real, see below)
           --seed S          (default 0)
 
@@ -30,15 +35,34 @@ reference run was trained that way, so it is the default.  --gradient full
 keeps Im E_loc (Stage 6's exact formula).  The reported energy is the mean of
 Re E_loc either way.
 
-All settings are those of the reference run (the authors' released moire
-config); test_train_moire.py checks them against its config.json.
+With --settings released (the default), all settings are those of the
+reference run (the authors' released moire config); test_train_moire.py
+checks them against its config.json.
+
+18 electrons (added 2026-10-30).  --settings table2 is the paper's Table II
+(p. 7): 4096 walkers, 150,000 iterations, learning rate 10 / (1 + t/100000),
+and an attention network of 3 layers, 6 heads and 1 perceptron per layer,
+built in the released network family that test_networks.py proves equal to
+the authors' code.  Table II gives no SlaterNet sizes, so SlaterNet keeps
+the released ones, and what Table II does not list keeps its released
+value.  At 18 electrons use --laplacian folx --determinants slogdet: Stage
+4's full Hessian with Stage 3's det needs too much memory there
+(speed_study/speed_study_report.pdf).  The defaults reproduce every earlier
+run exactly, and folders made before these options existed still count as
+the same experiment (test_train_moire.py checks both).
 
 Output in --out:
     settings.json           what this run is; checked again on every restart
-    train_stats.csv         one row per iteration
+    train_stats.csv         one row per iteration.  Its last two columns come
+                            from KFAC: learning_rate, and fisher_step_sq =
+                            eta^2 g^T (F + damping)^-1 g, the squared size of
+                            the step it proposes.  The step taken has
+                            min(fisher_step_sq, norm_constraint): above 1e-3
+                            the norm constraint sets the step, not eta.
     checkpoint_NNNNNN.npz   after NNNNNN iterations: parameters, optimiser
                             state, walkers, step width, random key.  Every 30
-                            minutes and at the end.
+                            minutes and at the end; never written if any of
+                            them is not finite.
     starts.log              one line per start
 
 Restarting: run the same command again.  It continues from the newest
@@ -88,6 +112,24 @@ class Settings:
     curvature_ema: float = 0.95        # KFAC: running average of the curvature
     min_damping: float = 1e-6          # KFAC
     clip_scale: float = 5.0            # gradient-only clipping of E_loc (Stage 6)
+    # Added for 18 electrons (2026-10-30).  These defaults are what every earlier run used.
+    attention_layers: int = 4          # attention network sizes
+    attention_heads: int = 4
+    attention_perceptrons: int = 2     # perceptrons per layer
+    laplacian: str = "hessian"         # kinetic energy: "hessian" (Stage 4) or "folx"
+    determinants: str = "det"          # adding the determinants: "det" (Stage 3) or "slogdet"
+
+
+# The paper's Table II (p. 7).  What it does not list keeps the released value.
+TABLE_II = dataclasses.replace(Settings(), batch=4096, learning_rate=10.0, learning_rate_delay=1e5,
+                               attention_layers=3, attention_heads=6, attention_perceptrons=1)
+SETTINGS = {"released": Settings(), "table2": TABLE_II}
+ITERATIONS = {"released": 200000, "table2": 150000}
+SITES = {6: 9, 18: 27}                 # electrons -> sites at filling 2/3: Fig. 5 and Table I
+
+# Folders made before 2026-10-30 lack these entries in settings.json; their runs used these values.
+BEFORE_18_ELECTRONS = dict(attention_layers=4, attention_heads=4, attention_perceptrons=2,
+                           laplacian="hessian", determinants="det")
 
 
 # ------------------------------------------------------------- the physics
@@ -107,23 +149,27 @@ def moire_constants(eps):
     return V, moire_interaction_strength(dielectric_constant=eps), np.pi / 4
 
 
-def make_problem(network, eps):
-    """The wave function and local energy: 6 electrons on 9 sites."""
+def make_problem(network, eps, electrons=6, settings=Settings()):
+    """The wave function and local energy: 6 electrons on 9 sites, or 18 on 27."""
     import slaternet
     import psiformer
-    from local_energy import local_energy
+    from local_energy import local_energy, kinetic_energy_folx, moire_potential
     from ewald import make_ewald_setup, coulomb_energy
 
-    lattice = slaternet.supercell_vectors(9)
+    lattice = slaternet.supercell_vectors(SITES[electrons])
     G = slaternet.reciprocal_vectors(lattice)
     if network == "slaternet":
-        arch = slaternet.ReleasedArchitecture(n_electrons=6)
+        arch = slaternet.ReleasedArchitecture(n_electrons=electrons, determinants=settings.determinants)
         init, log_psi_released = slaternet.init_released, slaternet.log_psi_released
     elif network == "attention":
-        arch = psiformer.ReleasedAttentionArchitecture(n_electrons=6)
+        arch = psiformer.ReleasedAttentionArchitecture(
+            n_electrons=electrons, n_layers=settings.attention_layers, n_heads=settings.attention_heads,
+            perceptrons_per_layer=settings.attention_perceptrons, determinants=settings.determinants)
         init, log_psi_released = psiformer.init_released, psiformer.log_psi_released
     else:
         raise ValueError(f"unknown network {network!r}")
+    if settings.laplacian not in ("hessian", "folx"):
+        raise ValueError(f"laplacian must be 'hessian' or 'folx', not {settings.laplacian!r}")
 
     V, U, phi = moire_constants(eps)
     ewald = make_ewald_setup(lattice)
@@ -133,7 +179,11 @@ def make_problem(network, eps):
 
     def e_loc(params, R):
         psi = lambda X: log_psi(params, X)                 # noqa: E731
-        return local_energy(psi, R, V, phi) + coulomb_energy(ewald, R, strength=U)
+        if settings.laplacian == "folx":                   # the same formula, computed faster (Stage 4)
+            kinetic_and_moire = kinetic_energy_folx(psi, R) + moire_potential(R, V, phi)
+        else:
+            kinetic_and_moire = local_energy(psi, R, V, phi)
+        return kinetic_and_moire + coulomb_energy(ewald, R, strength=U)
 
     return Problem(arch, init, log_psi, e_loc)
 
@@ -241,9 +291,25 @@ def make_optimizer(loss, settings):
 
 # ------------------------------------------------------------- checkpoints
 
-def save_checkpoint(folder, done, params, opt_state, walkers, width, key):
-    """checkpoint_<done>.npz, written via a temporary file so it is never half written."""
+def all_finite(tree):
+    """True if no number in tree is NaN or inf (integer arrays always pass)."""
     import jax
+    arrays = [np.asarray(leaf) for leaf in jax.tree.leaves(tree)]
+    return all(np.isfinite(a).all() for a in arrays if np.issubdtype(a.dtype, np.inexact))
+
+
+def save_checkpoint(folder, done, params, opt_state, walkers, width, key):
+    """checkpoint_<done>.npz, written via a temporary file so it is never half written.
+
+    Stops the run instead of saving if the parameters, the optimiser state or
+    the walkers hold a NaN or inf: the newest checkpoint must always be one
+    a run can continue from.
+    """
+    import jax
+    for name, tree in (("parameters", params), ("optimiser state", opt_state), ("walkers", walkers)):
+        if not all_finite(tree):
+            sys.exit(f"after {done} iterations the {name} are not finite; stopping without "
+                     "saving (the last checkpoint is unchanged)")
     arrays = dict(done=done, walkers=np.asarray(walkers), width=width, key=np.asarray(key))
     for i, leaf in enumerate(jax.tree.leaves(params)):
         arrays[f"params_{i}"] = np.asarray(leaf)
@@ -290,18 +356,32 @@ def checkpoints_newest_first(folder):
     return sorted(folder.glob("checkpoint_*.npz"), reverse=True)
 
 
+def is_finished(folder, iterations):
+    """True if the final checkpoint exists, reads completely and says it holds
+    `iterations`.  Its file name alone is not enough: a damaged final
+    checkpoint must not make a run count as finished."""
+    try:
+        with np.load(folder / f"checkpoint_{iterations:06d}.npz") as saved:
+            for name in saved.files:
+                _ = saved[name]                       # reading every array checks the whole file
+            return int(saved["done"]) == iterations
+    except Exception:                                  # missing, damaged or incomplete
+        return False
+
+
 # ------------------------------------------------------------- training
 
-STATS_COLUMNS = ["step", "energy", "variance", "energy_imag", "pmove", "step_width", "seconds"]
+STATS_COLUMNS = ["step", "energy", "variance", "energy_imag", "pmove", "step_width", "seconds",
+                 "learning_rate", "fisher_step_sq"]
 
 
-def train(folder, network, eps, gradient, seed, iterations, settings=Settings(), log=print):
+def train(folder, network, eps, gradient, seed, iterations, settings=Settings(), log=print, electrons=6):
     """Train, or continue training, into folder.  Returns the parameters."""
     import jax
     import jax.numpy as jnp
     from metropolis import adapt_step_width
 
-    problem = make_problem(network, eps)
+    problem = make_problem(network, eps, electrons, settings)
     move, sample_and_measure = make_sampler(problem, settings, gradient)
     optimizer = make_optimizer(make_loss(problem, gradient), settings)
 
@@ -309,7 +389,7 @@ def train(folder, network, eps, gradient, seed, iterations, settings=Settings(),
     key = jax.random.PRNGKey(seed)
     key, key_params, key_walkers = jax.random.split(key, 3)
     params = problem.init(key_params, problem.arch)
-    walkers = settings.init_width * jax.random.normal(key_walkers, (settings.batch, 6, 2))
+    walkers = settings.init_width * jax.random.normal(key_walkers, (settings.batch, electrons, 2))
     width = settings.move_width
     done = 0
     no_energies = jnp.zeros(settings.batch) + (0j if gradient == "full" else 0.0)
@@ -343,12 +423,13 @@ def train(folder, network, eps, gradient, seed, iterations, settings=Settings(),
 
     started = time.time()
     last_save = time.time()
+    capped = window = 0        # iterations, since the last log line, in which the norm constraint set the step
     with open(stats_file, "a", newline="") as handle:
         writer = csv.writer(handle, lineterminator="\n")
         for step in range(done, iterations):
             key, key_move, key_kfac = jax.random.split(key, 3)
             walkers, e_for_gradient, stats = sample_and_measure(params, walkers, key_move, width)
-            params, opt_state, _ = optimizer.step(
+            params, opt_state, kfac = optimizer.step(
                 params, opt_state, key_kfac, batch=(walkers, e_for_gradient),
                 momentum=jnp.asarray(0.0), damping=jnp.asarray(settings.damping))
 
@@ -356,15 +437,20 @@ def train(folder, network, eps, gradient, seed, iterations, settings=Settings(),
             if not np.isfinite(stats["energy"]):
                 sys.exit(f"step {step}: the energy is not finite; stopping without saving "
                          "(the last checkpoint is unchanged)")
+            learning_rate, fisher_step_sq = float(kfac["learning_rate"]), float(kfac["scaled_grad_norm_sq"])
+            capped, window = capped + (fisher_step_sq > settings.norm_constraint), window + 1
             writer.writerow([step, stats["energy"], stats["variance"], stats["energy_imag"],
-                             stats["pmove"], width, round(time.time() - started, 3)])
+                             stats["pmove"], width, round(time.time() - started, 3),
+                             learning_rate, fisher_step_sq])
             if step % settings.adapt_every == 0:              # after the step, as the authors do
                 width = adapt_step_width(width, stats["pmove"])
 
             if (step + 1) % 1000 == 0:
                 rate = (step + 1 - done) / (time.time() - started)
                 log(f"step {step + 1:7d}  energy {stats['energy']:+.5f}  pmove {stats['pmove']:.2f}  "
-                    f"width {width:.3f}  {rate:.2f} it/s")
+                    f"width {width:.3f}  lr {learning_rate:.3g}  step capped {100 * capped / window:.0f}%  "
+                    f"{rate:.2f} it/s")
+                capped = window = 0
             if time.time() - last_save > SAVE_EVERY_SECONDS or step + 1 == iterations:
                 handle.flush()
                 save_checkpoint(folder, step + 1, params, opt_state, walkers, width, key)
@@ -392,6 +478,9 @@ def same_experiment_or_stop(folder, wanted, iterations_given):
         path.write_text(json.dumps(wanted, indent=2))
         return wanted["iterations"]
     saved = json.loads(path.read_text())
+    # Folders made before 2026-10-30 lack the 18-electron entries: 6 electrons and BEFORE_18_ELECTRONS.
+    saved.setdefault("electrons", 6)
+    saved["settings"] = {**BEFORE_18_ELECTRONS, **saved["settings"]}
     differing = [name for name in wanted if name != "iterations" and saved.get(name) != wanted[name]]
     if differing:
         sys.exit(f"{folder} holds a different experiment (differs in {differing}); use another --out")
@@ -407,10 +496,20 @@ def main():
     parser.add_argument("--network", choices=["slaternet", "attention"], required=True)
     parser.add_argument("--eps", type=float, choices=[5.0, 10.0], required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--iterations", type=int, default=None, help="default 200000")
+    parser.add_argument("--electrons", type=int, choices=sorted(SITES), default=6)
+    parser.add_argument("--settings", choices=sorted(SETTINGS), default="released")
+    parser.add_argument("--laplacian", choices=["hessian", "folx"], default="hessian")
+    parser.add_argument("--determinants", choices=["det", "slogdet"], default="det")
+    parser.add_argument("--learning-rate", type=float, default=None, help="default: that of --settings")
+    parser.add_argument("--iterations", type=int, default=None,
+                        help="default 200000 (released), 150000 (table2)")
     parser.add_argument("--gradient", choices=["real", "full"], default="real")
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
+    settings = dataclasses.replace(SETTINGS[args.settings], laplacian=args.laplacian,
+                                   determinants=args.determinants)
+    if args.learning_rate is not None:
+        settings = dataclasses.replace(settings, learning_rate=args.learning_rate)
     folder = args.out.resolve()
     folder.mkdir(parents=True, exist_ok=True)
 
@@ -428,23 +527,26 @@ def main():
     # crawl on unnoticed (it happened on 2026-10-29, after GPU 1 failed).
     if jax.default_backend() != "gpu":
         sys.exit(f"JAX found no working GPU (backend: {jax.default_backend()}); not starting")
-    wanted = dict(network=args.network, eps=args.eps, gradient=args.gradient, seed=args.seed,
-                  iterations=200000 if args.iterations is None else args.iterations,
-                  settings=dataclasses.asdict(Settings()))
+    wanted = dict(network=args.network, eps=args.eps, electrons=args.electrons, gradient=args.gradient,
+                  seed=args.seed,
+                  iterations=ITERATIONS[args.settings] if args.iterations is None else args.iterations,
+                  settings=dataclasses.asdict(settings))
     iterations = same_experiment_or_stop(folder, wanted, args.iterations)
-    newest = checkpoints_newest_first(folder)
-    if newest and newest[0].name == f"checkpoint_{iterations:06d}.npz":
-        print(f"{folder} has already finished: it holds {newest[0].name}")
+    if is_finished(folder, iterations):
+        print(f"{folder} has already finished: it holds checkpoint_{iterations:06d}.npz")
         return
+    import folx
     with open(folder / "starts.log", "a") as handle:
         handle.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}  GPU {gpu}  target {iterations}  "
-                     f"jax {jax.__version__}  kfac_jax {getattr(kfac_jax, '__version__', '?')}\n")
+                     f"jax {jax.__version__}  kfac_jax {getattr(kfac_jax, '__version__', '?')}  "
+                     f"folx {getattr(folx, '__version__', '?')}\n")
 
     # Matrix products in full single precision.  On these GPUs JAX would
     # otherwise use TF32, which keeps only about 3 digits.  The authors' config
     # sets the same.
     jax.config.update("jax_default_matmul_precision", "float32")
-    train(folder, args.network, args.eps, args.gradient, args.seed, iterations)
+    train(folder, args.network, args.eps, args.gradient, args.seed, iterations, settings,
+          electrons=args.electrons)
     print("finished")
 
 

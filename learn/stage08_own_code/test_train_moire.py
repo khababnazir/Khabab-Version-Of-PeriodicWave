@@ -11,7 +11,13 @@ Stage 8 checks for train_moire.py.  Run:  python test_train_moire.py   (CPU, dou
               clipping, the gradient and the new parameters after one KFAC
               step.  This is the whole optimiser, not only its layers;
   restart     stop and restart gives exactly the run that never stopped, and
-              a folder holding a different experiment is refused.
+              a folder holding a different experiment is refused;
+  safety      the four 9-site run folders still count as the same experiment;
+              a damaged final checkpoint does not count as finished; NaN
+              parameters are never saved;
+  18 e        --settings table2 is the paper's Table II; the 27-site cell is
+              the authors'; at 27 sites our local energy, fast (folx +
+              slogdet) and reference (full Hessian + det), equals theirs.
 
 What this cannot show: that a long run converges.  Two runs with different
 random numbers (initial weights, Metropolis moves) follow different paths;
@@ -21,8 +27,10 @@ import csv
 import dataclasses
 import json
 import os
+import shutil
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 os.environ["JAX_PLATFORMS"] = "cpu"           # before JAX is imported: a GPU may be training
 from absl.testing import absltest
@@ -34,12 +42,13 @@ from jax.flatten_util import ravel_pytree
 import kfac_jax
 
 import train_moire as tm
+import slaternet
 import test_networks as reference             # the reference run and the authors' networks
 from gradient import energy_gradient, log_derivatives, clip_local_energy  # Stage 6
 
-from periodicwave import constants, curvature_tags_and_blocks, networks  # noqa: E402
+from periodicwave import CustomPsiformer, constants, curvature_tags_and_blocks, networks  # noqa: E402
 from periodicwave import loss as authors_loss  # noqa: E402
-from periodicwave.pbc import hamiltonian  # noqa: E402
+from periodicwave.pbc import hamiltonian, lattices  # noqa: E402
 
 N_WALKERS = 64
 
@@ -87,6 +96,23 @@ class SettingsTest(absltest.TestCase):
                 np.testing.assert_allclose(U, potential["interaction_energy_scale"], rtol=1e-12)
                 np.testing.assert_allclose(phi, potential["moire_potential_phi"], rtol=1e-12)
                 self.assertEqual(cfg["system"]["electrons"], [6, 0])
+
+
+    def test_table2_is_the_papers_table_ii(self):
+        """--settings table2 against the paper's Table II (p. 7), value by value."""
+        s = tm.TABLE_II
+        self.assertEqual(tm.ITERATIONS["table2"], 150000)                          # 15 x 10^4
+        self.assertEqual((s.learning_rate, s.learning_rate_delay, s.learning_rate_decay), (10.0, 1e5, 1.0))
+        self.assertEqual(s.clip_scale, 5.0)                                        # local energy clipping
+        self.assertEqual(s.batch, 4096)                                            # MCMC batch size
+        self.assertEqual((s.norm_constraint, s.damping), (1e-3, 1e-3))             # KFAC
+        arch = tm.make_problem("attention", 5.0, 18, s).arch
+        self.assertEqual((arch.n_layers, arch.n_heads, arch.attention_dim, arch.width,
+                          arch.perceptrons_per_layer, arch.n_determinants), (3, 6, 16, 64, 1, 4))
+        # What Table II does not list stays at the released value.
+        changed = {name for name, value in dataclasses.asdict(s).items() if value != getattr(tm.Settings(), name)}
+        self.assertEqual(changed, {"batch", "learning_rate", "learning_rate_delay",
+                                   "attention_layers", "attention_heads", "attention_perceptrons"})
 
 
 class GradientTest(absltest.TestCase):
@@ -253,6 +279,119 @@ class RestartTest(absltest.TestCase):
             with self.assertRaises(SystemExit):
                 tm.same_experiment_or_stop(folder, dict(wanted, eps=5.0), None)
             self.assertEqual(tm.same_experiment_or_stop(folder, dict(wanted, iterations=9), 9), 9)
+
+
+class SafetyTest(absltest.TestCase):
+
+    def test_the_9_site_runs_are_still_the_same_experiment(self):
+        """Their settings.json files were written before the 18-electron
+        options existed.  A default start must still match them -- so they can
+        be continued and evaluated -- and a start with new options must not."""
+        for run in ("attention_eps5", "attention_eps10", "slaternet_eps5", "slaternet_eps10"):
+            original = tm.REPO / "runs" / "stage08" / "training" / run / "settings.json"
+            saved = json.loads(original.read_text())
+            wanted = dict(network=saved["network"], eps=saved["eps"], electrons=6, gradient=saved["gradient"],
+                          seed=saved["seed"], iterations=saved["iterations"],
+                          settings=dataclasses.asdict(tm.Settings()))
+            with tempfile.TemporaryDirectory() as scratch, self.subTest(run):
+                folder = Path(scratch)
+                shutil.copy(original, folder / "settings.json")
+                self.assertEqual(tm.same_experiment_or_stop(folder, wanted, None), saved["iterations"])
+                for changed in (dict(wanted, electrons=18),
+                                dict(wanted, settings=dict(wanted["settings"], determinants="slogdet")),
+                                dict(wanted, settings=dict(wanted["settings"], laplacian="folx"))):
+                    with self.assertRaises(SystemExit):
+                        tm.same_experiment_or_stop(folder, changed, None)
+
+    def test_only_a_complete_final_checkpoint_means_finished(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            folder = Path(scratch)
+            final = folder / "checkpoint_000004.npz"
+            self.assertFalse(tm.is_finished(folder, 4))                     # nothing there
+            final.write_bytes(b"not a checkpoint")
+            self.assertFalse(tm.is_finished(folder, 4))                     # damaged
+            with open(final, "wb") as handle:
+                np.savez(handle, done=3, params_0=np.zeros(1000))
+            self.assertFalse(tm.is_finished(folder, 4))                     # holds 3 iterations, not 4
+            with open(final, "wb") as handle:
+                np.savez(handle, done=4, params_0=np.zeros(1000))
+            self.assertTrue(tm.is_finished(folder, 4))
+            final.write_bytes(final.read_bytes()[:-100])
+            self.assertFalse(tm.is_finished(folder, 4))                     # cut short
+
+    def test_non_finite_values_are_never_saved(self):
+        ok = dict(params={"w": jnp.ones(3)}, opt_state={"s": jnp.zeros(3), "step": jnp.asarray(5)},
+                  walkers=jnp.zeros((2, 6, 2)))
+        with tempfile.TemporaryDirectory() as scratch:
+            folder = Path(scratch)
+            for name in ok:
+                bad = dict(ok, **{name: jax.tree.map(lambda x: x.at[0].set(jnp.nan)
+                                                     if jnp.issubdtype(x.dtype, jnp.inexact) else x, ok[name])})
+                with self.subTest(name), self.assertRaises(SystemExit):
+                    tm.save_checkpoint(folder, 7, bad["params"], bad["opt_state"], bad["walkers"], 0.2,
+                                       jax.random.PRNGKey(0))
+                self.assertEqual(list(folder.iterdir()), [])
+            tm.save_checkpoint(folder, 7, ok["params"], ok["opt_state"], ok["walkers"], 0.2, jax.random.PRNGKey(0))
+            self.assertEqual([p.name for p in folder.iterdir()], ["checkpoint_000007.npz"])
+
+
+def exact_attention(q, k, v, *args, **kwargs):
+    """jax.nn.dot_product_attention with its softmax written out, in the input
+    precision; JAX's own computes it in single precision.  Shapes (N, heads, d)."""
+    assert not args and not kwargs
+    weights = jax.nn.softmax(jnp.einsum("tnh,snh->nts", q, k) / jnp.sqrt(q.shape[-1]), axis=-1)
+    return jnp.einsum("nts,snh->tnh", weights, v)
+
+
+class EighteenElectronsTest(absltest.TestCase):
+    """The 27-site system of the paper's Table I, checked before a long run uses it."""
+
+    def test_the_27_site_cell_is_the_authors(self):
+        theirs, _ = lattices._triangular_lattice_vecs_periodic_potential(1.0, 27)
+        np.testing.assert_allclose(slaternet.supercell_vectors(27), theirs, rtol=0, atol=1e-12)
+
+    def test_local_energy_equals_the_authors_at_27_sites(self):
+        """The Table II attention network at 18 electrons: the authors' network
+        with random weights, and ours with the same weights (test_networks.py's
+        mapping).  Our fast local energy (folx + slogdet) and our reference one
+        (full Hessian + det) against theirs (complex, 'default' Laplacian).
+        This checks the 27-site cell, the Ewald sum on it, the moire potential
+        and the kinetic energy together.  The attention's softmax is written
+        out in double precision for this test (exact_attention); with JAX's
+        single-precision softmax the routes differ by about 1e-4, which would
+        hide real mistakes of that size.  speed_study/production_check.py
+        measures that difference on the GPU, in the precision of a run."""
+        self.enter_context(mock.patch.object(jax.nn, "dot_product_attention", exact_attention))
+        supercell, moire_lattice = lattices._triangular_lattice_vecs_periodic_potential(1.0, 27)
+        network = config("psiformer_eps5")["network"]
+        sizes = dict(network["CustomPsiformer"], num_layers=3, num_heads=6, num_perceptrons_per_layer=1)
+        theirs = reference.authors_network(CustomPsiformer, sizes, network["determinants"],
+                                           n_electrons=18, supercell=supercell)
+        their_params = theirs.init(jax.random.PRNGKey(5))
+        our_params = reference.ours_from_authors_psiformer(their_params)
+        V, U, phi = tm.moire_constants(5.0)
+        authors_e_loc = hamiltonian.local_energy(
+            theirs.apply, jnp.array([0.0]), (18, 0), use_scan=False, complex_output=True,
+            lattice=jnp.asarray(supercell), potential_type="CoulombMoire",
+            potential_kwargs={"moire_lattice_vectors": moire_lattice, "moire_potential_strength": V,
+                              "moire_potential_phi": phi, "interaction_energy_scale": U},
+            kinetic_kwargs={"laplacian_method": "default"})
+        theirs_one = jax.jit(lambda R: authors_e_loc(their_params, None, networks.FermiNetData(
+            positions=R.reshape(-1), spins=jnp.ones(18), atoms=jnp.zeros((1, 2)),
+            charges=jnp.array([0.0])))[0])
+        walkers = jax.random.uniform(jax.random.PRNGKey(6), (2, 18, 2)) @ jnp.asarray(supercell).T
+        theirs_e = np.array([complex(theirs_one(R)) for R in walkers])
+        for laplacian, determinants in (("folx", "slogdet"), ("hessian", "det")):
+            problem = tm.make_problem("attention", 5.0, 18, dataclasses.replace(
+                tm.TABLE_II, laplacian=laplacian, determinants=determinants))
+            ours_one = jax.jit(lambda R: problem.local_energy(our_params, R))
+            ours_e = np.array([complex(ours_one(R)) for R in walkers])
+            print(f"27 sites, {laplacian} + {determinants}: ours {ours_e}, theirs {theirs_e}, "
+                  f"max rel diff {np.max(np.abs(ours_e - theirs_e)) / np.max(np.abs(theirs_e)):.1e}")
+            with self.subTest(laplacian=laplacian, determinants=determinants):
+                np.testing.assert_allclose(ours_e.real, theirs_e.real, rtol=1e-9)
+                np.testing.assert_allclose(ours_e.imag, theirs_e.imag, rtol=0,
+                                           atol=1e-9 * np.abs(theirs_e.real).max())
 
 
 def setUpModule():

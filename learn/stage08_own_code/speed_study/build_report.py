@@ -270,8 +270,8 @@ table([["attempt (18 electrons)", "result", "why"],
        ["folx (dense) + Stage 3 det, attention network", "fails at 1024: \"No valid config found\"; asks for 58 GB "
         "at 4096", "no folx rule for det → full Hessian over all 1,296 matrix entries"],
        ["folx (dense) + Stage 3 det, SlaterNet", "runs at 1024 (0.14 s, 9.84 GiB); fails at 4096",
-        "same fallback; SlaterNet happened to stay under 24 GiB at 1024 (we did not study why it needs less than "
-        "the attention network)"],
+        "same fallback, but the released SlaterNet has 1 determinant instead of 4, so the box gets 18 × 18 = 324 "
+        "entries instead of 1,296 (we did not measure how much of its 9.84 GiB this explains)"],
        ["folx with sparsity (threshold 0.6) + det", "SlaterNet: 0.119 s, 9.84 GiB, no memory saved. Attention: folx "
         "crashes (IndexError) inside <font face='Mono'>jax.nn.dot_product_attention</font>",
         "a folx limitation with that operation. The authors' own code comment says finite sparsity values crash, "

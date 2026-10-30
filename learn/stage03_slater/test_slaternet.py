@@ -16,7 +16,7 @@ import numpy as np
 import jax.numpy as jnp
 
 from slaternet import (Architecture, init_parameters, log_psi, orbital_matrices,
-                       supercell_vectors, reciprocal_vectors)
+                       supercell_vectors, reciprocal_vectors, sum_of_determinants_slogdet)
 
 TOL = 1e-10
 N = 6
@@ -225,6 +225,38 @@ def test_position_hessian_matches_naive_formula():
 
 
 
+def test_slogdet_sum_equals_det_sum():
+    """Stage 8: sum_of_determinants_slogdet gives the same log|Psi|, phase and
+    parameter gradient as sum_of_determinants at ordinary configurations."""
+    def slogdet_log_abs(p, r):
+        return sum_of_determinants_slogdet(orbital_matrices(p, r, G)).log_abs
+    for label, params in NETS.items():
+        r = random_positions()
+        a = log_psi(params, r, G)
+        b = sum_of_determinants_slogdet(orbital_matrices(params, r, G))
+        value = worst_error([abs(float(a.log_abs - b.log_abs)), abs(wrap(float(a.phase - b.phase)))])
+        g_det = jax.grad(lambda p: log_psi(p, r, G).log_abs)(params)
+        g_slogdet = jax.grad(slogdet_log_abs)(params, r)
+        scale = worst_error([float(jnp.max(jnp.abs(x))) for x in jax.tree.leaves(g_det)])
+        diff = worst_error([float(jnp.max(jnp.abs(x - y)))
+                            for x, y in zip(jax.tree.leaves(g_slogdet), jax.tree.leaves(g_det))])
+        check(f"[{label}] slogdet sum == det sum: value and parameter gradient",
+              value < TOL and diff / scale < 1e-9, f"value {value:.1e}, gradient rel {diff / scale:.1e}")
+
+
+def test_slogdet_sum_is_nan_where_one_determinant_vanishes():
+    """Stage 8: the price of sum_of_determinants_slogdet, kept visible.  Where
+    determinant 0 alone is exactly zero, its parameter gradient is NaN, while
+    sum_of_determinants stays finite (and correct:
+    test_parameter_gradients_match_naive_formula)."""
+    params = singular_variants(NETS["4 det"])["det 0 is exactly zero"]
+    r = random_positions()
+    g_slogdet = jax.grad(lambda p: sum_of_determinants_slogdet(orbital_matrices(p, r, G)).log_abs)(params)
+    g_det = jax.grad(lambda p: log_psi(p, r, G).log_abs)(params)
+    check("[4 det, det 0 is exactly zero] slogdet gradient NaN, det gradient finite",
+          not all_finite(g_slogdet) and all_finite(g_det))
+
+
 def report_known_limitation():
     """NOT a pass/fail check -- a measurement, printed so it is never forgotten.
 
@@ -250,6 +282,8 @@ ALL_TESTS = [
     test_exactly_zero_psi_gives_minus_inf_not_nan,
     test_parameter_gradients_match_naive_formula,
     test_position_hessian_matches_naive_formula,
+    test_slogdet_sum_equals_det_sum,
+    test_slogdet_sum_is_nan_where_one_determinant_vanishes,
 ]
 
 if __name__ == "__main__":
