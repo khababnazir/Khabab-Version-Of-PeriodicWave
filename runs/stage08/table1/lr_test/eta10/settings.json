@@ -1,0 +1,29 @@
+{
+  "network": "attention",
+  "eps": 5.0,
+  "electrons": 18,
+  "gradient": "real",
+  "seed": 0,
+  "iterations": 2000,
+  "settings": {
+    "batch": 4096,
+    "mcmc_steps": 30,
+    "burn_in": 300,
+    "init_width": 1.0,
+    "move_width": 0.2,
+    "adapt_every": 100,
+    "learning_rate": 10.0,
+    "learning_rate_delay": 100000.0,
+    "learning_rate_decay": 1.0,
+    "damping": 0.001,
+    "norm_constraint": 0.001,
+    "curvature_ema": 0.95,
+    "min_damping": 1e-06,
+    "clip_scale": 5.0,
+    "attention_layers": 3,
+    "attention_heads": 6,
+    "attention_perceptrons": 1,
+    "laplacian": "folx",
+    "determinants": "slogdet"
+  }
+}
