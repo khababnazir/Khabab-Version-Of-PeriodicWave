@@ -62,8 +62,8 @@ FIG5 = {(5.0, "slaternet"): -57.9, (5.0, "attention"): -59.5,
 # Correlation energy E(self-attention) - E(SlaterNet), between these named runs
 # only: a folder for another experiment (say, with the full gradient) must
 # never be paired by accident.
-CORRELATION_PAIRS = {5.0: ("attention_eps5", "slaternet_eps5"),
-                     10.0: ("attention_eps10", "slaternet_eps10")}
+CORRELATION_PAIRS = {5.0: ("attention_6e_eps5", "slaternet_6e_eps5"),
+                     10.0: ("attention_6e_eps10", "slaternet_6e_eps10")}
 COLOURS = {"attention": "#1f5aa6", "slaternet": "#2e8b57"}
 LABELS = {"attention": "self-attention", "slaternet": "SlaterNet"}
 

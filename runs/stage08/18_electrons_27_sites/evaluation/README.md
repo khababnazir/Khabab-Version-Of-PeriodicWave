@@ -8,8 +8,8 @@ configurations per evaluation.
 
 | Folder | Weights evaluated |
 |---|---|
-| `attention_eps5`, `attention_eps10`, `slaternet_eps5`, `slaternet_eps10` | the final checkpoint (150,000 iterations) of the run of the same name in `../training/` |
-| `slaternet_eps10_at_033545` | `slaternet_eps10` after 33,545 iterations, near its lowest training energy |
+| `attention_18e_eps5`, `attention_18e_eps10`, `slaternet_18e_eps5`, `slaternet_18e_eps10` | the final checkpoint (150,000 iterations) of the run of the same name in `../training/` |
+| `slaternet_18e_eps10_at_033545` | `slaternet_18e_eps10` after 33,545 iterations, near its lowest training energy |
 
 ## In each folder
 

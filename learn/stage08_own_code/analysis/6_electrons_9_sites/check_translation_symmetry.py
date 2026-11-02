@@ -46,7 +46,7 @@ def main():
     jax.config.update("jax_default_matmul_precision", "float32")     # as the training
     a1, a2 = np.array([1.0, 0.0]), np.array([-0.5, np.sqrt(3) / 2])        # moire lattice, a_M = 1
     supercell_vector = np.asarray(slaternet.supercell_vectors(9))[:, 0]
-    for name in ("attention_eps10", "slaternet_eps10", "attention_eps5", "slaternet_eps5"):
+    for name in ("attention_6e_eps10", "slaternet_6e_eps10", "attention_6e_eps5", "slaternet_6e_eps5"):
         saved, training_settings = run_settings(RUNS / name)
         final = checkpoint_path(RUNS / name, saved)
         problem = train_moire.make_problem(saved["network"], saved["eps"], saved["electrons"],

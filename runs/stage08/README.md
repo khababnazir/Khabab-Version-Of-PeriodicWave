@@ -10,6 +10,9 @@ Two systems, trained with our code (`learn/stage08_own_code/`), one folder each:
 Each holds `training/` (the runs: settings, energy of every iteration, checkpoints = the
 model weights, launcher logs), `evaluation/` (the final weights evaluated frozen),
 `results/` (tables) and `figures/`, and a `README.md` with the results.
+Each run folder is named `<network>_<electrons>e_eps<ε>`, e.g. `slaternet_18e_eps5` is
+SlaterNet with 18 electrons at ε = 5 (until 2026-11-02 `slaternet_eps5`; logs and
+`summary.json` files written before still show the old names).
 The frozen-weight evaluation itself (`analysis/evaluate_weights.py`, `analysis/observables.py`)
 is shared by both systems.
 

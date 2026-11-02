@@ -74,8 +74,8 @@ PAPER = {("attention", 10.0): (-32.070, 0.007), ("slaternet", 10.0): (-31.35, 0.
 BP_ED = {10.0: -31.32443, 5.0: -57.80848}
 # Evaluation folders, in the order of the tables.  The last is SlaterNet eps = 10 at
 # iteration 33,545, near its lowest training energy (the energy rose afterwards).
-FOLDERS = ["attention_eps10", "slaternet_eps10", "attention_eps5", "slaternet_eps5",
-           "slaternet_eps10_at_033545"]
+FOLDERS = ["attention_18e_eps10", "slaternet_18e_eps10", "attention_18e_eps5", "slaternet_18e_eps5",
+           "slaternet_18e_eps10_at_033545"]
 
 plt.rcParams.update({"font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8,
                      "legend.fontsize": 7, "xtick.labelsize": 6, "ytick.labelsize": 6,

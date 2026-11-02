@@ -60,11 +60,11 @@ from analyse_runs import ENERGY_UNIT_MEV, FIG5, COLOURS, LABELS, blocked_mean, d
 DATA = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites"
 TRAINING, EVALUATION = DATA / "training", DATA / "evaluation"
 FIGURES, RESULTS = DATA / "figures", DATA / "results"
-ORDER = ["attention_eps10", "slaternet_eps10", "attention_eps5", "slaternet_eps5"]
+ORDER = ["attention_6e_eps10", "slaternet_6e_eps10", "attention_6e_eps5", "slaternet_6e_eps5"]
 # The reference run (authors' code, archived) and its names for the same four runs.
 AUTHORS_RESULTS = HERE.parents[3] / "runs" / "archive" / "stage08_authors_code" / "results"
-AUTHORS_NAME = {"attention_eps10": "psiformer_eps10", "slaternet_eps10": "slaternet_eps10",
-                "attention_eps5": "psiformer_eps5", "slaternet_eps5": "slaternet_eps5"}
+AUTHORS_NAME = {"attention_6e_eps10": "psiformer_eps10", "slaternet_6e_eps10": "slaternet_eps10",
+                "attention_6e_eps5": "psiformer_eps5", "slaternet_6e_eps5": "slaternet_eps5"}
 FIG5_READING_ACCURACY = 0.05      # meV per electron, our by-eye reading of the plot
 KAPPA = 4 * np.pi / 3             # corner of the moire Brillouin zone (a_M = 1)
 G = 4 * np.pi / np.sqrt(3)        # moire reciprocal lattice vector

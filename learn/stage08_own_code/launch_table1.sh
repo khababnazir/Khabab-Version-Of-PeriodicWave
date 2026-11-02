@@ -68,11 +68,11 @@ start () {   # gpu, then the runs of its queue
 export -f queue
 export PY RUNS LOGS TABLE1
 if [ "$1" = "test" ]; then
-    start 0 "'../lr_test/eta10 --network attention --eps 5 --learning-rate 10 --iterations 2000'"
-    start 1 "'../lr_test/eta0.1 --network attention --eps 5 --learning-rate 0.1 --iterations 2000'"
+    start 0 "'../lr_test/attention_18e_eps5_eta10 --network attention --eps 5 --learning-rate 10 --iterations 2000'"
+    start 1 "'../lr_test/attention_18e_eps5_eta0.1 --network attention --eps 5 --learning-rate 0.1 --iterations 2000'"
 elif [ -z "$1" ]; then
-    start 0 "'attention_eps5 --network attention --eps 5'" "'slaternet_eps5 --network slaternet --eps 5'"
-    start 1 "'attention_eps10 --network attention --eps 10'" "'slaternet_eps10 --network slaternet --eps 10'"
+    start 0 "'attention_18e_eps5 --network attention --eps 5'" "'slaternet_18e_eps5 --network slaternet --eps 5'"
+    start 1 "'attention_18e_eps10 --network attention --eps 10'" "'slaternet_18e_eps10 --network slaternet --eps 10'"
 else
     echo "usage: bash launch_table1.sh [test]"
     exit 2

@@ -4,7 +4,10 @@
 every run with its exit code, and a progress line every 1000 iterations
 (energy, accepted moves, step width, iterations per second).
 
-`gpu0.log` also holds the end of `attention_eps5` (see `../README.md`): a
+The run folders were named `attention_eps5` etc. until 2026-11-02; the logs use those
+names.
+
+`gpu0.log` also holds the end of `attention_6e_eps5` (see `../README.md`): a
 failed start on 2026-10-29 00:17, which found no working GPU, and the restart
 on GPU 0 at 05:41.
 

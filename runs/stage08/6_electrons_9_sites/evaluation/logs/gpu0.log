@@ -70,3 +70,15 @@ finished
 === 2026-11-02 04:07:36  start 6_electrons_9_sites/slaternet_eps10 on GPU 0
 /home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/slaternet_eps10 already holds this evaluation; use --overwrite to repeat it
 === 2026-11-02 04:07:36  slaternet_eps10 ended with exit code 0
+=== 2026-11-02 05:00:01  start 6_electrons_9_sites/attention_6e_eps10 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/attention_6e_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:01  attention_6e_eps10 ended with exit code 0
+=== 2026-11-02 05:00:01  start 6_electrons_9_sites/attention_6e_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/attention_6e_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:01  attention_6e_eps5 ended with exit code 0
+=== 2026-11-02 05:00:01  start 6_electrons_9_sites/slaternet_6e_eps10 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/slaternet_6e_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:02  slaternet_6e_eps10 ended with exit code 0
+=== 2026-11-02 05:00:02  start 6_electrons_9_sites/slaternet_6e_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/slaternet_6e_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:02  slaternet_6e_eps5 ended with exit code 0

@@ -36,7 +36,7 @@ queue () {   # gpu, then pairs: network eps
     $PY system_monitor.py --parent $$ --every 10 --out $RUNS/logs/gpu${gpu}_system_$stamp.csv &
     system_monitor=$!
     while [ $# -gt 0 ]; do
-        name="${1}_eps${2}"
+        name="${1}_6e_eps${2}"
         echo "=== $(date '+%F %T')  start $name on GPU $gpu"
         CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY train_moire.py --network $1 --eps $2 --out $RUNS/$name
         status=$?                                  # saved first: $(date) below would overwrite $?

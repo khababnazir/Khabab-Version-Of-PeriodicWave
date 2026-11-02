@@ -43,3 +43,18 @@ finished
 === 2026-11-02 04:07:37  start 18_electrons_27_sites/slaternet_eps5 on GPU 1
 /home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
 === 2026-11-02 04:07:37  slaternet_eps5 ended with exit code 0
+=== 2026-11-02 05:00:02  start 18_electrons_27_sites/attention_18e_eps10 on GPU 1
+/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/attention_18e_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:02  attention_18e_eps10 ended with exit code 0
+=== 2026-11-02 05:00:02  start 18_electrons_27_sites/slaternet_18e_eps10 on GPU 1
+/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/slaternet_18e_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:02  slaternet_18e_eps10 ended with exit code 0
+=== 2026-11-02 05:00:02  start 18_electrons_27_sites/slaternet_18e_eps10@33545 on GPU 1
+/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/slaternet_18e_eps10_at_033545 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:03  slaternet_18e_eps10@33545 ended with exit code 0
+=== 2026-11-02 05:00:03  start 18_electrons_27_sites/attention_18e_eps5 on GPU 1
+/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/attention_18e_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:03  attention_18e_eps5 ended with exit code 0
+=== 2026-11-02 05:00:03  start 18_electrons_27_sites/slaternet_18e_eps5 on GPU 1
+/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/evaluation/slaternet_18e_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 05:00:03  slaternet_18e_eps5 ended with exit code 0

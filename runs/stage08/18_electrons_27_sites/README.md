@@ -19,8 +19,8 @@ KFAC norm constraint 1e-3, damping 1e-3. SlaterNet keeps the released sizes (Tab
 
 | GPU | queue (one after the other) |
 |---|---|
-| 0 | `attention_eps5`, then `slaternet_eps5` |
-| 1 | `attention_eps10`, then `slaternet_eps10` |
+| 0 | `attention_18e_eps5`, then `slaternet_18e_eps5` |
+| 1 | `attention_18e_eps10`, then `slaternet_18e_eps10` |
 
 **Expected time (estimate).** In the learning-rate test, with both GPUs hot (85 C, clock lowered
 for heat, code 0x20), one iteration took 1.05-1.13 s, against 0.82 s with GPU 0 alone. So the

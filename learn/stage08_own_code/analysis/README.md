@@ -76,8 +76,8 @@ uv run --no-project --python ../../../../.venv/bin/python --with matplotlib pyth
 cd ..
 
 # 18 electrons, 27 sites (one queue per GPU)
-bash launch_evaluation.sh 0 18_electrons_27_sites attention_eps5 slaternet_eps5
-bash launch_evaluation.sh 1 18_electrons_27_sites attention_eps10 slaternet_eps10 slaternet_eps10@33545
+bash launch_evaluation.sh 0 18_electrons_27_sites attention_18e_eps5 slaternet_18e_eps5
+bash launch_evaluation.sh 1 18_electrons_27_sites attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
 cd 18_electrons_27_sites
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
 ```

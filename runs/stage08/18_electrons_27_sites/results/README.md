@@ -3,7 +3,7 @@
 Written by `learn/stage08_own_code/analysis/18_electrons_27_sites/table1_results.py`.
 Energies in **meV per electron**; errors of our averages are one standard error from blocking.
 Every table has the columns `electrons` (18) and `sites` (27). `run` names an evaluation
-folder in `../evaluation/`; `slaternet_eps10_at_033545` is SlaterNet ε = 10 after 33,545
+folder in `../evaluation/`; `slaternet_18e_eps10_at_033545` is SlaterNet ε = 10 after 33,545
 iterations.
 
 ## table1.csv — energies, one row per evaluation

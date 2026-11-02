@@ -2,10 +2,10 @@
 
 | Run | Network | ε | GPU |
 |---|---|---|---|
-| `attention_eps5` | self-attention (Table II sizes: 3 layers, 6 heads, 1 perceptron, 4 determinants) | 5 | 0, first |
-| `slaternet_eps5` | SlaterNet (released sizes, 1 determinant) | 5 | 0, second |
-| `attention_eps10` | self-attention (Table II sizes) | 10 | 1, first |
-| `slaternet_eps10` | SlaterNet (released sizes) | 10 | 1, second |
+| `attention_18e_eps5` | self-attention (Table II sizes: 3 layers, 6 heads, 1 perceptron, 4 determinants) | 5 | 0, first |
+| `slaternet_18e_eps5` | SlaterNet (released sizes, 1 determinant) | 5 | 0, second |
+| `attention_18e_eps10` | self-attention (Table II sizes) | 10 | 1, first |
+| `slaternet_18e_eps10` | SlaterNet (released sizes) | 10 | 1, second |
 
 All four: **18 electrons on 27 sites**, the paper's Table II settings (4096 walkers,
 150,000 iterations, learning rate 10 / (1 + t/100000)), local energy from folx + slogdet,
@@ -28,3 +28,6 @@ finished 2026-11-01, no restarts. Results: `../README.md`.
 `gpuN_monitor_<date>_<time>.csv`: the GPU every 10 s; `gpuN_system_<date>_<time>.csv`: CPU and
 memory. The files stamped `2026-10-30_084846` are from the learning-rate test (`../lr_test/`),
 those stamped `2026-10-30_121601` from these four runs.
+
+The run folders were named `attention_eps5` etc. until 2026-11-02; the logs, written
+before, still use those names.

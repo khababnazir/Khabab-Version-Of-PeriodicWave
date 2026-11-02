@@ -4,10 +4,10 @@ In `train_stats.csv`, `energy` is for the **whole system** in code units: **× 3
 
 | Run | Network | ε | GPU |
 |---|---|---|---|
-| `slaternet_eps10` | SlaterNet | 10 | 0, first |
-| `attention_eps10` | self-attention | 10 | 0, second |
-| `slaternet_eps5` | SlaterNet | 5 | 1, first |
-| `attention_eps5` | self-attention | 5 | 1, second; finished on 0 (see below) |
+| `slaternet_6e_eps10` | SlaterNet | 10 | 0, first |
+| `attention_6e_eps10` | self-attention | 10 | 0, second |
+| `slaternet_6e_eps5` | SlaterNet | 5 | 1, first |
+| `attention_6e_eps5` | self-attention | 5 | 1, second; finished on 0 (see below) |
 
 All four: 6 electrons, 9 sites, the reference run's settings, 200,000
 iterations, batch 1024, the authors' gradient convention (`--gradient real`).
@@ -31,15 +31,15 @@ meV per electron, with its blocking error in brackets.  The reference runs
 
 | Run | Ours | Reference | Ours − reference | Fig. 5 (read by eye) |
 |---|---|---|---|---|
-| `slaternet_eps10` | −31.6258(6) | −31.5948(16) | −0.0310(17) | −31.6 |
-| `slaternet_eps5` | −57.9120(9) | −57.9244(10) | +0.0123(14) | −57.9 |
-| `attention_eps10` | −32.2775(1) | −32.2759(1) | −0.0016(1) | −32.3 |
-| `attention_eps5` | −59.5328(1) | −59.5332(1) | +0.0004(1) | −59.5 |
+| `slaternet_6e_eps10` | −31.6258(6) | −31.5948(16) | −0.0310(17) | −31.6 |
+| `slaternet_6e_eps5` | −57.9120(9) | −57.9244(10) | +0.0123(14) | −57.9 |
+| `attention_6e_eps10` | −32.2775(1) | −32.2759(1) | −0.0016(1) | −32.3 |
+| `attention_6e_eps5` | −59.5328(1) | −59.5332(1) | +0.0004(1) | −59.5 |
 
 These are training averages: the weights still change from one iteration to
 the next.  The evaluation with frozen weights is still to do.
 
-## The interruption of `attention_eps5`
+## The interruption of `attention_6e_eps5`
 
 - 2026-10-28 16:00:16, iteration 190,863: GPU 1 dropped off the PCIe bus
   (kernel log: Xid 79) and the run stopped.  The cause is not established.

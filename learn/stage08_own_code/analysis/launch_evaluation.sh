@@ -7,12 +7,13 @@
 # SYSTEM is a folder of runs/stage08:
 #   6_electrons_9_sites      the paper's Fig. 5
 #   18_electrons_27_sites    the paper's Table I and Fig. 6
-# RUN is a run in runs/stage08/SYSTEM/training/; without RUNs, all four.
+# RUN is a run folder in runs/stage08/SYSTEM/training/, named <network>_<electrons>e_eps<eps>,
+# e.g. slaternet_18e_eps5; without RUNs, all runs of SYSTEM.
 # RUN@N evaluates checkpoint_N.npz of RUN instead of its final checkpoint.
 # Examples, from ~/moire-nnvmc (the 18-electron runs with one queue per GPU):
 #   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 6_electrons_9_sites
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 18_electrons_27_sites attention_eps5 slaternet_eps5
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 18_electrons_27_sites attention_eps10 slaternet_eps10 slaternet_eps10@33545
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 18_electrons_27_sites attention_18e_eps5 slaternet_18e_eps5
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 18_electrons_27_sites attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
 #
 # While the queue runs, nvidia-smi records both GPUs every 10 s: utilization,
 # memory, temperature, power, clock, fan, and why the clock is lowered; and
@@ -42,7 +43,11 @@ if [ $# -lt 2 ] || [ -z "$SYSTEM" ] || [ ! -d "$RUNS/training" ]; then
 fi
 shift 2
 RUN_LIST=("$@")
-[ ${#RUN_LIST[@]} -eq 0 ] && RUN_LIST=(attention_eps5 attention_eps10 slaternet_eps5 slaternet_eps10)
+if [ ${#RUN_LIST[@]} -eq 0 ]; then                       # every run folder of SYSTEM
+    for settings in "$RUNS"/training/*/settings.json; do
+        RUN_LIST+=("$(basename "$(dirname "$settings")")")
+    done
+fi
 PY=../../../.venv/bin/python
 LOGS=$RUNS/evaluation/logs
 ALREADY_RUNNING=75
@@ -57,7 +62,7 @@ system_monitor=$!
 
 failed=0
 for item in "${RUN_LIST[@]}"; do
-    run=${item%@*}                             # slaternet_eps10@33545 -> slaternet_eps10
+    run=${item%@*}                             # slaternet_18e_eps10@33545 -> slaternet_18e_eps10
     checkpoint=()
     [ "$item" != "$run" ] && checkpoint=(--checkpoint "${item#*@}")
     echo "=== $(date '+%F %T')  start $SYSTEM/$item on GPU $GPU"

@@ -39,7 +39,7 @@ Table II settings instead (`train_moire.py --settings table2`).
 4. **The four runs** of Fig. 5 (`launch_fig5.sh`), compared with the
    reference; SlaterNet first on each GPU. Started 2026-10-28 09:02. All
    four finished (200,000 iterations); the results are in
-   `runs/stage08/6_electrons_9_sites/training/README.md`. `attention_eps5` was interrupted once:
+   `runs/stage08/6_electrons_9_sites/training/README.md`. `attention_6e_eps5` was interrupted once:
    GPU 1 dropped off the PCIe bus at iteration 190,863 (2026-10-28 16:00), and
    after a reboot the run continued from `checkpoint_174540.npz` on GPU 0. Done.
 5. **Frozen-weight evaluation and figures** (`analysis/`): the four final
@@ -81,7 +81,7 @@ From this folder, with the project's environment:
 
 # one run per GPU:
 CUDA_VISIBLE_DEVICES=0 ../../.venv/bin/python train_moire.py --network slaternet --eps 10 \
-    --out ../../runs/stage08/6_electrons_9_sites/training/slaternet_eps10
+    --out ../../runs/stage08/6_electrons_9_sites/training/slaternet_6e_eps10
 
 # 18 electrons (Table I), from ~/moire-nnvmc, both GPUs, one run on each:
 bash learn/stage08_own_code/launch_table1.sh test    # first: learning-rate check, about 30 minutes
