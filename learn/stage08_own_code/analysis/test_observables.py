@@ -16,6 +16,14 @@ what the figures say:
   crystal       electrons fixed on a honeycomb must give the S(q) worked out
                 by hand: 1.5 at the corners kappa of the moire Brillouin zone,
                 6 at the moire reciprocal vectors.
+Added for the 27-site cell (2026-11-02):
+  9-site order  the general site search must give the 9 sites in exactly the
+                old order, or every 9-site result would be relabelled;
+  lattice       observables.py's copy of a1, a2 must be Stage 3's;
+  27 sites      27 distinct minima, one moire length apart, in both the
+                "sites" and "uncorrelated" checks above;
+  27 crystal    18 electrons on a 27-site honeycomb: S = 81/18 = 4.5 at kappa,
+                18 at the moire reciprocal vectors.
 """
 import itertools
 import os
@@ -36,11 +44,12 @@ for stage in ("stage03_slater", "stage04_mcmc", "stage07_ewald"):
     sys.path.insert(0, str(LEARN / stage))
 sys.path.insert(0, str(HERE))
 import observables  # noqa: E402
-from slaternet import supercell_vectors  # noqa: E402
+from slaternet import supercell_vectors, MOIRE_LATTICE  # noqa: E402
 from local_energy import moire_potential, moire_units  # noqa: E402
 from ewald import make_ewald_setup, coulomb_energy, moire_interaction_strength  # noqa: E402
 
 SUPERCELL = supercell_vectors(9)       # columns L1 = (3, 0), L2 = (-1.5, 2.598)
+SUPERCELL_27 = supercell_vectors(27)   # Table I and Fig. 6
 N_ELECTRONS = 6
 KAPPA = 4 * np.pi / 3                  # |corner of the moire Brillouin zone|, a_M = 1
 G = 4 * np.pi / np.sqrt(3)             # |moire reciprocal lattice vector|
@@ -53,10 +62,26 @@ class ObservablesTest(absltest.TestCase):
         one_electron = jax.vmap(lambda r: moire_potential(r[None, :], V, np.pi / 4))
         grid = (np.stack(np.meshgrid(np.arange(180), np.arange(180), indexing="ij"), -1)
                 .reshape(-1, 2) + 0.5) / 180
-        on_grid = one_electron(jnp.asarray(grid @ SUPERCELL.T))
-        at_sites = one_electron(jnp.asarray(observables.moire_sites(SUPERCELL)))
-        np.testing.assert_allclose(at_sites, at_sites[0], rtol=1e-6)      # all 9 sites equivalent
-        self.assertLessEqual(float(at_sites.max()), float(on_grid.min()) + 1e-4)
+        for supercell, n_sites in ((SUPERCELL, 9), (SUPERCELL_27, 27)):
+            on_grid = one_electron(jnp.asarray(grid @ supercell.T))
+            sites = observables.moire_sites(supercell)
+            self.assertEqual(sites.shape, (n_sites, 2))
+            at_sites = one_electron(jnp.asarray(sites))
+            # All sites equivalent.  float32: in the 27-site cell the positions reach ~5.2 a_M,
+            # so the phases G.r reach ~38 and carry ~4e-6 of rounding; measured spread 1.0e-6.
+            np.testing.assert_allclose(at_sites, at_sites[0], rtol=3e-6)
+            self.assertLessEqual(float(at_sites.max()), float(on_grid.min()) + 1e-4)
+            # distinct, and nearest neighbours one moire length apart
+            d = np.linalg.norm(observables.minimum_image(
+                jnp.asarray(sites[:, None] - sites[None], dtype=jnp.float32), supercell), axis=-1)
+            np.testing.assert_allclose(np.min(d + 10 * np.eye(n_sites)), 1.0, rtol=1e-5)
+
+    def test_the_nine_sites_keep_their_old_order(self):
+        old = (np.array([(i, j) for i in range(3) for j in range(3)]) / 3) @ SUPERCELL.T
+        np.testing.assert_array_equal(observables.moire_sites(SUPERCELL), old)
+
+    def test_the_moire_lattice_is_the_one_of_stage_3(self):
+        np.testing.assert_array_equal(observables.MOIRE_LATTICE, MOIRE_LATTICE)
 
     def test_minimum_image_is_the_shortest_image(self):
         d = np.random.default_rng(0).uniform(-6, 6, size=(5000, 2)).astype(np.float32)
@@ -119,6 +144,47 @@ class ObservablesTest(absltest.TestCase):
         np.testing.assert_allclose(S[at_g], 36 / N_ELECTRONS, rtol=1e-5)
         np.testing.assert_allclose(connected, 0.0, atol=1e-4)     # a single fixed configuration
         self.assertEqual(sums["patterns"][code], 1)
+
+    def test_uncorrelated_electrons_in_the_27_site_cell(self):
+        walkers, n = 20000, 18
+        s = np.random.default_rng(2).uniform(size=(walkers, n, 2))
+        R = jnp.asarray(s @ SUPERCELL_27.T, dtype=jnp.float32)
+        qs, _ = observables.supercell_q_vectors(SUPERCELL_27, q_max=5.0)
+        sums = jax.device_get(observables.measure(R, SUPERCELL_27, qs, bins=10, r_max=2.5, n_radial_bins=30))
+
+        self.assertNotIn("patterns", sums)                                         # 2^27 codes: not counted
+        self.assertEqual(sums["density"].sum(), walkers * n)
+        self.assertEqual(sums["occupation"].shape, (27,))
+        self.assertEqual(sums["occupation"].sum(), walkers * n)
+        np.testing.assert_allclose(sums["occupation"] / walkers, n / 27, rtol=0.05)  # equal areas; ~6 sigma
+        g_map = observables.pair_correlation_map(sums["pairs"], walkers, n, SUPERCELL_27)
+        np.testing.assert_allclose(g_map, 1.0, rtol=0.07)
+        r, g_r = observables.radial_pair_correlation(sums["pair_distances"], walkers, n, SUPERCELL_27, r_max=2.5)
+        np.testing.assert_allclose(g_r[r > 0.3], 1.0, rtol=0.1)
+        S, _ = observables.structure_factor(sums["rho_q"], sums["rho_q_squared"], walkers, n)
+        np.testing.assert_allclose(S, 1.0, rtol=0.05)
+
+    def test_a_27_site_honeycomb_has_the_structure_factor_worked_out_by_hand(self):
+        sites = observables.moire_sites(SUPERCELL_27)
+        n1, n2 = np.round(np.linalg.solve(MOIRE_LATTICE, sites.T)).astype(int)
+        # Three sublattices (n1 + n2) mod 3, 9 sites each; second neighbours (sqrt 3 apart)
+        # share one.  Leaving one sublattice empty gives the honeycomb of 18 electrons.
+        sublattice = (n1 + n2) % 3
+        self.assertEqual(np.bincount(sublattice).tolist(), [9, 9, 9])
+        R = jnp.asarray(sites[sublattice != 0][None], dtype=jnp.float32)
+        qs, _ = observables.supercell_q_vectors(SUPERCELL_27, q_max=8.0)
+        sums = jax.device_get(observables.measure(R, SUPERCELL_27, qs, bins=30, r_max=2.5, n_radial_bins=30))
+        S, connected = observables.structure_factor(sums["rho_q"], sums["rho_q_squared"], 1, 18)
+
+        q = np.linalg.norm(qs, axis=1)
+        at_kappa, at_g = np.isclose(q, KAPPA, atol=1e-6), np.isclose(q, G, atol=1e-6)
+        self.assertEqual((at_kappa.sum(), at_g.sum()), (6, 6))
+        # rho_kappa = (all 27 sites, sum 0) - (the 9 empty sites, all in phase): |rho|^2 = 81.
+        np.testing.assert_allclose(S[at_kappa], 81 / 18, rtol=1e-5)
+        np.testing.assert_allclose(S[at_g], 18 ** 2 / 18, rtol=1e-5)
+        np.testing.assert_allclose(connected, 0.0, atol=1e-3)
+        self.assertEqual(sums["occupation"][sublattice == 0].sum(), 0)
+        self.assertEqual(sums["occupation"][sublattice != 0].tolist(), [1] * 18)
 
 
 if __name__ == "__main__":

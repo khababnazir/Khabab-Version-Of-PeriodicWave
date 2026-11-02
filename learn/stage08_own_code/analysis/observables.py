@@ -13,8 +13,15 @@ in a small 9-site cell.
                      from one electron.                             Fig. 6(c, d)
   pair distances     g(r): the same, averaged over directions.
   site occupations   each electron is assigned to its nearest moire
-                     site; which of the 9 sites are filled?
+                     site; which of the 9 (or 27) sites are filled?
   structure factor   S(q) = <|rho_q|^2> / N.
+
+9 or 27 sites (27 added 2026-11-02, for Table I and Fig. 6).  Everything
+works for both cells except the filling PATTERNS: a pattern of 27 sites has
+2^27 codes, too many to count, so measure() counts patterns only in the
+9-site cell, and honeycomb_codes() is for the 9-site cell only.  In the
+27-site cell the site occupations, their products and S(kappa) show the
+crystal instead.
 
 Why the pair correlation and not only the density.  In a 9-site cell at
 nu = 2/3 there are three equivalent honeycomb crystals (Stage 7).  If the
@@ -39,22 +46,37 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
-SITES_PER_SIDE = 3          # the 3 x 3 supercell of the paper's Fig. 5
-N_SITES = SITES_PER_SIDE ** 2
+N_SITES = 9                 # the 3 x 3 supercell of the paper's Fig. 5 (the filling patterns below)
 SOME_SITE_DOUBLY_OCCUPIED = 2 ** N_SITES      # pattern code, see pattern_counts
+# a1, a2 of the moire lattice as columns (a_M = 1): the same as slaternet.MOIRE_LATTICE (tested).
+MOIRE_LATTICE = np.array([[1.0, -0.5],
+                          [0.0, np.sqrt(3.0) / 2.0]])
 
 
 # ------------------------------------------------------------------ geometry
 
 def moire_sites(supercell):
-    """The 9 moire lattice points in the supercell, at s = (i/3, j/3).
+    """The moire lattice points n1 a1 + n2 a2 inside the supercell: 9 or 27 of them.
 
     They are the minima of the moire potential for phi = 45 degrees
     (checked in test_observables.py), i.e. where an electron prefers to sit.
+    Ordered by their fractional coordinates s = (s1, s2), s1 first.  For the
+    9-site cell (3 a1, 3 a2) that is s = (i/3, j/3), i = 0, 1, 2 outer and
+    j inner -- the order every 9-site result so far was made with (tested).
     """
-    fractions = np.array([(i, j) for i in range(SITES_PER_SIDE)
-                          for j in range(SITES_PER_SIDE)]) / SITES_PER_SIDE
-    return fractions @ np.asarray(supercell).T
+    supercell = np.asarray(supercell, dtype=np.float64)
+    n_sites = int(round(abs(np.linalg.det(supercell) / np.linalg.det(MOIRE_LATTICE))))
+    # Lattice points from a box large enough to reach every corner of the cell.
+    reach = int(np.ceil(np.abs(np.linalg.solve(MOIRE_LATTICE, supercell)).sum())) + 1
+    n = np.array(list(itertools.product(range(-reach, reach + 1), repeat=2)))
+    s = (n @ MOIRE_LATTICE.T) @ np.linalg.inv(supercell).T
+    # s is a whole multiple of 1/n_sites (Cramer's rule), so it can be made exact:
+    # k = n_sites * s, reduced into the cell 0 <= k < n_sites.
+    k = np.round(s * n_sites).astype(int) % n_sites
+    k = np.unique(k, axis=0)                             # sorted: s1 first, then s2
+    if len(k) != n_sites:
+        raise ValueError(f"found {len(k)} moire sites in the supercell, expected {n_sites}")
+    return (k / n_sites) @ supercell.T
 
 
 def minimum_image(d, supercell):
@@ -97,6 +119,8 @@ def honeycomb_codes(supercell):
     spacing sqrt(3) a_M -- every pair of empty sites sqrt(3) apart.
     """
     sites = moire_sites(supercell)
+    if len(sites) != N_SITES:
+        raise ValueError("honeycomb_codes is for the 9-site cell only")
     codes = []
     for empty in itertools.combinations(range(N_SITES), 3):
         distances = [float(jnp.linalg.norm(minimum_image(jnp.asarray(sites[a] - sites[b]), supercell)))
@@ -149,20 +173,22 @@ def pair_distance_counts(R, supercell, r_max, n_bins):
 
 
 def site_occupations(R, supercell):
-    """Number of electrons whose nearest moire site is site k: shape (walkers, 9)."""
+    """Number of electrons whose nearest moire site is site k: shape (walkers, sites)."""
     sites = jnp.asarray(moire_sites(supercell), dtype=R.dtype)
     d = minimum_image(R[:, :, None, :] - sites, supercell)            # (walkers, electrons, sites, 2)
     nearest = jnp.argmin(jnp.sum(d ** 2, axis=-1), axis=-1)            # (walkers, electrons)
-    return jax.nn.one_hot(nearest, N_SITES, dtype=jnp.int32).sum(axis=1)
+    return jax.nn.one_hot(nearest, len(sites), dtype=jnp.int32).sum(axis=1)
 
 
 def pattern_counts(occupations):
-    """How often each filling pattern occurs, summed over walkers.
+    """How often each filling pattern of the 9-site cell occurs, summed over walkers.
 
     A pattern with at most one electron per site gets the code
     sum_k n_k 2^k (one bit per site, 0 ... 511).  Every configuration with
     two or more electrons nearest the same site gets the single code 512.
     """
+    if occupations.shape[1] != N_SITES:
+        raise ValueError("filling patterns are counted in the 9-site cell only")
     one_per_site = jnp.all(occupations <= 1, axis=1)
     code = jnp.sum(occupations * (2 ** jnp.arange(N_SITES)), axis=1)
     code = jnp.where(one_per_site, code, SOME_SITE_DOUBLY_OCCUPIED)
@@ -179,16 +205,18 @@ def measure(R, supercell, qs, bins, r_max, n_radial_bins):
     """Everything above for one batch of walkers, as a dict of sums over the walkers."""
     occupations = site_occupations(R, supercell)
     rho = density_fourier(R, qs)
-    return dict(
+    sums = dict(
         density=density_counts(R, supercell, bins),
         pairs=pair_counts(R, supercell, bins),
         pair_distances=pair_distance_counts(R, supercell, r_max, n_radial_bins),
-        patterns=pattern_counts(occupations),
         occupation=occupations.sum(axis=0),
         occupation_products=occupations.T @ occupations,      # sum over walkers of n_k n_l
         rho_q=rho.sum(axis=0),
         rho_q_squared=jnp.sum(jnp.abs(rho) ** 2, axis=0),
     )
+    if occupations.shape[1] == N_SITES:                       # 9-site cell only, see the top
+        sums["patterns"] = pattern_counts(occupations)
+    return sums
 
 
 # --------------------------------------------- normalised afterwards (NumPy)

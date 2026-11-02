@@ -13,8 +13,18 @@ Each test guards a mistake that would silently change the evaluation:
                finished, and an evaluation with another seed is not;
   sanity       a wave function whose energy is far from the end of training
                stops the evaluation, and the summary records the failure.
+Added for 18 electrons (2026-11-02):
+  settings     the network is rebuilt from settings.json exactly as trained
+               (Table II sizes, folx, slogdet); old folders get the old values;
+  parts 18     the energy split holds at 18 electrons with folx + slogdet;
+  files 18     a tiny 18-electron evaluation: 27 sites, no filling patterns,
+               156 x 156 maps, every electron counted once;
+  checkpoint   --checkpoint evaluates THAT checkpoint, goes to its own folder,
+               and the sanity check uses the training just before it (the
+               last row of a step when a restart repeated it).
 """
 import csv
+import dataclasses
 import json
 import os
 import sys
@@ -39,12 +49,23 @@ ARCHIVED_SUPERCELL = [[3.0, -1.5], [0.0, 2.598076211353316]]
 WALKERS = 8                            # a tiny batch: the tests check bookkeeping, not physics
 
 
-def fake_run(folder, training_energy):
-    """A training folder with a final checkpoint of an untrained SlaterNet (eps = 10)."""
-    problem = train_moire.make_problem("slaternet", 10.0)
-    params = problem.init(jax.random.PRNGKey(1), problem.arch)
-    walkers = jax.random.normal(jax.random.PRNGKey(2), (WALKERS, 6, 2))
+EIGHTEEN = dataclasses.replace(train_moire.TABLE_II, laplacian="folx", determinants="slogdet")
+
+
+def fake_run(folder, training_energy, electrons=6):
+    """A training folder with a final checkpoint of an untrained SlaterNet (eps = 10).
+
+    At 6 electrons the settings.json of a folder made before 2026-10-30 (no
+    "electrons", no "settings"); at 18 the one train_moire.py writes for Table I.
+    """
     settings = dict(network="slaternet", eps=10.0, gradient="real", seed=0, iterations=7)
+    if electrons == 6:
+        problem = train_moire.make_problem("slaternet", 10.0)
+    else:
+        problem = train_moire.make_problem("slaternet", 10.0, electrons, EIGHTEEN)
+        settings.update(electrons=electrons, settings=dataclasses.asdict(EIGHTEEN))
+    params = problem.init(jax.random.PRNGKey(1), problem.arch)
+    walkers = jax.random.normal(jax.random.PRNGKey(2), (WALKERS, electrons, 2))
     (folder / "settings.json").write_text(json.dumps(settings))
     (folder / "train_stats.csv").write_text("step,energy\n" + "".join(f"{i},{training_energy}\n" for i in range(7)))
     train_moire.save_checkpoint(folder, 7, params, {}, walkers, 0.2, jax.random.PRNGKey(3))
@@ -117,6 +138,100 @@ class EvaluateWeightsTest(absltest.TestCase):
                                           check_steps=2, log=lambda *_: None)
             check = json.loads((out / "summary.json").read_text())["sanity_check"]
             self.assertFalse(check["passed"])
+
+    # ------------------------------------------------- added for 18 electrons
+
+    def test_settings_are_rebuilt_from_settings_json(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            folder = Path(scratch)
+            fake_run(folder, 0.0, electrons=18)
+            saved, settings = evaluate_weights.run_settings(folder)
+            self.assertEqual((saved["electrons"], settings), (18, EIGHTEEN))
+            fake_run(folder, 0.0)                               # a folder made before 2026-10-30
+            saved, settings = evaluate_weights.run_settings(folder)
+            self.assertEqual(saved["electrons"], 6)
+            self.assertEqual(settings, dataclasses.replace(train_moire.Settings(),
+                                                           **train_moire.BEFORE_18_ELECTRONS))
+            text = json.loads((folder / "settings.json").read_text())
+            text["settings"] = {"no_such_setting": 1}
+            (folder / "settings.json").write_text(json.dumps(text))
+            with self.assertRaisesRegex(SystemExit, "no_such_setting"):
+                evaluate_weights.run_settings(folder)
+
+    def test_parts_are_the_potentials_at_18_electrons(self):
+        R = jax.random.uniform(jax.random.PRNGKey(0), (18, 2), minval=-3.0, maxval=3.0)
+        moire, coulomb = evaluate_weights.potential_parts(5.0, electrons=18)(R)
+        for network in ("slaternet", "attention"):
+            problem = train_moire.make_problem(network, 5.0, 18, EIGHTEEN)
+            params = problem.init(jax.random.PRNGKey(1), problem.arch)
+            kinetic = kinetic_energy(lambda X: problem.log_psi(params, X), R)   # Stage 4's Hessian
+            total = problem.local_energy(params, R)                             # folx + slogdet
+            # float32 and two different routes to the kinetic energy: ~1e-4 relative.
+            # A wrong cell (9 sites instead of 27) would miss by whole code units.
+            np.testing.assert_allclose(np.real(total) - moire - coulomb, np.real(kinetic),
+                                       rtol=1e-3, atol=1e-2)
+
+    def test_a_tiny_18_electron_evaluation(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            run, out = Path(scratch) / "run", Path(scratch) / "out"
+            run.mkdir(), out.mkdir()
+            fake_run(run, training_energy=0.0, electrons=18)
+            summary = evaluate_weights.evaluate(run, out, steps=2, burn_in=1, seed=0,
+                                                check_steps=1000, log=lambda *_: None)
+            self.assertEqual((summary["n_electrons"], summary["n_sites"], summary["density_bins"]),
+                             (18, 27, 156))
+            with np.load(out / "observables.npz") as totals:
+                self.assertNotIn("patterns", totals.files)
+                self.assertEqual(totals["density"].shape, (156, 156))
+                self.assertEqual(int(totals["density"].sum()), 2 * WALKERS * 18)   # every electron once
+                self.assertEqual(int(totals["occupation"].sum()), 2 * WALKERS * 18)
+            with open(out / "energies.csv", newline="") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertIn("occupation_26", rows[0])
+            self.assertNotIn("occupation_27", rows[0])
+            for row in rows:
+                parts = float(row["kinetic"]) + float(row["moire"]) + float(row["coulomb"])
+                self.assertAlmostEqual(parts, float(row["energy"]), delta=1e-3 * abs(float(row["energy"])) + 1e-2)
+            saved, _ = evaluate_weights.run_settings(run)
+            self.assertEqual(evaluate_weights.default_out(run, saved),
+                             evaluate_weights.RUNS / "table1" / "evaluation" / "run")
+
+    def test_an_earlier_checkpoint_is_evaluated_as_asked(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            run, out = Path(scratch) / "run", Path(scratch) / "out"
+            run.mkdir(), out.mkdir()
+            problem, _, walkers = fake_run(run, training_energy=0.0)
+            early = problem.init(jax.random.PRNGKey(5), problem.arch)
+            train_moire.save_checkpoint(run, 3, early, {}, walkers, 0.3, jax.random.PRNGKey(6))
+            summary = evaluate_weights.evaluate(run, out, steps=2, burn_in=1, seed=0, checkpoint=3,
+                                                check_steps=1000, log=lambda *_: None)
+            self.assertEqual((summary["checkpoint"], summary["checkpoint_step"], summary["final_checkpoint"],
+                              summary["mcmc_width"]), ("checkpoint_000003.npz", 3, False, 0.3))
+            self.assertEqual(summary["checkpoint_md5"], evaluate_weights.file_md5(run / "checkpoint_000003.npz"))
+            # The sanity check must compare with the training BEFORE checkpoint 3 (rows 0-2,
+            # mean 1001), not with the end of the run (rows 0-6, mean 1003).  Far from this
+            # network's energy, so it fails -- and the summary records what it compared.
+            (run / "train_stats.csv").write_text("step,energy\n" + "".join(f"{i},{1000 + i}\n" for i in range(7)))
+            with self.assertRaisesRegex(SystemExit, "sanity check FAILED"):
+                evaluate_weights.evaluate(run, out, steps=2, burn_in=1, seed=0, checkpoint=3,
+                                          check_steps=1, log=lambda *_: None)
+            check = json.loads((out / "summary.json").read_text())["sanity_check"]
+            self.assertEqual(check["training_last_steps"], 1001.0)
+            saved, _ = evaluate_weights.run_settings(run)
+            self.assertEqual(evaluate_weights.default_out(run, saved, 3).name, "run_at_000003")
+            self.assertEqual(evaluate_weights.default_out(run, saved, 7).name, "run")
+            self.assertEqual(evaluate_weights.default_out(run, saved),
+                             evaluate_weights.RUNS / "evaluation" / "run")
+
+    def test_the_sanity_check_uses_the_training_just_before_the_checkpoint(self):
+        stats = np.array([[i, float(i)] for i in range(5000)])
+        np.testing.assert_array_equal(evaluate_weights.training_window(stats, 3000), np.arange(1000, 3000))
+        # A restart from checkpoint 2500 repeated steps 2500 ... 2999: their LAST rows count.
+        repeated = np.vstack([stats[:3000], [[i, -1.0] for i in range(2500, 3000)]])
+        np.testing.assert_array_equal(evaluate_weights.training_window(repeated, 3000),
+                                      np.r_[np.arange(1000, 2500), -np.ones(500)])
+        with self.assertRaisesRegex(SystemExit, "does not hold"):
+            evaluate_weights.training_window(stats[:2500], 3000)
 
 
 if __name__ == "__main__":
