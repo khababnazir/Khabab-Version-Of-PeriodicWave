@@ -1,4 +1,6 @@
-# training — the four runs, with our code
+# 6 electrons, 9 sites — training: the four runs of the paper's Fig. 5, with our code
+
+In `train_stats.csv`, `energy` is for the **whole system** in code units: **× 3.375559 / 6 = meV per electron**.
 
 | Run | Network | ε | GPU |
 |---|---|---|---|

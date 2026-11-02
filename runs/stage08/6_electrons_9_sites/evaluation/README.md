@@ -1,4 +1,4 @@
-# evaluation — our trained networks with their weights frozen
+# 6 electrons, 9 sites — evaluation: our trained networks with their weights frozen
 
 One folder per run, written by `learn/stage08_own_code/analysis/evaluate_weights.py`
 (started for all four by `launch_evaluation.sh`), plus `logs/`. The final

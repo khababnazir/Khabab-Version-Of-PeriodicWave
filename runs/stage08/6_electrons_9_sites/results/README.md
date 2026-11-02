@@ -1,9 +1,11 @@
-# results — the main numbers of our Stage 8
+# 6 electrons, 9 sites — results: the main numbers of our Stage 8 (paper Fig. 5)
 
 Three tables, one row per run, written by
 `learn/stage08_own_code/analysis/plot_weights.py`. Every error is one
 standard error from a blocking analysis. The first two have the same columns
-as the reference run's tables in `runs/archive/stage08_authors_code/results/`.
+as the reference run's tables in `runs/archive/stage08_authors_code/results/`,
+plus `electrons` (6) and `sites` (9), added on 2026-11-02 so that every table read on
+its own says which system it belongs to; `own_vs_authors.csv` has them too.
 
 ## energies_meV_per_electron.csv
 

@@ -1,4 +1,4 @@
-# Stage 8 figures (our code) — what each one shows
+# 6 electrons, 9 sites — Stage 8 figures (our code): what each one shows
 
 The same figures as for the reference run of the authors' code
 (`runs/archive/stage08_authors_code/figures/`, whose README explains in more

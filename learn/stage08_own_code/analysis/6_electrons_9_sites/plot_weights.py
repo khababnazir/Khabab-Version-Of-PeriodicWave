@@ -103,6 +103,7 @@ def load(name):
 
     run = dict(name=name, network=summary["network"], eps=float(summary["eps"]),
                summary=summary, totals=totals, N=N, supercell=supercell,
+               sites=len(observables.moire_sites(supercell)),
                n_configurations=n_configurations)
 
     # Energies: per electron, in meV.  The error bar from blocking, as for the training.
@@ -162,7 +163,7 @@ def load(name):
 def energy_table(runs):
     """Energies in meV per electron (sigma_local_energy: meV, whole system), one row per run."""
     return pd.DataFrame([dict(
-        run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
+        run=r["name"], electrons=r["N"], sites=r["sites"], network=LABELS[r["network"]], eps=r["eps"],
         E_training_last20pct=r["training"], E_training_last20pct_error=r["training_error"],
         training_drift=r["training_drift"], training_drift_error=r["training_drift_error"],
         E_frozen_weights=r["frozen"], E_frozen_weights_error=r["frozen_error"],
@@ -176,7 +177,7 @@ def energy_table(runs):
 def structure_table(runs):
     """Where the electrons are, one row per run (definitions in runs/stage08/6_electrons_9_sites/results/README.md)."""
     return pd.DataFrame([dict(
-        run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
+        run=r["name"], electrons=r["N"], sites=r["sites"], network=LABELS[r["network"]], eps=r["eps"],
         P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),
         P_honeycomb_if_random=r["p_honeycombs_if_random"], P_two_nearest_one_site=r["p_double"],
         g_site_neighbours=r["g_site_neighbours"], g_site_sqrt3=r["g_site_sqrt3"],
@@ -435,7 +436,7 @@ def comparison_table(runs, authors_energies, authors_structure):
     for r in runs:
         e, s = authors_energies.loc[r["name"]], authors_structure.loc[r["name"]]
         rows.append(dict(
-            run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
+            run=r["name"], electrons=r["N"], sites=r["sites"], network=LABELS[r["network"]], eps=r["eps"],
             E_frozen_ours=r["frozen"], E_frozen_ours_error=r["frozen_error"],
             E_frozen_authors=e["E_frozen_weights"], E_frozen_authors_error=e["E_frozen_weights_error"],
             E_frozen_difference=r["frozen"] - e["E_frozen_weights"],

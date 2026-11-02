@@ -156,7 +156,8 @@ def energy_table(runs):
         paper, paper_error = PAPER[(r["network"], r["eps"])]
         difference_error = np.hypot(r["frozen_error"], paper_error)
         rows.append(dict(
-            run=r["folder"], network=LABELS[r["network"]], eps=r["eps"], checkpoint=r["step"],
+            run=r["folder"], electrons=N, sites=r["summary"]["n_sites"], network=LABELS[r["network"]],
+            eps=r["eps"], checkpoint=r["step"],
             E_frozen=r["frozen"], E_frozen_error=r["frozen_error"],
             E_training_last20pct=r["training"], E_training_last20pct_error=r["training_error"],
             E_paper_table1=paper, E_paper_table1_error=paper_error,
@@ -182,7 +183,7 @@ def correlation_energies(runs):
     for eps in (10.0, 5.0):
         if ("attention", eps) in final and ("slaternet", eps) in final:
             a, s = final[("attention", eps)], final[("slaternet", eps)]
-            rows.append(dict(eps=eps, ours=a["frozen"] - s["frozen"],
+            rows.append(dict(electrons=N, sites=a["summary"]["n_sites"], eps=eps, ours=a["frozen"] - s["frozen"],
                              ours_error=np.hypot(a["frozen_error"], s["frozen_error"]),
                              paper=PAPER[("attention", eps)][0] - PAPER[("slaternet", eps)][0]))
     return pd.DataFrame(rows)
@@ -190,7 +191,8 @@ def correlation_energies(runs):
 
 def structure_table(runs):
     return pd.DataFrame([dict(
-        run=r["folder"], network=LABELS[r["network"]], eps=r["eps"], checkpoint=r["step"],
+        run=r["folder"], electrons=N, sites=r["summary"]["n_sites"], network=LABELS[r["network"]],
+            eps=r["eps"], checkpoint=r["step"],
         S_kappa=r["S_kappa"], S_kappa_connected=r["S_kappa_connected"],
         S_kappa_first_half=r["S_kappa_halves"][0], S_kappa_second_half=r["S_kappa_halves"][1],
         sublattice_0=r["sublattice"][0], sublattice_1=r["sublattice"][1], sublattice_2=r["sublattice"][2],
