@@ -1,6 +1,7 @@
 # runs/stage08/table1 — 18 electrons on 27 sites (the paper's Table I), our own code
 
-**Started 2026-10-30 12:16 server time (21:16 Korean time)** with
+**Started 2026-10-30 12:16 server time (21:16 Korean time), all four finished 2026-11-01**
+(attention 43.4 h and 41.2 h, SlaterNet 9.1 h and 8.8 h; no restarts, every value finite) with
 `bash learn/stage08_own_code/launch_table1.sh`, code commit b6eb8f8.
 
 Every run: `train_moire.py --electrons 18 --settings table2 --laplacian folx --determinants slogdet`,
@@ -53,17 +54,56 @@ The paper's "unusually high" eta0 = 10 keeps the step at the cap for longer.
 Not checked, to start the runs at once as asked: continuing an 18-electron run from a
 checkpoint (the same code is tested at 6 electrons, test_train_moire.py).
 
-## Tomorrow: how to look (from ~/moire-nnvmc)
+## Results (2026-11-02)
+
+Frozen-weight evaluation of the final weights (and of SlaterNet eps = 10 at iteration 33,545):
+`learn/stage08_own_code/analysis/evaluate_weights.py`, 5,000 steps x 4,096 walkers per run, one GPU
+per run, both GPUs; code commit 0fdef8f. Tables and figures from `table1_results.py`, in
+`results/` and `figures/`. Energies in meV per electron; errors of our averages from blocking.
+
+| run | frozen weights | training, last 20 % | paper Table I | frozen - paper | training - paper |
+|---|---|---|---|---|---|
+| attention eps = 10 | -32.0354(2) | -32.0472(1) | -32.070(7) | +0.035 | +0.023 |
+| SlaterNet eps = 10 | -31.1442(6) | -31.1567(3) | -31.35(2) | +0.206 | +0.193 |
+| attention eps = 5 | -59.0758(2) | -59.0933(1) | -59.127(9) | +0.051 | +0.034 |
+| SlaterNet eps = 5 | -57.8780(7) | -57.8940(3) | -58.01(3) | +0.132 | +0.116 |
+| SlaterNet eps = 10, iteration 33,545 | -31.2667(6) | -31.2815(6) | -31.35(2) | +0.083 | +0.069 |
+
+BP-ED (paper): -31.32443 (eps = 10), -57.80848 (eps = 5). Our attention network is 0.71 and 1.27
+meV below it; our SlaterNet 0.18 above it at eps = 10 and 0.07 below at eps = 5.
+Correlation energy E(attention) - E(SlaterNet), frozen weights: -0.891 (eps = 10) and -1.198
+(eps = 5); paper -0.72 and -1.117. Ours is larger because our SlaterNet energies are higher.
+
+What the numbers say:
+- The frozen-weight energy is 0.012-0.018 meV higher than the training average in every run.
+  The two estimates belong to different wave functions (see evaluate_weights.py).
+- The paper's error bars match the spread of a single step's batch-mean energy with 4,096
+  walkers (results/table1.csv, column per_step_spread: 0.0084, 0.0226, 0.0106, 0.0325 against
+  the paper's 0.007, 0.02, 0.009, 0.03). Its captions of Figs. 3(b), 5 and 7 define its error
+  bars that way. So the paper's numbers are most likely training averages, and our training
+  averages are the like-for-like comparison: the attention network is 0.023 and 0.034 meV
+  above the paper, about three of its error bars.
+- SlaterNet eps = 10: the frozen energy at iteration 33,545 is 0.12 meV LOWER than at the
+  end. The rise in the training curve after ~35,000 iterations is real, not a sampling effect:
+  the optimiser moved the SlaterNet to a higher-energy state and stayed there.
+
+Where the electrons are (results/structure.csv, figures 2-4):
+- Attention network, both eps: every site filled almost evenly (site occupations
+  0.53-0.73 against 2/3 for an even filling), the three sublattices 1/3 each, S(kappa) = 0.73.
+  No honeycomb, also at eps = 5, where the paper's Fig. 6(b) shows one (electrons fixed on a
+  perfect honeycomb give S(kappa) = 4.5). The same was found at 9 sites.
+- SlaterNet, both eps: a striped pattern -- rows of nearly full sites (occupation up to 0.97)
+  with weakly filled sites between them; sublattices 0.31-0.35, S(kappa) = 0.60-0.66. Not a
+  honeycomb either.
+- All patterns are the same in the first and second half of every evaluation.
+
+Not checked: whether another seed, or more determinants for SlaterNet (ours has 1, the
+released setting; the paper does not give its SlaterNet sizes), reaches the paper's
+SlaterNet energies or the honeycomb.
+
+## How to look again (from ~/moire-nnvmc)
 
 ```bash
-tail -n 3 runs/stage08/table1/logs/gpu0.log runs/stage08/table1/logs/gpu1.log
-wc -l runs/stage08/table1/attention_eps*/train_stats.csv      # iterations done + 1
-nvidia-smi
+cat runs/stage08/table1/results/table1.csv
+tail -n 3 runs/stage08/table1/evaluation/logs/gpu0.log runs/stage08/table1/evaluation/logs/gpu1.log
 ```
-
-Paper's Table I, meV per electron: self-attention network -59.127(9) at eps = 5, -32.070(7) at
-eps = 10; SlaterNet -58.01(3) and -31.35(2).
-
-If a run has stopped (for example a GPU dropped off the bus): start the launcher again. Each run
-continues from its newest checkpoint (written every 30 minutes), a finished run exits at once,
-and a queue whose GPU is still busy exits with code 75 without starting a second copy.

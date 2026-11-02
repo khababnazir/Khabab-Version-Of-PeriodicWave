@@ -1,0 +1,20 @@
+=== 2026-11-02 01:35:35  start table1/attention_eps5 on GPU 0
+burn-in of 200 steps done after 57 s (includes compiling)
+sanity check: evaluation -315.00882, training before the checkpoint -315.11897
+step   1000  mean energy -315.01545  pmove 0.543  1.05 steps/s
+step   2000  mean energy -315.01552  pmove 0.543  1.07 steps/s
+step   3000  mean energy -315.01748  pmove 0.544  1.08 steps/s
+step   4000  mean energy -315.01772  pmove 0.543  1.08 steps/s
+step   5000  mean energy -315.01875  pmove 0.543  1.08 steps/s
+finished
+=== 2026-11-02 02:53:55  table1/attention_eps5 ended with exit code 0
+=== 2026-11-02 02:53:55  start table1/slaternet_eps5 on GPU 0
+burn-in of 200 steps done after 17 s (includes compiling)
+sanity check: evaluation -308.63772, training before the checkpoint -308.71652
+step   1000  mean energy -308.62813  pmove 0.525  3.89 steps/s
+step   2000  mean energy -308.62160  pmove 0.529  4.24 steps/s
+step   3000  mean energy -308.62650  pmove 0.531  4.36 steps/s
+step   4000  mean energy -308.62872  pmove 0.526  4.42 steps/s
+step   5000  mean energy -308.63147  pmove 0.528  4.46 steps/s
+finished
+=== 2026-11-02 03:12:57  table1/slaternet_eps5 ended with exit code 0

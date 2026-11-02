@@ -13,7 +13,7 @@ What differs from the archived files:
 |---|---|
 | `evaluate_weights.py` | **Rewritten with our code**: network, local energy and Metropolis moves from `train_moire.py` (Stages 3–7), weights from our checkpoints. Same settings, sanity check and output files. |
 | `test_evaluate_weights.py` | New: checks of `evaluate_weights.py`. |
-| `observables.py` | Unchanged copy (same md5). |
+| `observables.py` | Copy of the archived file, extended on 2026-11-02 to the 27-site cell (the 9 sites keep their order, tested). |
 | `test_observables.py` | The same five checks, with our supercell (Stage 3) and moiré potential (Stage 4) instead of the authors' functions. |
 | `analyse_runs.py` | Reads our `settings.json` and our single `train_stats.csv` per run; networks named `attention` and `slaternet`. |
 | `plot_weights.py` | Our folders and run names; network and ε from `summary.json`. Adds the comparison with the reference run: `own_vs_authors.csv` and figure 7. |
@@ -50,6 +50,27 @@ uv run --no-project --python ../../../.venv/bin/python --with matplotlib python 
 
 The project environment has no matplotlib; `uv run --no-project ... --with
 matplotlib` adds it for one command without changing the environment.
+
+## 18 electrons on 27 sites: Table I and Fig. 6 (added 2026-11-02)
+
+`evaluate_weights.py`, `observables.py` and `launch_evaluation.sh` also
+handle the Table I runs in `runs/stage08/table1/`: 27-site cell, the
+network rebuilt from each run's `settings.json`, 5,000 steps × 4,096
+walkers, and `--checkpoint N` (or `RUN@N` in the launcher) for an earlier
+checkpoint. `table1_results.py` then makes the tables and figures. One
+queue per GPU, so both GPUs are used:
+
+```bash
+cd ~/moire-nnvmc
+bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 table1/attention_eps5 table1/slaternet_eps5
+bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 table1/attention_eps10 table1/slaternet_eps10 table1/slaternet_eps10@33545
+cd learn/stage08_own_code/analysis
+uv run --no-project --python ../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
+```
+
+| File | What it is for | Writes |
+|---|---|---|
+| `table1_results.py` | Frozen-weight and training energies against the paper's Table I, the correlation energy, and where the electrons are (S(κ), sublattice occupations); the paper's Fig. 6 for both networks. | `runs/stage08/table1/results/*.csv`, `runs/stage08/table1/figures/1_…` to `4_…` |
 
 ## Reading order
 
