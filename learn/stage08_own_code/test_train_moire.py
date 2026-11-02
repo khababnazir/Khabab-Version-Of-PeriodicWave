@@ -12,9 +12,13 @@ Stage 8 checks for train_moire.py.  Run:  python test_train_moire.py   (CPU, dou
               step.  This is the whole optimiser, not only its layers;
   restart     stop and restart gives exactly the run that never stopped, and
               a folder holding a different experiment is refused;
+  branch      a branch made by branch_run.py from one checkpoint continues
+              exactly like the original with the same gradient, starts from the
+              same state with the other one, and leaves the original untouched;
   safety      the four 9-site run folders still count as the same experiment;
-              a damaged final checkpoint does not count as finished; NaN
-              parameters are never saved;
+              a damaged, incomplete or non-finite final checkpoint does not
+              count as finished; NaN parameters are never saved; a folder
+              whose checkpoints cannot be read is never trained over from zero;
   18 e        --settings table2 is the paper's Table II; the 27-site cell is
               the authors'; at 27 sites our local energy, fast (folx +
               slogdet) and reference (full Hessian + det), equals theirs.
@@ -42,6 +46,7 @@ from jax.flatten_util import ravel_pytree
 import kfac_jax
 
 import train_moire as tm
+import branch_run
 import slaternet
 import test_networks as reference             # the reference run and the authors' networks
 from gradient import energy_gradient, log_derivatives, clip_local_energy  # Stage 6
@@ -281,6 +286,58 @@ class RestartTest(absltest.TestCase):
             self.assertEqual(tm.same_experiment_or_stop(folder, dict(wanted, iterations=9), 9), 9)
 
 
+class BranchTest(absltest.TestCase):
+
+    def test_a_branch_continues_like_the_original(self):
+        small = dataclasses.replace(tm.Settings(), batch=16, burn_in=2, mcmc_steps=3)
+        quiet = lambda *args: None                              # noqa: E731
+        wanted = dict(network="slaternet", eps=10.0, electrons=6, gradient="real", seed=0, iterations=4,
+                      settings=dataclasses.asdict(small))
+        with tempfile.TemporaryDirectory() as scratch:
+            original, same, other = (Path(scratch, name) for name in ("original", "same", "other"))
+            original.mkdir()
+            tm.same_experiment_or_stop(original, wanted, None)                       # its settings.json
+            tm.train(original, "slaternet", 10.0, "real", 0, 2, small, log=quiet)    # checkpoint 2 ...
+            tm.train(original, "slaternet", 10.0, "real", 0, 4, small, log=quiet)    # ... and 4
+            before = {p.name: p.read_bytes() for p in original.iterdir()}
+
+            branch_run.make(original, 2, same, "real")
+            branch_run.make(original, 2, other, "full")
+            self.assertEqual({p.name: p.read_bytes() for p in original.iterdir()}, before)   # only read
+            self.assertEqual(sorted(p.name for p in same.iterdir()),
+                             ["branch.json", "checkpoint_000002.npz", "settings.json", "train_stats.csv"])
+            settings = lambda folder: json.loads((folder / "settings.json").read_text())   # noqa: E731
+            self.assertEqual(settings(same), settings(original))
+            self.assertEqual(settings(other), dict(settings(original), gradient="full"))
+            for folder in (same, other):                    # the rows before the checkpoint, unchanged
+                self.assertEqual((folder / "train_stats.csv").read_text().splitlines(),
+                                 (original / "train_stats.csv").read_text().splitlines()[:3])
+
+            tm.train(same, "slaternet", 10.0, "real", 0, 4, small, log=quiet)
+            tm.train(other, "slaternet", 10.0, "full", 0, 4, small, log=quiet)
+            with np.load(original / "checkpoint_000004.npz") as a, np.load(same / "checkpoint_000004.npz") as b:
+                self.assertEqual(sorted(a.files), sorted(b.files))
+                for name in a.files:
+                    np.testing.assert_array_equal(a[name], b[name], err_msg=name)
+            result = branch_run.compare(original, same, log=quiet)
+            self.assertEqual((result["common"], result["identical"], result["first_difference"]), ([2, 3], [2, 3], None))
+
+            # The first row is measured before the first update: the same with either gradient.
+            result = branch_run.compare(original, other, log=quiet)
+            self.assertEqual(result["common"], [2, 3])
+            for column in ("energy", "variance", "energy_imag", "pmove", "step_width", "learning_rate"):
+                self.assertLessEqual(result["at_start"][column], 1e-9, column)
+            self.assertNotIn(3, result["identical"])                         # after it, the runs differ
+
+            with self.assertRaises(SystemExit):
+                branch_run.make(original, 2, same, "real")                  # not a new folder
+            with self.assertRaises(SystemExit):
+                branch_run.make(original, 3, Path(scratch, "none"), "real")  # there is no checkpoint 3
+            with self.assertRaises(SystemExit):
+                branch_run.make(original, 2, Path(scratch, "typo"), "ful")
+            self.assertFalse(Path(scratch, "none").exists() or Path(scratch, "typo").exists())
+
+
 class SafetyTest(absltest.TestCase):
 
     def test_the_9_site_runs_are_still_the_same_experiment(self):
@@ -304,20 +361,59 @@ class SafetyTest(absltest.TestCase):
                         tm.same_experiment_or_stop(folder, changed, None)
 
     def test_only_a_complete_final_checkpoint_means_finished(self):
+        """A run counted as finished is never started again, so only a final
+        checkpoint a run could continue from may count."""
         with tempfile.TemporaryDirectory() as scratch:
             folder = Path(scratch)
             final = folder / "checkpoint_000004.npz"
             self.assertFalse(tm.is_finished(folder, 4))                     # nothing there
             final.write_bytes(b"not a checkpoint")
             self.assertFalse(tm.is_finished(folder, 4))                     # damaged
-            with open(final, "wb") as handle:
-                np.savez(handle, done=3, params_0=np.zeros(1000))
+            tm.save_checkpoint(folder, 4, {"w": jnp.ones(3)}, {"s": jnp.zeros(3)}, jnp.zeros((2, 6, 2)),
+                               0.2, jax.random.PRNGKey(0))
+            self.assertTrue(tm.is_finished(folder, 4))                      # complete
+            with np.load(final) as saved:
+                complete = {name: saved[name] for name in saved.files}
+
+            def rewrite(**arrays):
+                with open(final, "wb") as handle:
+                    np.savez(handle, **arrays)
+            for name in tm.CHECKPOINT_ARRAYS:
+                rewrite(**{k: v for k, v in complete.items() if k != name})
+                self.assertFalse(tm.is_finished(folder, 4), f"without {name}")      # incomplete
+            rewrite(**dict(complete, done=3))
             self.assertFalse(tm.is_finished(folder, 4))                     # holds 3 iterations, not 4
-            with open(final, "wb") as handle:
-                np.savez(handle, done=4, params_0=np.zeros(1000))
+            for name in ("params_0", "opt_state_0", "walkers", "width"):
+                rewrite(**dict(complete, **{name: np.full_like(complete[name], np.nan)}))
+                self.assertFalse(tm.is_finished(folder, 4), f"NaN in {name}")      # not finite
+            rewrite(**complete)
             self.assertTrue(tm.is_finished(folder, 4))
             final.write_bytes(final.read_bytes()[:-100])
             self.assertFalse(tm.is_finished(folder, 4))                     # cut short
+
+    def test_unreadable_checkpoints_are_never_trained_over(self):
+        """If no checkpoint in a folder can be read, training stops: starting
+        from zero would overwrite train_stats.csv with a different run.  A
+        damaged newest checkpoint is skipped for the readable one before it."""
+        small = dataclasses.replace(tm.Settings(), batch=16, burn_in=2, mcmc_steps=3)
+        messages = []
+        with tempfile.TemporaryDirectory() as scratch:
+            folder = Path(scratch)
+            (folder / "checkpoint_000002.npz").write_bytes(b"not a checkpoint")
+            (folder / "train_stats.csv").write_text("rows of an earlier run\n")
+            with self.assertRaises(SystemExit):
+                tm.train(folder, "slaternet", 10.0, "real", 0, 4, small, log=messages.append)
+            self.assertEqual((folder / "train_stats.csv").read_text(), "rows of an earlier run\n")
+            self.assertEqual(sorted(p.name for p in folder.iterdir()), ["checkpoint_000002.npz", "train_stats.csv"])
+
+            (folder / "checkpoint_000002.npz").unlink()
+            (folder / "train_stats.csv").unlink()
+            tm.train(folder, "slaternet", 10.0, "real", 0, 2, small, log=messages.append)
+            (folder / "checkpoint_000003.npz").write_bytes(b"not a checkpoint")     # a damaged newer one
+            messages.clear()
+            tm.train(folder, "slaternet", 10.0, "real", 0, 4, small, log=messages.append)
+            self.assertIn("continuing from checkpoint_000002.npz", messages)
+            self.assertTrue(tm.is_finished(folder, 4))
 
     def test_non_finite_values_are_never_saved(self):
         ok = dict(params={"w": jnp.ones(3)}, opt_state={"s": jnp.zeros(3), "step": jnp.asarray(5)},

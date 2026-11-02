@@ -17,7 +17,7 @@ finished 2026-11-01, no restarts. Results: `../README.md`.
 | File | What it is |
 |---|---|
 | `settings.json` | What the run is: network, ε, `"electrons": 18`, seed, iterations, and every training setting. A restart checks it. |
-| `train_stats.csv` | One row per iteration (150,000). `energy`: mean real part of the local energy over the 4096 walkers, for the **whole system**, in code units — **× 3.375559 / 18 = meV per electron**. `variance` (code units²), `energy_imag`, `pmove` (fraction of moves accepted), `step_width`, `seconds` (wall time since the start), `learning_rate`, `fisher_step_sq` (KFAC's η² gᵀF⁻¹g; the step is capped at 1e-3). |
+| `train_stats.csv` | One row per iteration (150,000). `energy`: mean real part of the local energy over the 4096 walkers, for the **whole system**, in code units — **× 3.375559 / 18 = meV per electron**. `variance` (code units²), `energy_imag`, `pmove` (fraction of moves accepted), `step_width`, `seconds` (wall time since the run last started), `learning_rate`, `fisher_step_sq` (KFAC's η² gᵀF⁻¹g; the step is capped at 1e-3). |
 | `checkpoint_NNNNNN.npz` | The **model weights** after NNNNNN iterations, with the walkers, the step width and the optimiser state; one every 30 minutes. `checkpoint_150000.npz` is the final one. |
 | `starts.log` | One line per start: date, GPU, target, jax / kfac_jax / folx versions. |
 | `.training.lock` | Empty; held while the run trains. Not in git. |

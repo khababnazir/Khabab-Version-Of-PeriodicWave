@@ -13,7 +13,13 @@ Until 2026-11-02 this folder was `runs/stage08/table1/`, with the runs at its to
 Every run: `train_moire.py --electrons 18 --settings table2 --laplacian folx --determinants slogdet`,
 that is the paper's Table II: 4096 walkers, 150,000 iterations, learning rate 10 / (1 + t/100000),
 attention network 3 layers, 6 heads, 1 perceptron per layer, 4 determinants, clipping 5,
-KFAC norm constraint 1e-3, damping 1e-3. SlaterNet keeps the released sizes (Table II lists none).
+KFAC norm constraint 1e-3, damping 1e-3. SlaterNet keeps the released sizes (Table II lists none)
+and one determinant: the paper's SlaterNet is unrestricted Hartree-Fock, a single determinant
+(Sec. III B).
+
+Both networks are those of the authors' released code, which differs from the paper's equations
+in one place: after each residual block the released code uses GELU and a layer norm, where the
+paper's Eqs. 9 and 13 write tanh and no normalisation (Stages 3 and 5 build both forms).
 
 **GPUs: both, one run on each, 4096 walkers per run.**
 
@@ -86,12 +92,41 @@ What the numbers say:
 - The paper's error bars match the spread of a single step's batch-mean energy with 4,096
   walkers (results/table1.csv, column per_step_spread: 0.0084, 0.0226, 0.0106, 0.0325 against
   the paper's 0.007, 0.02, 0.009, 0.03). Its captions of Figs. 3(b), 5 and 7 define its error
-  bars that way. So the paper's numbers are most likely training averages, and our training
-  averages are the like-for-like comparison: the attention network is 0.023 and 0.034 meV
-  above the paper, about three of its error bars.
+  bars that way. So the paper's numbers are most likely averages over training steps, with
+  that spread as the error bar. The paper does not say over which steps, so neither of our
+  two estimates is the definitive comparison; both are in the table. The attention network
+  is 0.023 and 0.034 meV above the paper from the training average, 0.035 and 0.051 from the
+  frozen weights.
 - SlaterNet eps = 10: the frozen energy at iteration 33,545 is 0.12 meV LOWER than at the
   end. The rise in the training curve after ~35,000 iterations is real, not a sampling effect:
   the optimiser moved the SlaterNet to a higher-energy state and stayed there.
+- Every step of all four runs was set by KFAC's norm constraint (smallest eta^2 g^T F^-1 g
+  609, against the cap 1e-3), so the learning-rate schedule never changed a step.
+- What the update leaves out. With d = E_loc - <E_loc>, the exact gradient of the energy is
+  2 < Re d  d log|Psi|/d theta  +  Im d  d phase/d theta >. The authors' code, and so ours
+  (`--gradient real`), keeps only the first term. Measured on the 4096 saved walkers, the
+  left-out term is 0.594 of the kept one (in length) for SlaterNet eps = 10 at the end, but
+  0.088 at iteration 33,545, before the rise, and 0.056 for SlaterNet eps = 5 at the end. The
+  spread of Im E_loc grew from 0.246 to 0.538 meV per electron between 33,545 and the end of
+  SlaterNet eps = 10. Whether the left-out term causes the rise is tested in `gradient_test/`.
+- How settled the frozen-weight evaluations are: mean energy over evaluation steps 0-99,
+  100-999, 1000-2999 and 3000-4999 (meV per electron).
+
+  | run | 0-99 | 100-999 | 1000-2999 | 3000-4999 |
+  |---|---|---|---|---|
+  | attention eps = 10 | -32.0355 | -32.0349 | -32.0355 | -32.0354 |
+  | attention eps = 5 | -59.0731 | -59.0754 | -59.0758 | -59.0762 |
+  | SlaterNet eps = 10 | -31.1407 | -31.1426 | -31.1442 | -31.1450 |
+  | SlaterNet eps = 10, iteration 33,545 | -31.2672 | -31.2676 | -31.2653 | -31.2676 |
+  | SlaterNet eps = 5 | -57.8770 | -57.8774 | -57.8769 | -57.8794 |
+
+  Three evaluations still drift down, by 0.002-0.004 between the first 100 steps and the last
+  2,000: their walkers had not fully settled after the 200 burn-in steps. So for these three the
+  blocking errors (0.0002-0.0007) understate the uncertainty, and the frozen energies may be a
+  few thousandths of a meV too high. That is small against the differences to the paper
+  (0.035-0.206), but it is not inside the error bars. Blocking also cannot see an arrangement
+  the walkers never leave: if the sampling stays near one arrangement of the electrons (one
+  orientation of the SlaterNet stripes, say), energy and maps describe that arrangement only.
 
 Where the electrons are (results/structure.csv, figures 2-4):
 - Attention network, both eps: every site filled almost evenly (site occupations
@@ -103,9 +138,7 @@ Where the electrons are (results/structure.csv, figures 2-4):
   honeycomb either.
 - All patterns are the same in the first and second half of every evaluation.
 
-Not checked: whether another seed, or more determinants for SlaterNet (ours has 1, the
-released setting; the paper does not give its SlaterNet sizes), reaches the paper's
-SlaterNet energies or the honeycomb.
+Not checked: whether another seed reaches the paper's SlaterNet energies or the honeycomb.
 
 ## How to look again (from ~/moire-nnvmc)
 

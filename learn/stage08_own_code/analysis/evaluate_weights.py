@@ -186,13 +186,22 @@ def file_md5(path):
 
 # ------------------------------------------------------------------- output
 
+OBSERVABLE_ARRAYS = ("density", "pairs", "pair_distances", "occupation", "occupation_products",
+                     "rho_q", "rho_q_squared")    # the sums observables.measure returns; at 9 sites also "patterns"
+
+
 def existing_evaluation(folder, wanted):
     """None if the folder holds no evaluation, 'finished' if it holds this one, complete, else 'other'.
 
     `wanted` holds what identifies an evaluation: the checkpoint's md5
     checksum, the steps requested, the burn-in and the seed.  Complete means
-    all three files hold the requested number of steps: an overwrite stopped
-    between two file writes leaves them disagreeing.
+    all of these:
+      - the three files hold the requested number of steps (an overwrite
+        stopped between two file writes leaves them disagreeing);
+      - observables.npz holds every observable (at 9 sites also the patterns);
+      - every number in energies.csv and observables.npz is finite;
+      - the sanity check passed.  It runs after CHECK_STEPS steps, so only a
+        shorter evaluation (in a test) may have none.
     """
     summary_file = folder / "summary.json"
     if not summary_file.exists():
@@ -200,14 +209,22 @@ def existing_evaluation(folder, wanted):
     try:                       # a missing, damaged or half-written file counts as unfinished
         summary = json.loads(summary_file.read_text())
         with open(folder / "energies.csv", newline="") as handle:
-            csv_steps = sum(1 for _ in csv.DictReader(handle))      # one row per step
+            rows = list(csv.DictReader(handle))                       # one row per step
+        finite_rows = all(np.isfinite(float(value)) for row in rows for value in row.values())
         with np.load(folder / "observables.npz") as observables_file:
-            npz_steps = int(observables_file["steps_done"])
+            arrays = {name: observables_file[name] for name in observables_file.files}
     except Exception:
         return "other"
+    sites = summary.get("n_sites") or train_moire.SITES.get(summary.get("n_electrons"))
+    needed = ("steps_done",) + OBSERVABLE_ARRAYS + (("patterns",) if sites == 9 else ())
+    every_array = all(name in arrays for name in needed)
+    finite_arrays = all(np.isfinite(a).all() for a in arrays.values() if np.issubdtype(a.dtype, np.inexact))
+    check = summary.get("sanity_check")
+    checked = (check.get("passed") is True) if check is not None else (summary.get("steps_done", 0) < CHECK_STEPS)
     same = all(summary.get(name) == value for name, value in wanted.items())
-    complete = csv_steps == npz_steps == summary.get("steps_done") == summary.get("steps_requested")
-    return "finished" if same and complete else "other"
+    complete = every_array and (len(rows) == int(arrays["steps_done"]) == summary.get("steps_done")
+                                == summary.get("steps_requested"))
+    return "finished" if same and complete and finite_rows and finite_arrays and checked else "other"
 
 
 def add_to(totals, sums):

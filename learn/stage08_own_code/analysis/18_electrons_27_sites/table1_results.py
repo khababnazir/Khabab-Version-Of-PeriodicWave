@@ -27,10 +27,11 @@ energy of one optimisation step, and Appendix C says they shrink as
 1/sqrt(batch size).  Table I's caption does not say, but its errors
 (0.007-0.03 meV) match that spread for 4096 walkers (our column
 per_step_spread) -- not the error of a long average, which is about a
-hundred times smaller.  So the paper's values are most likely averages of
-the training curve with that spread as the error bar; our closest
-like-for-like number is E_training_last20pct.  frozen_minus_paper_in_errors
-divides by the paper's error as printed.
+hundred times smaller.  So the paper's values are most likely averages over
+training steps with that spread as the error bar.  It does not say over
+which steps, so both of our estimates are listed and neither is taken as
+the definitive comparison.  frozen_minus_paper_in_errors divides by the
+paper's error as printed.
 
 Where the electrons are.  At nu = 2/3 the crystal of the paper is a
 honeycomb: of the three sublattices of the triangular moire lattice (sites
@@ -276,7 +277,7 @@ def fig6_figure(runs, network, path):
             ax.set_ylabel("\u0394y / a$_M$" if centred else "y / a$_M$")
             if column == 1:
                 fig.colorbar(image, ax=axes[row, :], shrink=0.8,
-                             label="n(r)  (a$_M^{-2}$)" if row == 0 else "g(\u0394r)  (1 = uncorrelated)")
+                             label="n(r)  (a$_M^{-2}$)" if row == 0 else "g(\u0394r)  (1 = uniform, independent electrons)")
     fig.suptitle(f"{LABELS[network]}, 27 sites, 18 electrons (dashed: the supercell) -- paper Fig. 6",
                  x=0.02, ha="left", fontsize=8)
     fig.savefig(path, dpi=300)

@@ -48,7 +48,11 @@ Table II settings instead (`train_moire.py --settings table2`).
    energies within 0.026 meV per electron of the reference run; no
    honeycomb at 9 sites, as for the reference run. Results in
    `runs/stage08/6_electrons_9_sites/results/`, figures in its `figures/`. Done.
-6. The full gradient (imaginary part of E_loc kept) as a separate experiment.
+6. **Gradient test** (2026-11-02): SlaterNet eps = 10 at 18 electrons, continued
+   from its checkpoint 33,545 (before its energy rose) twice, with the
+   authors' gradient and with the full one (imaginary part of E_loc kept),
+   everything else unchanged (`branch_run.py`, `launch_gradient_test.sh`).
+   Data in `runs/stage08/18_electrons_27_sites/gradient_test/`.
 7. **18 electrons on 27 sites** (the paper's Table I). Our first attempt
    was slower than the authors' code and did not fit 4096 walkers on a GPU;
    `speed_study/speed_study_report.pdf` explains why. Fixed by computing the
@@ -65,9 +69,11 @@ Table II settings instead (`train_moire.py --settings table2`).
 | `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
 | `launch_fig5.sh` | **6 electrons, 9 sites.** Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power), and CPU and memory (`system_monitor.py`). Data in `runs/stage08/6_electrons_9_sites/training/`. |
 | `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites/training/`. |
+| `branch_run.py` | Makes a new training folder from **one** checkpoint of an existing run, with only the gradient convention changed (`make`), and compares two runs row by row (`compare`). The original folder is only read. |
+| `launch_gradient_test.sh` | **18 electrons, 27 sites.** The gradient test: SlaterNet eps = 10 from checkpoint 33,545 with the authors' gradient (GPU 1) and the full one (GPU 0), to 76,070 iterations, each then compared with the original and evaluated with frozen weights. `launch_gradient_test.sh check` first runs 20 iterations of each, to check that the saved state comes back. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites/gradient_test/`. |
 | `system_monitor.py` | Every 10 s: CPU and memory of the machine and of one job, to a CSV beside the GPU record. Started by every launcher. |
 | `speed_study/` | Why 18 electrons were slow, and the fix: report, measurements, scripts. |
-| `test_train_moire.py` | The settings equal the reference run's; KFAC receives Stage 6's gradient; one complete update (local energies, gradient, KFAC step) from the reference run's trained weights equals one of the authors' code; a restart continues exactly. |
+| `test_train_moire.py` | The settings equal the reference run's; KFAC receives Stage 6's gradient; one complete update (local energies, gradient, KFAC step) from the reference run's trained weights equals one of the authors' code; a restart continues exactly; a branch continues like the original; a damaged or incomplete checkpoint never counts as finished, nor is it trained over from zero. |
 | `test_networks.py` | Our networks with the released settings against the authors' networks: same settings, parameters, initial distribution, function and derivatives with their trained weights, local energy, and the same layers for KFAC. |
 | `analysis/` | Everything after training. Shared: the frozen-weight evaluation and its observables. Then one subfolder per system with its figures and tables: `6_electrons_9_sites/` (figures 1–7, the archived analysis for our runs) and `18_electrons_27_sites/` (Table I, Fig. 6). See `analysis/README.md`. |
 

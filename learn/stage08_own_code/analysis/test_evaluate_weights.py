@@ -22,6 +22,10 @@ Added for 18 electrons (2026-11-02):
   checkpoint   --checkpoint evaluates THAT checkpoint, goes to its own folder,
                and the sanity check uses the training just before it (the
                last row of a step when a restart repeated it).
+Added after the review of 2026-11-02:
+  finished     only a complete evaluation counts as finished (main() skips
+               it): every observable there, every number finite, the sanity
+               check passed; the nine real evaluations still count as finished.
 """
 import csv
 import dataclasses
@@ -30,6 +34,7 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 # Before JAX is imported: never on a GPU (a GPU may be training).
 os.environ["JAX_PLATFORMS"] = "cpu"
@@ -157,6 +162,63 @@ class EvaluateWeightsTest(absltest.TestCase):
             (folder / "settings.json").write_text(json.dumps(text))
             with self.assertRaisesRegex(SystemExit, "no_such_setting"):
                 evaluate_weights.run_settings(folder)
+
+    def test_only_a_complete_finite_checked_evaluation_counts_as_finished(self):
+        """main() skips an evaluation that existing_evaluation calls finished, so
+        a missing observable, a number that is not finite, or a failed or
+        missing sanity check must make it 'other'."""
+        with tempfile.TemporaryDirectory() as scratch:
+            run, out = Path(scratch) / "run", Path(scratch) / "out"
+            run.mkdir(), out.mkdir()
+            fake_run(run, training_energy=0.0)
+            summary = evaluate_weights.evaluate(run, out, steps=3, burn_in=1, seed=0,
+                                                check_steps=1000, log=lambda *_: None)   # no check
+            wanted = dict(checkpoint_md5=summary["checkpoint_md5"], steps_requested=3, burn_in=1, seed=0)
+            good = {name: (out / name).read_bytes() for name in ("summary.json", "energies.csv", "observables.npz")}
+            with np.load(out / "observables.npz") as saved:
+                arrays = {name: saved[name] for name in saved.files}
+
+            def verdict(new_summary=None, csv_text=None, npz=None):
+                for name, content in good.items():
+                    (out / name).write_bytes(content)
+                if new_summary is not None:
+                    (out / "summary.json").write_text(json.dumps(new_summary))
+                if csv_text is not None:
+                    (out / "energies.csv").write_text(csv_text)
+                if npz is not None:
+                    with open(out / "observables.npz", "wb") as handle:
+                        np.savez(handle, **npz)
+                return evaluate_weights.existing_evaluation(out, wanted)
+
+            self.assertEqual(verdict(), "finished")
+            for name in evaluate_weights.OBSERVABLE_ARRAYS + ("patterns", "steps_done"):   # 9 sites: patterns too
+                with self.subTest(missing=name):
+                    self.assertEqual(verdict(npz={k: v for k, v in arrays.items() if k != name}), "other")
+            inexact = [k for k, v in arrays.items() if np.issubdtype(v.dtype, np.inexact)]
+            self.assertNotEmpty(inexact)
+            for name in inexact:
+                with self.subTest(not_finite=name):
+                    bad = arrays[name].copy()
+                    bad.flat[0] = np.nan
+                    self.assertEqual(verdict(npz=dict(arrays, **{name: bad})), "other")
+            lines = good["energies.csv"].decode().splitlines()
+            header, first = lines[0].split(","), lines[1].split(",")
+            first[header.index("energy")] = "nan"
+            self.assertEqual(verdict(csv_text="\n".join([lines[0], ",".join(first)] + lines[2:]) + "\n"), "other")
+            self.assertEqual(verdict(new_summary=dict(summary, sanity_check=dict(passed=False))), "other")
+            self.assertEqual(verdict(new_summary=dict(summary, sanity_check=dict(passed=True))), "finished")
+            with mock.patch.object(evaluate_weights, "CHECK_STEPS", 3):     # then 3 steps must have been checked
+                self.assertEqual(verdict(), "other")
+
+    def test_the_real_evaluations_still_count_as_finished(self):
+        """The stricter check must not turn the existing evaluations into 'other'."""
+        summaries = sorted((train_moire.REPO / "runs" / "stage08").glob("*/evaluation/*/summary.json"))
+        self.assertGreaterEqual(len(summaries), 9)
+        for path in summaries:
+            saved = json.loads(path.read_text())
+            wanted = {name: saved[name] for name in ("checkpoint_md5", "steps_requested", "burn_in", "seed")}
+            with self.subTest(path.parent.name):
+                self.assertEqual(evaluate_weights.existing_evaluation(path.parent, wanted), "finished")
 
     def test_parts_are_the_potentials_at_18_electrons(self):
         R = jax.random.uniform(jax.random.PRNGKey(0), (18, 2), minval=-3.0, maxval=3.0)

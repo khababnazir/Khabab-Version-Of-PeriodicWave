@@ -356,17 +356,22 @@ def checkpoints_newest_first(folder):
     return sorted(folder.glob("checkpoint_*.npz"), reverse=True)
 
 
+CHECKPOINT_ARRAYS = ("done", "walkers", "width", "key", "params_0", "opt_state_0")  # written by save_checkpoint
+
+
 def is_finished(folder, iterations):
-    """True if the final checkpoint exists, reads completely and says it holds
-    `iterations`.  Its file name alone is not enough: a damaged final
-    checkpoint must not make a run count as finished."""
+    """True if the final checkpoint exists, reads completely, says it holds
+    `iterations`, holds everything save_checkpoint writes, and every number in
+    it is finite.  Its file name alone is not enough: a damaged or incomplete
+    final checkpoint must not make a run count as finished."""
     try:
         with np.load(folder / f"checkpoint_{iterations:06d}.npz") as saved:
-            for name in saved.files:
-                _ = saved[name]                       # reading every array checks the whole file
-            return int(saved["done"]) == iterations
-    except Exception:                                  # missing, damaged or incomplete
+            arrays = {name: saved[name] for name in saved.files}   # reading every array checks the whole file
+    except Exception:                                  # missing, damaged or cut short
         return False
+    return (all(name in arrays for name in CHECKPOINT_ARRAYS)
+            and int(arrays["done"]) == iterations
+            and all(np.isfinite(a).all() for a in arrays.values() if np.issubdtype(a.dtype, np.inexact)))
 
 
 # ------------------------------------------------------------- training
@@ -396,13 +401,20 @@ def train(folder, network, eps, gradient, seed, iterations, settings=Settings(),
     opt_state = optimizer.init(params, key, (walkers, no_energies))
 
     # ... or continue from the newest readable checkpoint.
-    for path in checkpoints_newest_first(folder):
+    found = checkpoints_newest_first(folder)
+    for path in found:
         try:
             done, params, opt_state, walkers, width, key = load_checkpoint(path, params, opt_state)
             log(f"continuing from {path.name}")
             break
         except Exception as error:                  # damaged or incomplete: try the one before
             log(f"cannot read {path.name} ({error}); trying the previous checkpoint")
+    else:
+        # None could be read.  Starting from zero here would overwrite
+        # train_stats.csv with a different run, so stop instead.
+        if found:
+            sys.exit(f"none of the {len(found)} checkpoints in {folder} can be read; not starting "
+                     "from zero over them (move them away to start afresh on purpose)")
 
     stats_file = folder / "train_stats.csv"
     if done == 0:

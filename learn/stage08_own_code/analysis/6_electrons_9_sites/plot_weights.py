@@ -292,7 +292,7 @@ def pair_correlation_figure(runs, path):
     maps = {key: observables.pair_correlation_map(r["totals"]["pairs"], r["n_configurations"], r["N"],
                                                    r["supercell"]) for key, r in by_key.items()}
     top = max(m.max() for m in maps.values())
-    norm = TwoSlopeNorm(vmin=0.0, vcenter=1.0, vmax=top)       # white = uncorrelated (g = 1)
+    norm = TwoSlopeNorm(vmin=0.0, vcenter=1.0, vmax=top)       # white: g = 1, as for uniform, independent electrons
 
     fig = plt.figure(figsize=(7.2, 4.0), constrained_layout=True)
     grid = fig.add_gridspec(2, 3, width_ratios=[1, 1, 1.05])
