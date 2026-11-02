@@ -1,0 +1,14 @@
+{
+  "original": "/home/khabab/moire-nnvmc/runs/stage08/18_electrons_27_sites/training/slaternet_18e_eps10",
+  "step": 33545,
+  "checkpoint": "checkpoint_033545.npz",
+  "checkpoint_md5": "8904131ba12790a4d626cf1497b91a3a",
+  "rows_copied": 33545,
+  "changed": {
+    "gradient": [
+      "real",
+      "full"
+    ]
+  },
+  "made": "2026-11-02 09:19:16"
+}

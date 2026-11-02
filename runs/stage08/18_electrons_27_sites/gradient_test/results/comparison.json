@@ -1,0 +1,12 @@
+{
+  "real": {
+    "rows": 42525,
+    "identical_rows": 42525,
+    "final_checkpoint_identical_to_original": true
+  },
+  "full": {
+    "rows": 42525,
+    "identical_rows": 0,
+    "final_checkpoint_identical_to_original": false
+  }
+}

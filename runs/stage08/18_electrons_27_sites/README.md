@@ -109,25 +109,32 @@ What the numbers say:
   left-out term is 0.594 of the kept one (in length) for SlaterNet eps = 10 at the end, but
   0.088 at iteration 33,545, before the rise, and 0.056 for SlaterNet eps = 5 at the end. The
   spread of Im E_loc grew from 0.246 to 0.538 meV per electron between 33,545 and the end of
-  SlaterNet eps = 10. Whether the left-out term causes the rise is tested in `gradient_test/`.
+  SlaterNet eps = 10. Whether the left-out term causes the rise was tested in `gradient_test/`:
+  continued from 33,545 with the full gradient, the run did not rise, and at 76,070 its frozen
+  energy is 0.125 lower than with the authors' gradient (whose branch repeats this run
+  exactly). Its README says what that does and does not show.
 - How settled the frozen-weight evaluations are: mean energy over evaluation steps 0-99,
-  100-999, 1000-2999 and 3000-4999 (meV per electron).
+  100-999, 1000-2999 and 3000-4999, and the second half minus the first (steps 2500-4999
+  minus 0-2499); meV per electron, blocking errors of the last digits in brackets.
 
-  | run | 0-99 | 100-999 | 1000-2999 | 3000-4999 |
-  |---|---|---|---|---|
-  | attention eps = 10 | -32.0355 | -32.0349 | -32.0355 | -32.0354 |
-  | attention eps = 5 | -59.0731 | -59.0754 | -59.0758 | -59.0762 |
-  | SlaterNet eps = 10 | -31.1407 | -31.1426 | -31.1442 | -31.1450 |
-  | SlaterNet eps = 10, iteration 33,545 | -31.2672 | -31.2676 | -31.2653 | -31.2676 |
-  | SlaterNet eps = 5 | -57.8770 | -57.8774 | -57.8769 | -57.8794 |
+  | run | 0-99 | 100-999 | 1000-2999 | 3000-4999 | second - first half |
+  |---|---|---|---|---|---|
+  | attention eps = 10 | -32.0355(10) | -32.0349(3) | -32.0355(2) | -32.0354(3) | -0.0002(3) |
+  | attention eps = 5 | -59.0731(14) | -59.0754(4) | -59.0758(3) | -59.0762(3) | -0.0011(4) |
+  | SlaterNet eps = 10 | -31.1407(28) | -31.1426(12) | -31.1442(9) | -31.1450(10) | -0.0007(12) |
+  | SlaterNet eps = 10, iteration 33,545 | -31.2672(21) | -31.2676(10) | -31.2653(9) | -31.2676(9) | -0.0002(12) |
+  | SlaterNet eps = 5 | -57.8770(39) | -57.8774(17) | -57.8769(15) | -57.8794(12) | -0.0034(15) |
 
-  Three evaluations still drift down, by 0.002-0.004 between the first 100 steps and the last
-  2,000: their walkers had not fully settled after the 200 burn-in steps. So for these three the
-  blocking errors (0.0002-0.0007) understate the uncertainty, and the frozen energies may be a
-  few thousandths of a meV too high. That is small against the differences to the paper
-  (0.035-0.206), but it is not inside the error bars. Blocking also cannot see an arrangement
-  the walkers never leave: if the sampling stays near one arrangement of the electrons (one
-  orientation of the SlaterNet stripes, say), energy and maps describe that arrangement only.
+  Two evaluations drift down by more than their errors: attention eps = 5 (its halves 2.6
+  errors apart) and SlaterNet eps = 5 (2.3). Their walkers were probably still settling after
+  the 200 burn-in steps, so their blocking errors (0.0002 and 0.0007) understate the
+  uncertainty, and their frozen energies may be about 0.001-0.003 meV too high. In the other
+  three the changes are within 1.5 errors. (Corrected later on 2026-11-02: the first version of
+  this note had no error bars and also counted SlaterNet eps = 10 as drifting.) All of this is
+  small against the differences to the paper (0.035-0.206). Blocking also cannot see an
+  arrangement the walkers never leave: if the sampling stays near one arrangement of the
+  electrons (one orientation of the SlaterNet stripes, say), energy and maps describe that
+  arrangement only.
 
 Where the electrons are (results/structure.csv, figures 2-4):
 - Attention network, both eps: every site filled almost evenly (site occupations

@@ -1,0 +1,79 @@
+=== 2026-11-02 09:19:15  make ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_real: checkpoint 33545 of ../../runs/stage08/18_electrons_27_sites/training/slaternet_18e_eps10, gradient real
+made ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_real
+=== 2026-11-02 09:19:16  train ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_real on GPU 1 to 76070 iterations:  --network slaternet --eps 10 --electrons 18 --settings table2 --laplacian folx --determinants slogdet --gradient real
+continuing from checkpoint_033545.npz
+step   34000  energy -166.62827  pmove 0.51  width 0.045  lr 7.46  step capped 100%  2.72 it/s
+step   35000  energy -166.99348  pmove 0.51  width 0.045  lr 7.41  step capped 100%  3.92 it/s
+step   36000  energy -166.81802  pmove 0.51  width 0.045  lr 7.35  step capped 100%  4.21 it/s
+step   37000  energy -166.88873  pmove 0.51  width 0.045  lr 7.3  step capped 100%  4.34 it/s
+step   38000  energy -166.77588  pmove 0.51  width 0.045  lr 7.25  step capped 100%  4.41 it/s
+step   39000  energy -166.85973  pmove 0.51  width 0.045  lr 7.19  step capped 100%  4.45 it/s
+step   40000  energy -166.74838  pmove 0.51  width 0.045  lr 7.14  step capped 100%  4.48 it/s
+step   41000  energy -166.76389  pmove 0.51  width 0.045  lr 7.09  step capped 100%  4.50 it/s
+step   42000  energy -166.91373  pmove 0.51  width 0.045  lr 7.04  step capped 100%  4.52 it/s
+step   43000  energy -166.94630  pmove 0.51  width 0.045  lr 6.99  step capped 100%  4.54 it/s
+step   44000  energy -166.87125  pmove 0.51  width 0.045  lr 6.94  step capped 100%  4.55 it/s
+step   45000  energy -167.00771  pmove 0.51  width 0.045  lr 6.9  step capped 100%  4.56 it/s
+step   46000  energy -166.73996  pmove 0.51  width 0.045  lr 6.85  step capped 100%  4.57 it/s
+step   47000  energy -166.79550  pmove 0.51  width 0.045  lr 6.8  step capped 100%  4.58 it/s
+step   48000  energy -166.58846  pmove 0.51  width 0.045  lr 6.76  step capped 100%  4.58 it/s
+step   49000  energy -166.59869  pmove 0.51  width 0.045  lr 6.71  step capped 100%  4.59 it/s
+step   50000  energy -166.63896  pmove 0.51  width 0.045  lr 6.67  step capped 100%  4.60 it/s
+step   51000  energy -166.64255  pmove 0.51  width 0.045  lr 6.62  step capped 100%  4.60 it/s
+step   52000  energy -166.52411  pmove 0.51  width 0.045  lr 6.58  step capped 100%  4.60 it/s
+step   53000  energy -166.49973  pmove 0.51  width 0.045  lr 6.54  step capped 100%  4.61 it/s
+step   54000  energy -166.33855  pmove 0.51  width 0.045  lr 6.49  step capped 100%  4.61 it/s
+step   55000  energy -166.68515  pmove 0.51  width 0.045  lr 6.45  step capped 100%  4.62 it/s
+step   56000  energy -166.34149  pmove 0.51  width 0.045  lr 6.41  step capped 100%  4.62 it/s
+step   57000  energy -166.27126  pmove 0.51  width 0.045  lr 6.37  step capped 100%  4.62 it/s
+step   58000  energy -166.11282  pmove 0.51  width 0.045  lr 6.33  step capped 100%  4.62 it/s
+step   59000  energy -166.22581  pmove 0.51  width 0.045  lr 6.29  step capped 100%  4.63 it/s
+step   60000  energy -166.40855  pmove 0.51  width 0.045  lr 6.25  step capped 100%  4.63 it/s
+step   61000  energy -166.32895  pmove 0.51  width 0.045  lr 6.21  step capped 100%  4.63 it/s
+step   62000  energy -166.29816  pmove 0.51  width 0.045  lr 6.17  step capped 100%  4.63 it/s
+step   63000  energy -166.41850  pmove 0.51  width 0.045  lr 6.14  step capped 100%  4.63 it/s
+step   64000  energy -166.12021  pmove 0.51  width 0.045  lr 6.1  step capped 100%  4.63 it/s
+step   65000  energy -166.27957  pmove 0.51  width 0.045  lr 6.06  step capped 100%  4.64 it/s
+step   66000  energy -166.17160  pmove 0.51  width 0.045  lr 6.02  step capped 100%  4.64 it/s
+step   67000  energy -166.28935  pmove 0.51  width 0.045  lr 5.99  step capped 100%  4.64 it/s
+step   68000  energy -166.32326  pmove 0.51  width 0.045  lr 5.95  step capped 100%  4.64 it/s
+step   69000  energy -166.35611  pmove 0.51  width 0.045  lr 5.92  step capped 100%  4.64 it/s
+step   70000  energy -166.17239  pmove 0.51  width 0.045  lr 5.88  step capped 100%  4.64 it/s
+step   71000  energy -166.16718  pmove 0.51  width 0.045  lr 5.85  step capped 100%  4.64 it/s
+step   72000  energy -166.29922  pmove 0.51  width 0.045  lr 5.81  step capped 100%  4.64 it/s
+step   73000  energy -166.17993  pmove 0.51  width 0.045  lr 5.78  step capped 100%  4.64 it/s
+step   74000  energy -166.08102  pmove 0.51  width 0.045  lr 5.75  step capped 100%  4.64 it/s
+step   75000  energy -166.39426  pmove 0.51  width 0.045  lr 5.71  step capped 100%  4.64 it/s
+step   76000  energy -166.14867  pmove 0.51  width 0.045  lr 5.68  step capped 100%  4.65 it/s
+finished
+=== 2026-11-02 11:51:56  training ended with exit code 0
+=== compared with the original:
+iterations 33545-76069 in both: 42525; identical rows: 42525; first row that differs: None
+  column             difference in row 33545      largest, all rows
+  energy                                   0                      0
+  variance                                 0                      0
+  energy_imag                              0                      0
+  pmove                                    0                      0
+  step_width                               0                      0
+  learning_rate                            0                      0
+  fisher_step_sq                           0                      0
+=== 2026-11-02 11:52:07  frozen-weight evaluation of ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_real on GPU 1
+burn-in of 200 steps done after 16 s (includes compiling)
+sanity check: evaluation -166.11040, training before the checkpoint -166.20868
+step   1000  mean energy -166.11633  pmove 0.512  3.96 steps/s
+step   2000  mean energy -166.12253  pmove 0.510  4.39 steps/s
+step   3000  mean energy -166.12135  pmove 0.512  4.55 steps/s
+step   4000  mean energy -166.11779  pmove 0.510  4.64 steps/s
+step   5000  mean energy -166.12133  pmove 0.511  4.69 steps/s
+finished
+=== 2026-11-02 12:10:14  evaluation ended with exit code 0
+=== 2026-11-02 12:25:11  second frozen-weight evaluation of ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_real on GPU 1: burn-in 2000, seed 1
+burn-in of 2000 steps done after 96 s (includes compiling)
+sanity check: evaluation -166.11098, training before the checkpoint -166.20868
+step   1000  mean energy -166.11202  pmove 0.511  3.97 steps/s
+step   2000  mean energy -166.12132  pmove 0.511  4.42 steps/s
+step   3000  mean energy -166.12062  pmove 0.512  4.58 steps/s
+step   4000  mean energy -166.12082  pmove 0.512  4.67 steps/s
+step   5000  mean energy -166.12050  pmove 0.510  4.72 steps/s
+finished
+=== 2026-11-02 12:44:32  evaluation ended with exit code 0
