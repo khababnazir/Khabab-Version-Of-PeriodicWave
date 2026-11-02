@@ -1,0 +1,16 @@
+=== 2026-11-02 09:16:06  make ../../runs/stage08/18_electrons_27_sites/gradient_test/restore_check/slaternet_18e_eps10_from033545_full: checkpoint 33545 of ../../runs/stage08/18_electrons_27_sites/training/slaternet_18e_eps10, gradient full
+made ../../runs/stage08/18_electrons_27_sites/gradient_test/restore_check/slaternet_18e_eps10_from033545_full
+=== 2026-11-02 09:16:07  train ../../runs/stage08/18_electrons_27_sites/gradient_test/restore_check/slaternet_18e_eps10_from033545_full on GPU 0 to 33565 iterations:  --network slaternet --eps 10 --electrons 18 --settings table2 --laplacian folx --determinants slogdet --gradient full
+continuing from checkpoint_033545.npz
+finished
+=== 2026-11-02 09:17:42  training ended with exit code 0
+=== compared with the original:
+iterations 33545-33564 in both: 20; identical rows: 0; first row that differs: 33545
+  column             difference in row 33545      largest, all rows
+  energy                                   0               0.254349
+  variance                                 0                10.4584
+  energy_imag                              0              0.0426215
+  pmove                                    0             0.00322264
+  step_width                               0                      0
+  learning_rate                            0                      0
+  fisher_step_sq                     294.319                15292.9

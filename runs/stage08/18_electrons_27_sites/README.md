@@ -1,7 +1,8 @@
 # runs/stage08/18_electrons_27_sites — the paper's Table I and Fig. 6, our own code
 
 Folders: `training/` (the four runs: settings, energy of every iteration, checkpoints =
-model weights, and `logs/`), `lr_test/` (the learning-rate test), `evaluation/` (the
+model weights, and `logs/`), `lr_test/` (the learning-rate test), `gradient_test/` (SlaterNet eps = 10 continued from
+iteration 33,545 with each gradient convention), `evaluation/` (the
 frozen-weight evaluations), `results/` (tables) and `figures/`. Scripts in
 `learn/stage08_own_code/` (training) and `learn/stage08_own_code/analysis/18_electrons_27_sites/`.
 Until 2026-11-02 this folder was `runs/stage08/table1/`, with the runs at its top level.
@@ -63,8 +64,8 @@ drifted apart by about 0.2 meV per electron only through rounding and random sam
 0.2 is a useful measure of run-to-run spread this early, not an effect of the learning rate.
 The paper's "unusually high" eta0 = 10 keeps the step at the cap for longer.
 
-Not checked, to start the runs at once as asked: continuing an 18-electron run from a
-checkpoint (the same code is tested at 6 electrons, test_train_moire.py).
+Checked afterwards (2026-11-02, `gradient_test/restore_check/`): an 18-electron run continued
+from a checkpoint repeats the original's rows bit for bit.
 
 ## Results (2026-11-02)
 
