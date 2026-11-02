@@ -3,7 +3,8 @@ Stage 8 (our code) -- does a trained network respect the moire lattice's transla
 
 Run (on the CPU, a few minutes for all four runs; it never touches a GPU,
 so it is safe while a training run is going):
-    ../../../.venv/bin/python check_translation_symmetry.py
+    ../../../../.venv/bin/python check_translation_symmetry.py
+(from learn/stage08_own_code/analysis/6_electrons_9_sites)
 
 The archived check (learn/archive/stage08_authors_code/analysis), for our runs
 and our networks.  The Hamiltonian does not change when every electron is
@@ -31,9 +32,9 @@ os.environ["JAX_PLATFORMS"] = "cpu"      # before JAX is imported: always off th
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[2] / "runs" / "stage08" / "training"
-sys.path.insert(0, str(HERE))
-from evaluate_weights import final_checkpoint     # noqa: E402  (puts train_moire.py on the path)
+RUNS = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites" / "training"
+sys.path.insert(0, str(HERE.parent))     # evaluate_weights.py, shared with the 18-electron analysis
+from evaluate_weights import run_settings, checkpoint_path   # noqa: E402  (puts train_moire.py on the path)
 import train_moire                                 # noqa: E402
 WALKERS = 256
 
@@ -46,8 +47,10 @@ def main():
     a1, a2 = np.array([1.0, 0.0]), np.array([-0.5, np.sqrt(3) / 2])        # moire lattice, a_M = 1
     supercell_vector = np.asarray(slaternet.supercell_vectors(9))[:, 0]
     for name in ("attention_eps10", "slaternet_eps10", "attention_eps5", "slaternet_eps5"):
-        settings, final = final_checkpoint(RUNS / name)
-        problem = train_moire.make_problem(settings["network"], settings["eps"])
+        saved, training_settings = run_settings(RUNS / name)
+        final = checkpoint_path(RUNS / name, saved)
+        problem = train_moire.make_problem(saved["network"], saved["eps"], saved["electrons"],
+                                           training_settings)
         like = problem.init(jax.random.PRNGKey(0), problem.arch)
         _, params, walkers, _ = train_moire.load_parameters(final, like)
         x = walkers[:WALKERS]

@@ -9,20 +9,20 @@ and figure 7).  The networks are named as in train_moire.py, "attention" and
 
 Run after evaluate_weights.py (CPU is enough; matplotlib is layered on top of
 the project environment without changing it):
-    uv run --no-project --python ../../../.venv/bin/python --with matplotlib python plot_weights.py
-(from learn/stage08_own_code/analysis)
+    uv run --no-project --python ../../../../.venv/bin/python --with matplotlib python plot_weights.py
+(from learn/stage08_own_code/analysis/6_electrons_9_sites)
 
-Reads runs/stage08/evaluation/<run>/ and runs/stage08/training/<run>/, and the
+Reads runs/stage08/6_electrons_9_sites/evaluation/<run>/ and runs/stage08/6_electrons_9_sites/training/<run>/, and the
 reference run's tables in runs/archive/stage08_authors_code/results/; writes
-    runs/stage08/results/energies_meV_per_electron.csv   energies, one row per run
-    runs/stage08/results/electron_structure.csv          where the electrons are, one row per run
-    runs/stage08/results/own_vs_authors.csv              ours against the reference run
-    runs/stage08/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
-    runs/stage08/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
-    runs/stage08/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
-    runs/stage08/figures/5_site_filling_and_structure_factor.png
-    runs/stage08/figures/6_site_occupation_during_evaluation.png
-    runs/stage08/figures/7_ours_vs_authors.png           energies and S(kappa), ours against the reference
+    runs/stage08/6_electrons_9_sites/results/energies_meV_per_electron.csv   energies, one row per run
+    runs/stage08/6_electrons_9_sites/results/electron_structure.csv          where the electrons are, one row per run
+    runs/stage08/6_electrons_9_sites/results/own_vs_authors.csv              ours against the reference run
+    runs/stage08/6_electrons_9_sites/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
+    runs/stage08/6_electrons_9_sites/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
+    runs/stage08/6_electrons_9_sites/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
+    runs/stage08/6_electrons_9_sites/figures/5_site_filling_and_structure_factor.png
+    runs/stage08/6_electrons_9_sites/figures/6_site_occupation_during_evaluation.png
+    runs/stage08/6_electrons_9_sites/figures/7_ours_vs_authors.png           energies and S(kappa), ours against the reference
 (Figure 1, the training curves, comes from analyse_runs.py.)
 
 It refuses evaluation folders whose three files disagree about the number of
@@ -52,16 +52,17 @@ from matplotlib.colors import TwoSlopeNorm           # noqa: E402
 from matplotlib.patches import Patch                 # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE))          # analyse_runs.py, in this folder
+sys.path.insert(0, str(HERE.parent))   # observables.py, shared with the 18-electron analysis
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, FIG5, COLOURS, LABELS, blocked_mean, describe  # noqa: E402
 
-STAGE08 = HERE.parents[2] / "runs" / "stage08"
-TRAINING, EVALUATION = STAGE08 / "training", STAGE08 / "evaluation"
-FIGURES, RESULTS = STAGE08 / "figures", STAGE08 / "results"
+DATA = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites"
+TRAINING, EVALUATION = DATA / "training", DATA / "evaluation"
+FIGURES, RESULTS = DATA / "figures", DATA / "results"
 ORDER = ["attention_eps10", "slaternet_eps10", "attention_eps5", "slaternet_eps5"]
 # The reference run (authors' code, archived) and its names for the same four runs.
-AUTHORS_RESULTS = HERE.parents[2] / "runs" / "archive" / "stage08_authors_code" / "results"
+AUTHORS_RESULTS = HERE.parents[3] / "runs" / "archive" / "stage08_authors_code" / "results"
 AUTHORS_NAME = {"attention_eps10": "psiformer_eps10", "slaternet_eps10": "slaternet_eps10",
                 "attention_eps5": "psiformer_eps5", "slaternet_eps5": "slaternet_eps5"}
 FIG5_READING_ACCURACY = 0.05      # meV per electron, our by-eye reading of the plot
@@ -173,7 +174,7 @@ def energy_table(runs):
 
 
 def structure_table(runs):
-    """Where the electrons are, one row per run (definitions in runs/stage08/results/README.md)."""
+    """Where the electrons are, one row per run (definitions in runs/stage08/6_electrons_9_sites/results/README.md)."""
     return pd.DataFrame([dict(
         run=r["name"], network=LABELS[r["network"]], eps=r["eps"],
         P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),

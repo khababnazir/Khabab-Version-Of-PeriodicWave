@@ -58,3 +58,15 @@ step   9000  mean energy -56.21144  pmove 0.515  31.23 steps/s
 step  10000  mean energy -56.21135  pmove 0.513  32.20 steps/s
 finished
 === 2026-10-29 07:33:44  slaternet_eps10 ended with exit code 0
+=== 2026-11-02 04:07:35  start 6_electrons_9_sites/attention_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/attention_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 04:07:36  attention_eps5 ended with exit code 0
+=== 2026-11-02 04:07:36  start 6_electrons_9_sites/attention_eps10 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/attention_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 04:07:36  attention_eps10 ended with exit code 0
+=== 2026-11-02 04:07:36  start 6_electrons_9_sites/slaternet_eps5 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/slaternet_eps5 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 04:07:36  slaternet_eps5 ended with exit code 0
+=== 2026-11-02 04:07:36  start 6_electrons_9_sites/slaternet_eps10 on GPU 0
+/home/khabab/moire-nnvmc/runs/stage08/6_electrons_9_sites/evaluation/slaternet_eps10 already holds this evaluation; use --overwrite to repeat it
+=== 2026-11-02 04:07:36  slaternet_eps10 ended with exit code 0

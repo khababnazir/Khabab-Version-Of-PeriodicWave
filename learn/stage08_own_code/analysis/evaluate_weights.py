@@ -2,14 +2,14 @@
 Stage 8 (our code) -- evaluate a trained network with its weights FROZEN.
 
 Run (one GPU, one evaluation), from learn/stage08_own_code/analysis:
-    CUDA_VISIBLE_DEVICES=0 ../../../.venv/bin/python evaluate_weights.py ../../../runs/stage08/training/attention_eps5
+    CUDA_VISIBLE_DEVICES=0 ../../../.venv/bin/python evaluate_weights.py ../../../runs/stage08/6_electrons_9_sites/training/attention_eps5
 Options: --steps N       evaluation steps after burn-in (default 10000 at 6 electrons,
                          5000 at 18: with 4096 walkers that is 20,480,000 configurations)
          --burn-in N     steps that only move the walkers, first (default 200)
          --seed S        (default 0)
          --checkpoint N  evaluate checkpoint_N.npz instead of the final one
-         --out DIR       default runs/stage08/evaluation/<run name> (6 electrons),
-                         runs/stage08/table1/evaluation/<run name> (18 electrons);
+         --out DIR       default: the evaluation/ folder beside the run's training/
+                         folder, e.g. runs/stage08/18_electrons_27_sites/evaluation/<run name>;
                          with --checkpoint, <run name>_at_<N>
          --overwrite     replace an evaluation that is already in DIR
 
@@ -92,7 +92,6 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[2] / "runs" / "stage08"
 sys.path.insert(0, str(HERE))             # observables.py
 sys.path.insert(0, str(HERE.parent))      # train_moire.py, one folder up
 import train_moire                        # noqa: E402 -- imports JAX only inside its functions
@@ -130,8 +129,14 @@ def checkpoint_path(run, saved, step=None):
 
 
 def default_out(run, saved, step=None):
-    """Where an evaluation goes unless --out says otherwise (see the top of this file)."""
-    root = RUNS / "evaluation" if saved["electrons"] == 6 else RUNS / "table1" / "evaluation"
+    """Where an evaluation goes unless --out says otherwise: the evaluation/ folder beside
+    the training/ folder that holds the run, e.g.
+        runs/stage08/18_electrons_27_sites/training/attention_eps5
+     -> runs/stage08/18_electrons_27_sites/evaluation/attention_eps5
+    """
+    if run.parent.name != "training":
+        sys.exit(f"{run} is not inside a training/ folder; say where the evaluation goes with --out")
+    root = run.parent.parent / "evaluation"
     if step is None or step == saved["iterations"]:
         return root / run.name
     return root / f"{run.name}_at_{step:06d}"
@@ -350,7 +355,7 @@ def evaluate(run, out, steps, burn_in, seed, checkpoint=None, check_steps=CHECK_
 
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/training/attention_eps5")
+    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/6_electrons_9_sites/training/attention_eps5")
     parser.add_argument("--steps", type=int, default=None, help="default 10000 (6 electrons), 5000 (18)")
     parser.add_argument("--burn-in", type=int, default=200)
     parser.add_argument("--seed", type=int, default=0)

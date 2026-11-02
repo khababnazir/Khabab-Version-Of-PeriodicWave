@@ -1,14 +1,18 @@
 #!/bin/bash
 # Stage 8 (our code) -- evaluate trained networks with their weights frozen
-# (evaluate_weights.py), one after the other on ONE GPU (default 0).
+# (evaluate_weights.py), one after the other on ONE GPU.
 #
-# Without a run list: the four 9-site runs of Fig. 5,
-#   training/attention_eps5 training/attention_eps10 training/slaternet_eps5 training/slaternet_eps10
-# With a run list: those folders under runs/stage08, e.g. table1/attention_eps5.
+#   bash launch_evaluation.sh GPU SYSTEM [RUN[@N] ...]
+#
+# SYSTEM is a folder of runs/stage08:
+#   6_electrons_9_sites      the paper's Fig. 5
+#   18_electrons_27_sites    the paper's Table I and Fig. 6
+# RUN is a run in runs/stage08/SYSTEM/training/; without RUNs, all four.
 # RUN@N evaluates checkpoint_N.npz of RUN instead of its final checkpoint.
-# For the Table I runs (2026-11-02) start one queue per GPU:
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 table1/attention_eps5 table1/slaternet_eps5
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 table1/attention_eps10 table1/slaternet_eps10 table1/slaternet_eps10@33545
+# Examples, from ~/moire-nnvmc (the 18-electron runs with one queue per GPU):
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 6_electrons_9_sites
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 18_electrons_27_sites attention_eps5 slaternet_eps5
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 18_electrons_27_sites attention_eps10 slaternet_eps10 slaternet_eps10@33545
 #
 # While the queue runs, nvidia-smi records both GPUs every 10 s: utilization,
 # memory, temperature, power, clock, fan, and why the clock is lowered; and
@@ -23,22 +27,24 @@
 # evaluation is not repeated (exit code 0).  The exit status of this script
 # is 0 only if every evaluation succeeded.
 #
-# Run (from ~/moire-nnvmc):  bash learn/stage08_own_code/analysis/launch_evaluation.sh [GPU] [RUN[@N] ...]
-# Logs, in runs/stage08/evaluation/logs (9 sites) or runs/stage08/table1/evaluation/logs (Table I):
+# Logs, in runs/stage08/SYSTEM/evaluation/logs/:
 #        gpuN.log (appended to, never truncated)
 #        gpuN_monitor_<date>_<time>.csv (nvidia-smi), one file per start
 #        gpuN_system_<date>_<time>.csv (CPU and memory), beside it
 cd "$(dirname "$0")" || exit 1
-GPU=${1:-0}
-shift
+GPU=$1
+SYSTEM=$2
+RUNS=../../../runs/stage08/$SYSTEM
+if [ $# -lt 2 ] || [ -z "$SYSTEM" ] || [ ! -d "$RUNS/training" ]; then
+    echo "usage: bash launch_evaluation.sh GPU SYSTEM [RUN[@N] ...]"
+    echo "       SYSTEM: 6_electrons_9_sites or 18_electrons_27_sites"
+    exit 2
+fi
+shift 2
 RUN_LIST=("$@")
-[ ${#RUN_LIST[@]} -eq 0 ] && RUN_LIST=(training/attention_eps5 training/attention_eps10 training/slaternet_eps5 training/slaternet_eps10)
+[ ${#RUN_LIST[@]} -eq 0 ] && RUN_LIST=(attention_eps5 attention_eps10 slaternet_eps5 slaternet_eps10)
 PY=../../../.venv/bin/python
-RUNS=../../../runs/stage08
-case "${RUN_LIST[0]}" in
-    table1/*) LOGS=$RUNS/table1/evaluation/logs ;;
-    *)        LOGS=$RUNS/evaluation/logs ;;
-esac
+LOGS=$RUNS/evaluation/logs
 ALREADY_RUNNING=75
 mkdir -p "$LOGS"
 
@@ -51,11 +57,11 @@ system_monitor=$!
 
 failed=0
 for item in "${RUN_LIST[@]}"; do
-    run=${item%@*}                             # table1/slaternet_eps10@33545 -> table1/slaternet_eps10
+    run=${item%@*}                             # slaternet_eps10@33545 -> slaternet_eps10
     checkpoint=()
     [ "$item" != "$run" ] && checkpoint=(--checkpoint "${item#*@}")
-    echo "=== $(date '+%F %T')  start $item on GPU $GPU"
-    CUDA_VISIBLE_DEVICES=$GPU PYTHONUNBUFFERED=1 $PY evaluate_weights.py "$RUNS/$run" "${checkpoint[@]}"
+    echo "=== $(date '+%F %T')  start $SYSTEM/$item on GPU $GPU"
+    CUDA_VISIBLE_DEVICES=$GPU PYTHONUNBUFFERED=1 $PY evaluate_weights.py "$RUNS/training/$run" "${checkpoint[@]}"
     status=$?                                  # saved first: $(date) below would overwrite $?
     echo "=== $(date '+%F %T')  $item ended with exit code $status"
     if [ $status -eq $ALREADY_RUNNING ]; then

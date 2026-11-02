@@ -1,4 +1,10 @@
-# runs/stage08/table1 — 18 electrons on 27 sites (the paper's Table I), our own code
+# runs/stage08/18_electrons_27_sites — the paper's Table I and Fig. 6, our own code
+
+Folders: `training/` (the four runs: settings, energy of every iteration, checkpoints =
+model weights, and `logs/`), `lr_test/` (the learning-rate test), `evaluation/` (the
+frozen-weight evaluations), `results/` (tables) and `figures/`. Scripts in
+`learn/stage08_own_code/` (training) and `learn/stage08_own_code/analysis/18_electrons_27_sites/`.
+Until 2026-11-02 this folder was `runs/stage08/table1/`, with the runs at its top level.
 
 **Started 2026-10-30 12:16 server time (21:16 Korean time), all four finished 2026-11-01**
 (attention 43.4 h and 41.2 h, SlaterNet 9.1 h and 8.8 h; no restarts, every value finite) with
@@ -21,7 +27,7 @@ for heat, code 0x20), one iteration took 1.05-1.13 s, against 0.82 s with GPU 0 
 attention runs take about 44-47 hours and the SlaterNet runs about 8-10 hours after them:
 about 2.2-2.4 days per GPU.
 
-**Records**, in `logs/`: `gpuN.log` (one line per 1,000 iterations: energy, acceptance, step width,
+**Records**, in `training/logs/`: `gpuN.log` (one line per 1,000 iterations: energy, acceptance, step width,
 learning rate, how often the step was capped, speed), `gpuN_monitor_<date>_<time>.csv` (the GPU,
 every 10 s) and `gpuN_system_<date>_<time>.csv` (CPU and memory of the machine and of the run).
 
@@ -104,6 +110,6 @@ SlaterNet energies or the honeycomb.
 ## How to look again (from ~/moire-nnvmc)
 
 ```bash
-cat runs/stage08/table1/results/table1.csv
-tail -n 3 runs/stage08/table1/evaluation/logs/gpu0.log runs/stage08/table1/evaluation/logs/gpu1.log
+cat runs/stage08/18_electrons_27_sites/results/table1.csv
+tail -n 3 runs/stage08/18_electrons_27_sites/evaluation/logs/gpu0.log runs/stage08/18_electrons_27_sites/evaluation/logs/gpu1.log
 ```

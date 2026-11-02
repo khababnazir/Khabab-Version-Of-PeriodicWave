@@ -1,0 +1,3 @@
+timestamp, index, utilization.gpu [%], memory.used [MiB], memory.total [MiB], temperature.gpu, power.draw [W], clocks.current.sm [MHz], fan.speed [%], clocks_event_reasons.active
+2026/11/02 04:07:35.863, 0, 0 %, 1 MiB, 24576 MiB, 30, 19.22 W, 210 MHz, 47 %, 0x0000000000000001
+2026/11/02 04:07:35.879, 1, 0 %, 1 MiB, 24576 MiB, 29, 25.98 W, 210 MHz, 45 %, 0x0000000000000004

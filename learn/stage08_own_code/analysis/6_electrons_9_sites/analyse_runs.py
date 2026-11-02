@@ -2,7 +2,7 @@
 Stage 8 (our code) -- read our four training runs, compare with the paper's Fig. 5.
 
 The archived analyse_runs.py (learn/archive/stage08_authors_code/analysis),
-for the runs that train_moire.py wrote into runs/stage08/training/.  Two
+for the runs that train_moire.py wrote into runs/stage08/6_electrons_9_sites/training/.  Two
 differences: a run is described by its settings.json (network, eps,
 gradient) instead of the authors' overrides.json, and its whole history is
 one train_stats.csv (on a restart, train_moire.py drops the rows after the
@@ -10,9 +10,10 @@ checkpoint and continues the same file).
 
 Run (needs matplotlib and pandas, which the project environment does not have):
     uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
-(from learn/stage08_own_code/analysis; writes runs/stage08/figures/1_training_curves_vs_fig5.png)
+(from learn/stage08_own_code/analysis/6_electrons_9_sites; writes
+runs/stage08/6_electrons_9_sites/figures/1_training_curves_vs_fig5.png)
 
-For every run folder in runs/stage08/training/ it
+For every run folder in runs/stage08/6_electrons_9_sites/training/ it
   1. reads the energy of every iteration and converts it to meV per electron,
      as the paper reports it;
   2. averages the last 20% of the iterations, with a blocking analysis
@@ -48,8 +49,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-STAGE08 = Path(__file__).resolve().parents[3] / "runs" / "stage08"
-RUNS = STAGE08 / "training"
+DATA = Path(__file__).resolve().parents[4] / "runs" / "stage08" / "6_electrons_9_sites"
+RUNS = DATA / "training"
 ENERGY_UNIT_MEV = 3.375559          # hbar^2 / (m* a_M^2); learn/stage04_mcmc moire_units()
 N_ELECTRONS = 6
 FINAL_FRACTION = 0.2
@@ -169,7 +170,7 @@ def main():
         ax.set_title(f"eps = {eps:g}   (dashed: paper, Fig. 5)", loc="left", fontsize=8)
         if ax.get_legend_handles_labels()[0]:
             ax.legend(fontsize=6, frameon=False, loc="upper right")
-    out = STAGE08 / "figures" / "1_training_curves_vs_fig5.png"
+    out = DATA / "figures" / "1_training_curves_vs_fig5.png"
     out.parent.mkdir(exist_ok=True)
     fig.savefig(out, dpi=300)
     print(f"\nsaved {out}")

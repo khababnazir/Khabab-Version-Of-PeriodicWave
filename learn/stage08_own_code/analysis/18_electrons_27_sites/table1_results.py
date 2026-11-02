@@ -2,17 +2,17 @@
 Stage 8 (our code) -- Table I and Fig. 6 of the paper: 18 electrons on 27 sites.
 
 Run after the frozen-weight evaluations of the Table I runs (CPU is enough),
-from learn/stage08_own_code/analysis:
-    uv run --no-project --python ../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
+from learn/stage08_own_code/analysis/18_electrons_27_sites:
+    uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
 
-Reads   runs/stage08/table1/<run>/train_stats.csv           (training)
-        runs/stage08/table1/evaluation/<run>[_at_<N>]/      (frozen weights, evaluate_weights.py)
-Writes  runs/stage08/table1/results/table1.csv              energies against the paper's Table I
-        runs/stage08/table1/results/structure.csv           where the electrons are
-        runs/stage08/table1/figures/1_table1_energies.png
-        runs/stage08/table1/figures/2_fig6_attention.png    paper Fig. 6: density and pair correlation
-        runs/stage08/table1/figures/3_fig6_slaternet.png    the same for SlaterNet
-        runs/stage08/table1/figures/4_sublattices_during_evaluation.png
+Reads   runs/stage08/18_electrons_27_sites/training/<run>/train_stats.csv         (training)
+        runs/stage08/18_electrons_27_sites/evaluation/<run>[_at_<N>]/      (frozen weights, evaluate_weights.py)
+Writes  runs/stage08/18_electrons_27_sites/results/table1.csv              energies against the paper's Table I
+        runs/stage08/18_electrons_27_sites/results/structure.csv           where the electrons are
+        runs/stage08/18_electrons_27_sites/figures/1_table1_energies.png
+        runs/stage08/18_electrons_27_sites/figures/2_fig6_attention.png    paper Fig. 6: density and pair correlation
+        runs/stage08/18_electrons_27_sites/figures/3_fig6_slaternet.png    the same for SlaterNet
+        runs/stage08/18_electrons_27_sites/figures/4_sublattices_during_evaluation.png
 
 What is compared.  The paper's Table I gives one energy per network and eps,
 in meV per electron.  Ours is the frozen-weight energy: the final weights
@@ -56,12 +56,15 @@ import matplotlib.pyplot as plt                     # noqa: E402
 from matplotlib.colors import TwoSlopeNorm           # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(HERE.parent))                  # observables.py, shared by both systems
+# From the 6-electron analysis, unchanged: the energy unit, the blocking error bar, the colours.
+sys.path.insert(0, str(HERE.parent / "6_electrons_9_sites"))
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, COLOURS, LABELS, blocked_mean   # noqa: E402
 
-TABLE1 = HERE.parents[2] / "runs" / "stage08" / "table1"
-EVALUATION, FIGURES, RESULTS = TABLE1 / "evaluation", TABLE1 / "figures", TABLE1 / "results"
+DATA = HERE.parents[3] / "runs" / "stage08" / "18_electrons_27_sites"
+TRAINING = DATA / "training"
+EVALUATION, FIGURES, RESULTS = DATA / "evaluation", DATA / "figures", DATA / "results"
 N = 18
 FINAL_FRACTION = 0.2
 KAPPA = 4 * np.pi / 3
@@ -119,7 +122,7 @@ def load(folder_name):
     run["pmove"] = energies["pmove"].mean()
 
     # Training: the last 20 % of the iterations before this checkpoint.
-    training = pd.read_csv(TABLE1 / folder_name.split("_at_")[0] / "train_stats.csv", usecols=["step", "energy"])
+    training = pd.read_csv(TRAINING / folder_name.split("_at_")[0] / "train_stats.csv", usecols=["step", "energy"])
     before = training[training["step"] < run["step"]]["energy"].to_numpy() * to_meV
     run["training_series"] = before[int(len(before) * (1 - FINAL_FRACTION)):]
     run["training"], run["training_error"] = blocked_mean(run["training_series"])

@@ -173,8 +173,8 @@ class EvaluateWeightsTest(absltest.TestCase):
 
     def test_a_tiny_18_electron_evaluation(self):
         with tempfile.TemporaryDirectory() as scratch:
-            run, out = Path(scratch) / "run", Path(scratch) / "out"
-            run.mkdir(), out.mkdir()
+            run, out = Path(scratch) / "training" / "run", Path(scratch) / "out"
+            run.mkdir(parents=True), out.mkdir()
             fake_run(run, training_energy=0.0, electrons=18)
             summary = evaluate_weights.evaluate(run, out, steps=2, burn_in=1, seed=0,
                                                 check_steps=1000, log=lambda *_: None)
@@ -193,13 +193,12 @@ class EvaluateWeightsTest(absltest.TestCase):
                 parts = float(row["kinetic"]) + float(row["moire"]) + float(row["coulomb"])
                 self.assertAlmostEqual(parts, float(row["energy"]), delta=1e-3 * abs(float(row["energy"])) + 1e-2)
             saved, _ = evaluate_weights.run_settings(run)
-            self.assertEqual(evaluate_weights.default_out(run, saved),
-                             evaluate_weights.RUNS / "table1" / "evaluation" / "run")
+            self.assertEqual(evaluate_weights.default_out(run, saved), Path(scratch) / "evaluation" / "run")
 
     def test_an_earlier_checkpoint_is_evaluated_as_asked(self):
         with tempfile.TemporaryDirectory() as scratch:
-            run, out = Path(scratch) / "run", Path(scratch) / "out"
-            run.mkdir(), out.mkdir()
+            run, out = Path(scratch) / "training" / "run", Path(scratch) / "out"
+            run.mkdir(parents=True), out.mkdir()
             problem, _, walkers = fake_run(run, training_energy=0.0)
             early = problem.init(jax.random.PRNGKey(5), problem.arch)
             train_moire.save_checkpoint(run, 3, early, {}, walkers, 0.3, jax.random.PRNGKey(6))
@@ -220,8 +219,9 @@ class EvaluateWeightsTest(absltest.TestCase):
             saved, _ = evaluate_weights.run_settings(run)
             self.assertEqual(evaluate_weights.default_out(run, saved, 3).name, "run_at_000003")
             self.assertEqual(evaluate_weights.default_out(run, saved, 7).name, "run")
-            self.assertEqual(evaluate_weights.default_out(run, saved),
-                             evaluate_weights.RUNS / "evaluation" / "run")
+            self.assertEqual(evaluate_weights.default_out(run, saved), Path(scratch) / "evaluation" / "run")
+            with self.assertRaisesRegex(SystemExit, "not inside a training/ folder"):
+                evaluate_weights.default_out(Path(scratch) / "elsewhere", saved)
 
     def test_the_sanity_check_uses_the_training_just_before_the_checkpoint(self):
         stats = np.array([[i, float(i)] for i in range(5000)])
