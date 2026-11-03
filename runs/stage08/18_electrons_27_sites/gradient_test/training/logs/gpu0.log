@@ -77,3 +77,101 @@ step   4000  mean energy -166.79275  pmove 0.509  4.49 steps/s
 step   5000  mean energy -166.79078  pmove 0.507  4.53 steps/s
 finished
 === 2026-11-02 12:45:19  evaluation ended with exit code 0
+=== 2026-11-03 00:24:02  train ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_full on GPU 0 to 150000 iterations:  --network slaternet --eps 10 --electrons 18 --settings table2 --laplacian folx --determinants slogdet --gradient full
+continuing from checkpoint_076070.npz
+step   77000  energy -166.76654  pmove 0.51  width 0.045  lr 5.65  step capped 100%  3.66 it/s
+step   78000  energy -166.89755  pmove 0.51  width 0.045  lr 5.62  step capped 100%  4.22 it/s
+step   79000  energy -166.84381  pmove 0.51  width 0.045  lr 5.59  step capped 100%  4.41 it/s
+step   80000  energy -166.92651  pmove 0.51  width 0.045  lr 5.56  step capped 100%  4.51 it/s
+step   81000  energy -166.98969  pmove 0.51  width 0.045  lr 5.52  step capped 100%  4.57 it/s
+step   82000  energy -166.91200  pmove 0.51  width 0.045  lr 5.49  step capped 100%  4.61 it/s
+step   83000  energy -166.66626  pmove 0.51  width 0.045  lr 5.46  step capped 100%  4.64 it/s
+step   84000  energy -166.87320  pmove 0.51  width 0.045  lr 5.43  step capped 100%  4.66 it/s
+step   85000  energy -167.01047  pmove 0.51  width 0.045  lr 5.41  step capped 100%  4.68 it/s
+step   86000  energy -166.53204  pmove 0.51  width 0.045  lr 5.38  step capped 100%  4.70 it/s
+step   87000  energy -166.80554  pmove 0.51  width 0.045  lr 5.35  step capped 100%  4.71 it/s
+step   88000  energy -166.57730  pmove 0.51  width 0.045  lr 5.32  step capped 100%  4.72 it/s
+step   89000  energy -166.84883  pmove 0.51  width 0.045  lr 5.29  step capped 100%  4.73 it/s
+step   90000  energy -167.02884  pmove 0.51  width 0.045  lr 5.26  step capped 100%  4.74 it/s
+step   91000  energy -166.87634  pmove 0.51  width 0.045  lr 5.24  step capped 100%  4.74 it/s
+step   92000  energy -166.94391  pmove 0.51  width 0.045  lr 5.21  step capped 100%  4.75 it/s
+step   93000  energy -166.77805  pmove 0.51  width 0.045  lr 5.18  step capped 100%  4.76 it/s
+step   94000  energy -167.08116  pmove 0.51  width 0.045  lr 5.15  step capped 100%  4.76 it/s
+step   95000  energy -166.80853  pmove 0.51  width 0.045  lr 5.13  step capped 100%  4.77 it/s
+step   96000  energy -166.81000  pmove 0.51  width 0.045  lr 5.1  step capped 100%  4.77 it/s
+step   97000  energy -166.89845  pmove 0.51  width 0.045  lr 5.08  step capped 100%  4.78 it/s
+step   98000  energy -166.87830  pmove 0.51  width 0.045  lr 5.05  step capped 100%  4.78 it/s
+step   99000  energy -166.85796  pmove 0.51  width 0.045  lr 5.03  step capped 100%  4.78 it/s
+step  100000  energy -167.03708  pmove 0.51  width 0.045  lr 5  step capped 100%  4.78 it/s
+step  101000  energy -166.84009  pmove 0.51  width 0.045  lr 4.98  step capped 100%  4.79 it/s
+step  102000  energy -166.76750  pmove 0.51  width 0.045  lr 4.95  step capped 100%  4.79 it/s
+step  103000  energy -166.87498  pmove 0.51  width 0.045  lr 4.93  step capped 100%  4.79 it/s
+step  104000  energy -166.85428  pmove 0.51  width 0.045  lr 4.9  step capped 100%  4.79 it/s
+step  105000  energy -166.73431  pmove 0.51  width 0.045  lr 4.88  step capped 100%  4.79 it/s
+step  106000  energy -166.90428  pmove 0.51  width 0.045  lr 4.85  step capped 100%  4.80 it/s
+step  107000  energy -166.89192  pmove 0.51  width 0.045  lr 4.83  step capped 100%  4.80 it/s
+step  108000  energy -166.87732  pmove 0.51  width 0.045  lr 4.81  step capped 100%  4.80 it/s
+step  109000  energy -166.75026  pmove 0.51  width 0.045  lr 4.78  step capped 100%  4.80 it/s
+step  110000  energy -167.10925  pmove 0.51  width 0.045  lr 4.76  step capped 100%  4.80 it/s
+step  111000  energy -166.97855  pmove 0.51  width 0.045  lr 4.74  step capped 100%  4.80 it/s
+step  112000  energy -166.87341  pmove 0.51  width 0.045  lr 4.72  step capped 100%  4.80 it/s
+step  113000  energy -166.96562  pmove 0.51  width 0.045  lr 4.69  step capped 100%  4.80 it/s
+step  114000  energy -167.13608  pmove 0.51  width 0.045  lr 4.67  step capped 100%  4.80 it/s
+step  115000  energy -166.91362  pmove 0.51  width 0.045  lr 4.65  step capped 100%  4.80 it/s
+step  116000  energy -166.91296  pmove 0.51  width 0.045  lr 4.63  step capped 100%  4.80 it/s
+step  117000  energy -166.97971  pmove 0.51  width 0.045  lr 4.61  step capped 100%  4.81 it/s
+step  118000  energy -166.79810  pmove 0.51  width 0.045  lr 4.59  step capped 100%  4.81 it/s
+step  119000  energy -167.04613  pmove 0.51  width 0.045  lr 4.57  step capped 100%  4.81 it/s
+step  120000  energy -166.82175  pmove 0.51  width 0.045  lr 4.55  step capped 100%  4.81 it/s
+step  121000  energy -166.95078  pmove 0.51  width 0.045  lr 4.52  step capped 100%  4.81 it/s
+step  122000  energy -166.85413  pmove 0.51  width 0.045  lr 4.5  step capped 100%  4.81 it/s
+step  123000  energy -166.78893  pmove 0.51  width 0.045  lr 4.48  step capped 100%  4.81 it/s
+step  124000  energy -167.02853  pmove 0.51  width 0.045  lr 4.46  step capped 100%  4.81 it/s
+step  125000  energy -167.09271  pmove 0.51  width 0.045  lr 4.44  step capped 100%  4.81 it/s
+step  126000  energy -166.98633  pmove 0.51  width 0.045  lr 4.42  step capped 100%  4.81 it/s
+step  127000  energy -167.13692  pmove 0.51  width 0.045  lr 4.41  step capped 100%  4.81 it/s
+step  128000  energy -166.87636  pmove 0.51  width 0.045  lr 4.39  step capped 100%  4.81 it/s
+step  129000  energy -166.93457  pmove 0.51  width 0.045  lr 4.37  step capped 100%  4.81 it/s
+step  130000  energy -166.94977  pmove 0.51  width 0.045  lr 4.35  step capped 100%  4.81 it/s
+step  131000  energy -166.98509  pmove 0.51  width 0.045  lr 4.33  step capped 100%  4.81 it/s
+step  132000  energy -166.83850  pmove 0.51  width 0.045  lr 4.31  step capped 100%  4.81 it/s
+step  133000  energy -166.86438  pmove 0.51  width 0.045  lr 4.29  step capped 100%  4.81 it/s
+step  134000  energy -166.84525  pmove 0.51  width 0.045  lr 4.27  step capped 100%  4.81 it/s
+step  135000  energy -166.75836  pmove 0.51  width 0.045  lr 4.26  step capped 100%  4.81 it/s
+step  136000  energy -166.72543  pmove 0.51  width 0.045  lr 4.24  step capped 100%  4.81 it/s
+step  137000  energy -166.60709  pmove 0.51  width 0.045  lr 4.22  step capped 100%  4.81 it/s
+step  138000  energy -166.95676  pmove 0.51  width 0.045  lr 4.2  step capped 100%  4.81 it/s
+step  139000  energy -166.90970  pmove 0.51  width 0.045  lr 4.18  step capped 100%  4.81 it/s
+step  140000  energy -166.72083  pmove 0.51  width 0.045  lr 4.17  step capped 100%  4.81 it/s
+step  141000  energy -166.99329  pmove 0.51  width 0.045  lr 4.15  step capped 100%  4.81 it/s
+step  142000  energy -166.60503  pmove 0.51  width 0.045  lr 4.13  step capped 100%  4.81 it/s
+step  143000  energy -166.73871  pmove 0.51  width 0.045  lr 4.12  step capped 100%  4.81 it/s
+step  144000  energy -166.89511  pmove 0.51  width 0.045  lr 4.1  step capped 100%  4.81 it/s
+step  145000  energy -166.93347  pmove 0.51  width 0.045  lr 4.08  step capped 100%  4.81 it/s
+step  146000  energy -166.92587  pmove 0.51  width 0.045  lr 4.07  step capped 100%  4.81 it/s
+step  147000  energy -166.67741  pmove 0.51  width 0.045  lr 4.05  step capped 100%  4.81 it/s
+step  148000  energy -166.71938  pmove 0.51  width 0.045  lr 4.03  step capped 100%  4.81 it/s
+step  149000  energy -166.71962  pmove 0.51  width 0.045  lr 4.02  step capped 100%  4.81 it/s
+step  150000  energy -166.71480  pmove 0.51  width 0.045  lr 4  step capped 100%  4.81 it/s
+finished
+=== 2026-11-03 04:40:27  training ended with exit code 0
+=== compared with the original:
+iterations 33545-149999 in both: 116455; identical rows: 0; first row that differs: 33545
+  column             difference in row 33545      largest, all rows
+  energy                                   0                1.50372
+  variance                                 0                1256.71
+  energy_imag                              0               0.204539
+  pmove                                    0              0.0111247
+  step_width                               0                      0
+  learning_rate                            0                      0
+  fisher_step_sq                     294.319                69429.3
+=== 2026-11-03 04:40:29  frozen-weight evaluation of ../../runs/stage08/18_electrons_27_sites/gradient_test/training/slaternet_18e_eps10_from033545_full at 150000 on GPU 0, into ../../runs/stage08/18_electrons_27_sites/gradient_test/evaluation/slaternet_18e_eps10_from033545_full_at_150000
+burn-in of 200 steps done after 16 s (includes compiling)
+sanity check: evaluation -166.83226, training before the checkpoint -166.90929
+step   1000  mean energy -166.82599  pmove 0.508  4.03 steps/s
+step   2000  mean energy -166.82092  pmove 0.508  4.45 steps/s
+step   3000  mean energy -166.82112  pmove 0.507  4.61 steps/s
+step   4000  mean energy -166.81971  pmove 0.505  4.69 steps/s
+step   5000  mean energy -166.81918  pmove 0.507  4.74 steps/s
+finished
+=== 2026-11-03 04:58:23  evaluation ended with exit code 0

@@ -4,7 +4,7 @@
   "electrons": 18,
   "gradient": "full",
   "seed": 0,
-  "iterations": 76070,
+  "iterations": 150000,
   "settings": {
     "attention_layers": 3,
     "attention_heads": 6,

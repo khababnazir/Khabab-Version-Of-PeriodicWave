@@ -117,9 +117,34 @@ What it does not show:
   full gradient prevents the rise" cannot be told apart from "this one path happened not to
   rise". A real-gradient branch from 33,545 with a different random key would separate the
   two; it was not run, as it is not part of the agreed test.
-- The test ran only to 76,070. Whether the full branch stays low to 150,000, and where it ends,
-  is not known.
+- The real branch ran only to 76,070. Beyond that the original run stands in for it, since the
+  real branch repeats it exactly; the full branch was continued to 150,000 (below).
 - It covers only SlaterNet eps = 10. The attention network and eps = 5 were not tested.
 - The reproduction keeps the authors' gradient (decision of 2026-11-02), so the Table I values
   in `../results/` are unchanged. For comparison only: the full branch at 76,070 is 0.072
   above the paper's SlaterNet -31.35(2), where our final value is 0.206 above it.
+
+## The full branch continued to 150,000 (2026-11-03)
+
+`bash learn/stage08_own_code/launch_gradient_test.sh extend`: the full branch on from its
+`checkpoint_076070.npz` to 150,000, the original's end, on GPU 0 alone (GPU 1 idle), 00:24-04:40
+server time, exit code 0; then its frozen-weight evaluation (04:40-04:58, the same procedure:
+5,000 steps x 4,096 walkers, burn-in 200, seed 0) into `evaluation/..._full_at_150000/`. Code
+commit 4062d4d. The real branch was not continued: it repeats the original, which already
+reaches 150,000.
+
+| at the end, iteration 150,000 | original (real gradient) | full branch | full - original |
+|---|---|---|---|
+| training, iterations 148,000-149,999 | -31.1599(10) | -31.3007(8) | -0.141 |
+| frozen weights | -31.1442(6) | -31.2838(5) | -0.1396(8) |
+
+- From 76,070 to 150,000 the full branch kept falling slowly: in training from -31.2949(7) to
+  -31.3007(8) (-0.0058), with frozen weights from -31.2782(6) to -31.2838(5) (-0.0056). In the
+  same iterations the original rose by another 0.0094 in training. The gap at every original
+  checkpoint is in `results/training_at_original_checkpoints.csv`: -0.13 to -0.15 from 84,554 on.
+- Settled: the two halves of the evaluation agree, +0.0007(11) (0.6 errors), so no second
+  evaluation was needed.
+- As before, the frozen energy lies 0.017 above the training mean just before the checkpoint.
+- For comparison only: the full branch ends 0.066 above the paper's SlaterNet -31.35(2) and
+  0.041 above BP-ED (-31.32443); our SlaterNet with the authors' gradient ends 0.206 above the
+  paper. The limits listed above still hold: one branch per gradient, only SlaterNet eps = 10.

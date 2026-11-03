@@ -54,8 +54,10 @@ Table II settings instead (`train_moire.py --settings table2`).
    everything else unchanged (`branch_run.py`, `launch_gradient_test.sh`).
    Data in `runs/stage08/18_electrons_27_sites/gradient_test/`. Result: the
    real branch repeats the original's rise exactly; the full branch does not
-   rise, and at 76,070 its frozen energy is 0.125 meV per electron lower.
-   Done (one branch per gradient; see that folder's README for the limits).
+   rise, and at 76,070 its frozen energy is 0.125 meV per electron lower;
+   continued to 150,000 (2026-11-03) it ends at -31.2838(5), 0.140 below the
+   original's end. Done (one branch per gradient; see that folder's README
+   for the limits).
 7. **18 electrons on 27 sites** (the paper's Table I). Our first attempt
    was slower than the authors' code and did not fit 4096 walkers on a GPU;
    `speed_study/speed_study_report.pdf` explains why. Fixed by computing the

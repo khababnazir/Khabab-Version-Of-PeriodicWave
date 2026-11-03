@@ -112,7 +112,8 @@ What the numbers say:
   SlaterNet eps = 10. Whether the left-out term causes the rise was tested in `gradient_test/`:
   continued from 33,545 with the full gradient, the run did not rise, and at 76,070 its frozen
   energy is 0.125 lower than with the authors' gradient (whose branch repeats this run
-  exactly). Its README says what that does and does not show.
+  exactly). Continued to 150,000 it stays low: frozen -31.2838(5), 0.140 below this run's end.
+  Its README says what that does and does not show.
 - How settled the frozen-weight evaluations are: mean energy over evaluation steps 0-99,
   100-999, 1000-2999 and 3000-4999, and the second half minus the first (steps 2500-4999
   minus 0-2499); meV per electron, blocking errors of the last digits in brackets.
