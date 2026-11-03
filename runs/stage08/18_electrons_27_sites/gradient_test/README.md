@@ -54,7 +54,7 @@ electron.
 |---|---|
 | `restore_check/` | the two 20-iteration branches of the check, and their logs |
 | `training/` | the two runs: `settings.json`, `branch.json` (where the branch came from), `train_stats.csv`, checkpoints, `starts.log`; and `logs/` (`gpuN.log`: progress, comparison with the original, evaluation; GPU and system records every 10 s) |
-| `evaluation/` | the frozen-weight evaluations, after the runs |
+| `evaluation/` | the frozen-weight evaluations, one folder each, named `<run>_at_<iterations>` (and `..._burnin2000_seed1` for a second evaluation). Renamed on 2026-11-03 from `<run>` and `<run>_burnin2000_seed1`, when the full branch was continued past 76,070; the `run` and `checkpoint` recorded in their `summary.json` are unchanged |
 
 In each `train_stats.csv` the rows before 33,545 are copied from the original, unchanged; the
 branch's own rows follow. Their `seconds` column counts from the branch's start.

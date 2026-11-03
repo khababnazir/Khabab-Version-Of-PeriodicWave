@@ -168,7 +168,7 @@ def main():
         rows.append(row)
     for g, name in BRANCHES.items():
         for suffix in ("", "_burnin2000_seed1"):
-            folder = TEST / "evaluation" / (name + suffix)
+            folder = TEST / "evaluation" / f"{name}_at_{FINAL_STEP:06d}{suffix}"
             if (folder / "summary.json").exists():
                 row, s = evaluation(folder, branches[g], g, g)
                 rows.append(row)
@@ -212,7 +212,7 @@ def figure(curves, frozen, series, path):
         marker = "s" if r["label"] == "original" else "o"
         left.errorbar(r["checkpoint"] / 1000, r["E_frozen"], yerr=r["E_frozen_error"], fmt=marker, ms=4.5,
                       color=COLOURS[r["label"]], mec="black", mew=0.5, zorder=5)
-        left.annotate(f"frozen {r['E_frozen']:.3f}", (r["checkpoint"] / 1000, r["E_frozen"]),
+        left.annotate(f"frozen {r['E_frozen']:.3f}".replace("-", "\u2212"), (r["checkpoint"] / 1000, r["E_frozen"]),
                       xytext=(-5, 0), textcoords="offset points", ha="right", va="center", fontsize=6.5,
                       color=COLOURS[r["label"]])
     left.set_xlabel("iteration (thousands)")
