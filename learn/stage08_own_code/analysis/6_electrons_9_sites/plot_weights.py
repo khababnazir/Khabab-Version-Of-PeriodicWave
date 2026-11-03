@@ -12,17 +12,17 @@ the project environment without changing it):
     uv run --no-project --python ../../../../.venv/bin/python --with matplotlib python plot_weights.py
 (from learn/stage08_own_code/analysis/6_electrons_9_sites)
 
-Reads runs/stage08/6_electrons_9_sites/evaluation/<run>/ and runs/stage08/6_electrons_9_sites/training/<run>/, and the
+Reads runs/stage08/6_electrons_9_sites_real_gradient/evaluation/<run>/ and runs/stage08/6_electrons_9_sites_real_gradient/training/<run>/, and the
 reference run's tables in runs/archive/stage08_authors_code/results/; writes
-    runs/stage08/6_electrons_9_sites/results/energies_meV_per_electron.csv   energies, one row per run
-    runs/stage08/6_electrons_9_sites/results/electron_structure.csv          where the electrons are, one row per run
-    runs/stage08/6_electrons_9_sites/results/own_vs_authors.csv              ours against the reference run
-    runs/stage08/6_electrons_9_sites/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
-    runs/stage08/6_electrons_9_sites/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
-    runs/stage08/6_electrons_9_sites/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
-    runs/stage08/6_electrons_9_sites/figures/5_site_filling_and_structure_factor.png
-    runs/stage08/6_electrons_9_sites/figures/6_site_occupation_during_evaluation.png
-    runs/stage08/6_electrons_9_sites/figures/7_ours_vs_authors.png           energies and S(kappa), ours against the reference
+    runs/stage08/6_electrons_9_sites_real_gradient/results/energies_meV_per_electron.csv   energies, one row per run
+    runs/stage08/6_electrons_9_sites_real_gradient/results/electron_structure.csv          where the electrons are, one row per run
+    runs/stage08/6_electrons_9_sites_real_gradient/results/own_vs_authors.csv              ours against the reference run
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/2_frozen_weight_energies.png    (a) frozen vs training vs Fig. 5, (b) blocking
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/3_electron_density.png          n(r)                  -- paper Fig. 6(a, b)
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/4_pair_correlation.png          g(dr) maps and g(r)   -- paper Fig. 6(c, d)
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/5_site_filling_and_structure_factor.png
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/6_site_occupation_during_evaluation.png
+    runs/stage08/6_electrons_9_sites_real_gradient/figures/7_ours_vs_authors.png           energies and S(kappa), ours against the reference
 (Figure 1, the training curves, comes from analyse_runs.py.)
 
 It refuses evaluation folders whose three files disagree about the number of
@@ -57,7 +57,7 @@ sys.path.insert(0, str(HERE.parent))   # observables.py, shared with the 18-elec
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, FIG5, COLOURS, LABELS, blocked_mean, describe  # noqa: E402
 
-DATA = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites"
+DATA = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites_real_gradient"
 TRAINING, EVALUATION = DATA / "training", DATA / "evaluation"
 FIGURES, RESULTS = DATA / "figures", DATA / "results"
 ORDER = ["attention_6e_eps10", "slaternet_6e_eps10", "attention_6e_eps5", "slaternet_6e_eps5"]
@@ -175,7 +175,7 @@ def energy_table(runs):
 
 
 def structure_table(runs):
-    """Where the electrons are, one row per run (definitions in runs/stage08/6_electrons_9_sites/results/README.md)."""
+    """Where the electrons are, one row per run (definitions in runs/stage08/6_electrons_9_sites_real_gradient/results/README.md)."""
     return pd.DataFrame([dict(
         run=r["name"], electrons=r["N"], sites=r["sites"], network=LABELS[r["network"]], eps=r["eps"],
         P_honeycomb=r["p_honeycombs"].sum(), P_largest_honeycomb=r["p_honeycombs"].max(),

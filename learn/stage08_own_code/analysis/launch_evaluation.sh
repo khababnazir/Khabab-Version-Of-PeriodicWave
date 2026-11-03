@@ -5,15 +5,16 @@
 #   bash launch_evaluation.sh GPU SYSTEM [RUN[@N] ...]
 #
 # SYSTEM is a folder of runs/stage08:
-#   6_electrons_9_sites      the paper's Fig. 5
-#   18_electrons_27_sites    the paper's Table I and Fig. 6
+#   6_electrons_9_sites_real_gradient     the paper's Fig. 5, the authors' gradient
+#   18_electrons_27_sites_real_gradient   the paper's Table I and Fig. 6, the authors' gradient
+#   18_electrons_27_sites_full_gradient   the same four runs with the full gradient (2026-11-03)
 # RUN is a run folder in runs/stage08/SYSTEM/training/, named <network>_<electrons>e_eps<eps>,
 # e.g. slaternet_18e_eps5; without RUNs, all runs of SYSTEM.
 # RUN@N evaluates checkpoint_N.npz of RUN instead of its final checkpoint.
 # Examples, from ~/moire-nnvmc (the 18-electron runs with one queue per GPU):
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 6_electrons_9_sites
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 18_electrons_27_sites attention_18e_eps5 slaternet_18e_eps5
-#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 18_electrons_27_sites attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 6_electrons_9_sites_real_gradient
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 0 18_electrons_27_sites_real_gradient attention_18e_eps5 slaternet_18e_eps5
+#   bash learn/stage08_own_code/analysis/launch_evaluation.sh 1 18_electrons_27_sites_real_gradient attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
 #
 # While the queue runs, nvidia-smi records both GPUs every 10 s: utilization,
 # memory, temperature, power, clock, fan, and why the clock is lowered; and
@@ -38,7 +39,8 @@ SYSTEM=$2
 RUNS=../../../runs/stage08/$SYSTEM
 if [ $# -lt 2 ] || [ -z "$SYSTEM" ] || [ ! -d "$RUNS/training" ]; then
     echo "usage: bash launch_evaluation.sh GPU SYSTEM [RUN[@N] ...]"
-    echo "       SYSTEM: 6_electrons_9_sites or 18_electrons_27_sites"
+    echo "       SYSTEM: 6_electrons_9_sites_real_gradient, 18_electrons_27_sites_real_gradient"
+    echo "               or 18_electrons_27_sites_full_gradient"
     exit 2
 fi
 shift 2

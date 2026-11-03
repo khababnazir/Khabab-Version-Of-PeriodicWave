@@ -1,7 +1,7 @@
 # 18 electrons, 27 sites — evaluation: our trained networks with their weights frozen
 
 One folder per evaluation, written by `learn/stage08_own_code/analysis/evaluate_weights.py`
-(started by `launch_evaluation.sh GPU 18_electrons_27_sites ...`), plus `logs/`. The weights
+(started by `launch_evaluation.sh GPU 18_electrons_27_sites_real_gradient ...`), plus `logs/`. The weights
 are fixed; only the 4096 walkers move: 200 steps of burn-in, then 5,000 steps of 30 moves,
 with the step width fixed at its final training value. 5,000 × 4,096 = 20,480,000 sampled
 configurations per evaluation.

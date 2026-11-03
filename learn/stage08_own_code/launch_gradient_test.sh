@@ -2,7 +2,7 @@
 # Stage 8, 2026-11-02: does the energy rise of SlaterNet eps = 10 (18 electrons,
 # 27 sites) after about 35,000 iterations come from the gradient term that the
 # authors' code leaves out?  Two branches of
-#     runs/stage08/18_electrons_27_sites/training/slaternet_18e_eps10
+#     runs/stage08/18_electrons_27_sites_real_gradient/training/slaternet_18e_eps10
 # (only read), both from its checkpoint_033545.npz, made by branch_run.py.
 # Only the gradient differs; architecture, batch, sampling, norm constraint
 # and every other setting are the original's (train_moire.py checks):
@@ -37,10 +37,10 @@
 #
 # Each queue records its GPU (nvidia-smi) and the machine's CPU and memory
 # (system_monitor.py) every 10 s, in the logs/ folder beside the run folders.
-# Watch:  tail -f runs/stage08/18_electrons_27_sites/gradient_test/training/logs/gpu0.log
+# Watch:  tail -f runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/training/logs/gpu0.log
 cd "$(dirname "$0")" || exit 1
 PY=../../.venv/bin/python
-SYSTEM=../../runs/stage08/18_electrons_27_sites
+SYSTEM=../../runs/stage08/18_electrons_27_sites_real_gradient
 ORIGINAL=$SYSTEM/training/slaternet_18e_eps10
 EVALUATION=$SYSTEM/gradient_test/evaluation
 STEP=33545

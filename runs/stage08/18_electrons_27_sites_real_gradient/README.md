@@ -1,11 +1,14 @@
-# runs/stage08/18_electrons_27_sites — the paper's Table I and Fig. 6, our own code
+# runs/stage08/18_electrons_27_sites_real_gradient — the paper's Table I and Fig. 6, our own code
 
 Folders: `training/` (the four runs: settings, energy of every iteration, checkpoints =
 model weights, and `logs/`), `lr_test/` (the learning-rate test), `gradient_test/` (SlaterNet eps = 10 continued from
 iteration 33,545 with each gradient convention), `evaluation/` (the
 frozen-weight evaluations), `results/` (tables) and `figures/`. Scripts in
 `learn/stage08_own_code/` (training) and `learn/stage08_own_code/analysis/18_electrons_27_sites/`.
-Until 2026-11-02 this folder was `runs/stage08/table1/`, with the runs at its top level.
+Gradient: the authors' (`--gradient real`, the imaginary part of the local energy left out).
+The same four runs with the full gradient: `../18_electrons_27_sites_full_gradient/`.
+Named `18_electrons_27_sites/` until 2026-11-03, and `runs/stage08/table1/` (runs at its top
+level) until 2026-11-02.
 
 **Started 2026-10-30 12:16 server time (21:16 Korean time), all four finished 2026-11-01**
 (attention 43.4 h and 41.2 h, SlaterNet 9.1 h and 8.8 h; no restarts, every value finite) with
@@ -152,6 +155,6 @@ Not checked: whether another seed reaches the paper's SlaterNet energies or the 
 ## How to look again (from ~/moire-nnvmc)
 
 ```bash
-cat runs/stage08/18_electrons_27_sites/results/table1.csv
-tail -n 3 runs/stage08/18_electrons_27_sites/evaluation/logs/gpu0.log runs/stage08/18_electrons_27_sites/evaluation/logs/gpu1.log
+cat runs/stage08/18_electrons_27_sites_real_gradient/results/table1.csv
+tail -n 3 runs/stage08/18_electrons_27_sites_real_gradient/evaluation/logs/gpu0.log runs/stage08/18_electrons_27_sites_real_gradient/evaluation/logs/gpu1.log
 ```

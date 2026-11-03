@@ -1,6 +1,6 @@
 #!/bin/bash
 # Stage 8: the four runs of the paper's Fig. 5 -- 6 electrons on 9 sites -- with our
-# own code (train_moire.py).  Data in runs/stage08/6_electrons_9_sites/training/.
+# own code (train_moire.py).  Data in runs/stage08/6_electrons_9_sites_real_gradient/training/.
 # One queue per GPU, each run after the other:
 #   GPU 0:  SlaterNet eps = 10,  then the attention network eps = 10
 #   GPU 1:  SlaterNet eps = 5,   then the attention network eps = 5
@@ -14,15 +14,15 @@
 #
 # Each queue also records, every 10 s while it runs, its GPU (utilization,
 # memory, temperature, power, clock, fan, why the clock is lowered) in
-# runs/stage08/6_electrons_9_sites/training/logs/gpuN_monitor_<date>_<time>.csv, and the CPU and
+# runs/stage08/6_electrons_9_sites_real_gradient/training/logs/gpuN_monitor_<date>_<time>.csv, and the CPU and
 # memory use of the machine and of the run (system_monitor.py) in
 # gpuN_system_<date>_<time>.csv: one pair of files per start.
 #
 # Run (from ~/moire-nnvmc):   bash learn/stage08_own_code/launch_fig5.sh
-# Watch:                      tail -f runs/stage08/6_electrons_9_sites/training/logs/gpu0.log
+# Watch:                      tail -f runs/stage08/6_electrons_9_sites_real_gradient/training/logs/gpu0.log
 cd "$(dirname "$0")" || exit 1
 PY=../../.venv/bin/python
-RUNS=../../runs/stage08/6_electrons_9_sites/training
+RUNS=../../runs/stage08/6_electrons_9_sites_real_gradient/training
 mkdir -p $RUNS/logs
 
 queue () {   # gpu, then pairs: network eps
@@ -55,4 +55,4 @@ export -f queue
 export PY RUNS
 setsid nohup bash -c "queue 0 slaternet 10 attention 10" >> $RUNS/logs/gpu0.log 2>&1 < /dev/null &
 setsid nohup bash -c "queue 1 slaternet 5 attention 5"   >> $RUNS/logs/gpu1.log 2>&1 < /dev/null &
-echo "launched; logs in runs/stage08/6_electrons_9_sites/training/logs/"
+echo "launched; logs in runs/stage08/6_electrons_9_sites_real_gradient/training/logs/"

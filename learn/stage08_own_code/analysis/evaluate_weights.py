@@ -2,14 +2,14 @@
 Stage 8 (our code) -- evaluate a trained network with its weights FROZEN.
 
 Run (one GPU, one evaluation), from learn/stage08_own_code/analysis:
-    CUDA_VISIBLE_DEVICES=0 ../../../.venv/bin/python evaluate_weights.py ../../../runs/stage08/6_electrons_9_sites/training/attention_6e_eps5
+    CUDA_VISIBLE_DEVICES=0 ../../../.venv/bin/python evaluate_weights.py ../../../runs/stage08/6_electrons_9_sites_real_gradient/training/attention_6e_eps5
 Options: --steps N       evaluation steps after burn-in (default 10000 at 6 electrons,
                          5000 at 18: with 4096 walkers that is 20,480,000 configurations)
          --burn-in N     steps that only move the walkers, first (default 200)
          --seed S        (default 0)
          --checkpoint N  evaluate checkpoint_N.npz instead of the final one
          --out DIR       default: the evaluation/ folder beside the run's training/
-                         folder, e.g. runs/stage08/18_electrons_27_sites/evaluation/<run name>;
+                         folder, e.g. runs/stage08/18_electrons_27_sites_real_gradient/evaluation/<run name>;
                          with --checkpoint, <run name>_at_<N>
          --overwrite     replace an evaluation that is already in DIR
 
@@ -131,8 +131,8 @@ def checkpoint_path(run, saved, step=None):
 def default_out(run, saved, step=None):
     """Where an evaluation goes unless --out says otherwise: the evaluation/ folder beside
     the training/ folder that holds the run, e.g.
-        runs/stage08/18_electrons_27_sites/training/attention_18e_eps5
-     -> runs/stage08/18_electrons_27_sites/evaluation/attention_18e_eps5
+        runs/stage08/18_electrons_27_sites_real_gradient/training/attention_18e_eps5
+     -> runs/stage08/18_electrons_27_sites_real_gradient/evaluation/attention_18e_eps5
     """
     if run.parent.name != "training":
         sys.exit(f"{run} is not inside a training/ folder; say where the evaluation goes with --out")
@@ -372,7 +372,7 @@ def evaluate(run, out, steps, burn_in, seed, checkpoint=None, check_steps=CHECK_
 
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/6_electrons_9_sites/training/attention_6e_eps5")
+    parser.add_argument("run", type=Path, help="training folder, e.g. runs/stage08/6_electrons_9_sites_real_gradient/training/attention_6e_eps5")
     parser.add_argument("--steps", type=int, default=None, help="default 10000 (6 electrons), 5000 (18)")
     parser.add_argument("--burn-in", type=int, default=200)
     parser.add_argument("--seed", type=int, default=0)

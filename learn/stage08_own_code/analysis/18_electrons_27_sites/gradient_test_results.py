@@ -6,15 +6,15 @@ Run after the runs and their frozen-weight evaluations (CPU is enough), from
 learn/stage08_own_code/analysis/18_electrons_27_sites:
     uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python gradient_test_results.py
 
-Reads   runs/stage08/18_electrons_27_sites/training/slaternet_18e_eps10/            the original run
-        runs/stage08/18_electrons_27_sites/gradient_test/training/<branch>/        the two branches
-        runs/stage08/18_electrons_27_sites/gradient_test/evaluation/<branch>[_burnin2000_seed1]/
-        runs/stage08/18_electrons_27_sites/evaluation/slaternet_18e_eps10[_at_033545]/
-Writes  runs/stage08/18_electrons_27_sites/gradient_test/results/frozen_energies.csv
-        runs/stage08/18_electrons_27_sites/gradient_test/results/training_windows.csv
-        runs/stage08/18_electrons_27_sites/gradient_test/results/training_at_original_checkpoints.csv
-        runs/stage08/18_electrons_27_sites/gradient_test/results/comparison.json   (row and checkpoint identity)
-        runs/stage08/18_electrons_27_sites/gradient_test/figures/gradient_test.png
+Reads   runs/stage08/18_electrons_27_sites_real_gradient/training/slaternet_18e_eps10/            the original run
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/training/<branch>/        the two branches
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/evaluation/<branch>[_burnin2000_seed1]/
+        runs/stage08/18_electrons_27_sites_real_gradient/evaluation/slaternet_18e_eps10[_at_033545]/
+Writes  runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/results/frozen_energies.csv
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/results/training_windows.csv
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/results/training_at_original_checkpoints.csv
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/results/comparison.json   (row and checkpoint identity)
+        runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/figures/gradient_test.png
 
 On 2026-11-03 the full branch was continued from 76,070 to 150,000, the
 original's end (`launch_gradient_test.sh extend`); the real branch, a replay
@@ -27,7 +27,7 @@ combined blocking error, the walkers were still settling: then
 `launch_gradient_test.sh settle` evaluates both branches again with 10x the
 burn-in and another seed, and this script uses those evaluations too.  The
 four blocks 0-99, 100-999, 1000-2999 and 3000-4999 are listed as well, as in
-../../../../runs/stage08/18_electrons_27_sites/README.md.
+../../../../runs/stage08/18_electrons_27_sites_real_gradient/README.md.
 """
 import hashlib
 import json
@@ -44,7 +44,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "6_electrons_9_sites"))
 from analyse_runs import ENERGY_UNIT_MEV, blocked_mean   # noqa: E402
 
-DATA = HERE.parents[3] / "runs" / "stage08" / "18_electrons_27_sites"
+DATA = HERE.parents[3] / "runs" / "stage08" / "18_electrons_27_sites_real_gradient"
 ORIGINAL = DATA / "training" / "slaternet_18e_eps10"
 TEST = DATA / "gradient_test"
 BRANCHES = {"real": "slaternet_18e_eps10_from033545_real", "full": "slaternet_18e_eps10_from033545_full"}

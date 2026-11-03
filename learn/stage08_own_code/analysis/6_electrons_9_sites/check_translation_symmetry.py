@@ -32,7 +32,7 @@ os.environ["JAX_PLATFORMS"] = "cpu"      # before JAX is imported: always off th
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-RUNS = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites" / "training"
+RUNS = HERE.parents[3] / "runs" / "stage08" / "6_electrons_9_sites_real_gradient" / "training"
 sys.path.insert(0, str(HERE.parent))     # evaluate_weights.py, shared with the 18-electron analysis
 from evaluate_weights import run_settings, checkpoint_path   # noqa: E402  (puts train_moire.py on the path)
 import train_moire                                 # noqa: E402

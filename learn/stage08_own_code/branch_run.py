@@ -1,7 +1,7 @@
 """
 Stage 8: start a new training folder from ONE checkpoint of an existing run.
 
-Made for the gradient test of 2026-11-02 (runs/stage08/18_electrons_27_sites/
+Made for the gradient test of 2026-11-02 (runs/stage08/18_electrons_27_sites_real_gradient/
 gradient_test/): SlaterNet eps = 10 continued from iteration 33,545, once
 with the authors' gradient ("real") and once with the full one ("full"), to
 see whether its energy rise after about 35,000 iterations comes from the

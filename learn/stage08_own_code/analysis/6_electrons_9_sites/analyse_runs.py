@@ -2,7 +2,7 @@
 Stage 8 (our code) -- read our four training runs, compare with the paper's Fig. 5.
 
 The archived analyse_runs.py (learn/archive/stage08_authors_code/analysis),
-for the runs that train_moire.py wrote into runs/stage08/6_electrons_9_sites/training/.  Two
+for the runs that train_moire.py wrote into runs/stage08/6_electrons_9_sites_real_gradient/training/.  Two
 differences: a run is described by its settings.json (network, eps,
 gradient) instead of the authors' overrides.json, and its whole history is
 one train_stats.csv (on a restart, train_moire.py drops the rows after the
@@ -11,9 +11,9 @@ checkpoint and continues the same file).
 Run (needs matplotlib and pandas, which the project environment does not have):
     uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
 (from learn/stage08_own_code/analysis/6_electrons_9_sites; writes
-runs/stage08/6_electrons_9_sites/figures/1_training_curves_vs_fig5.png)
+runs/stage08/6_electrons_9_sites_real_gradient/figures/1_training_curves_vs_fig5.png)
 
-For every run folder in runs/stage08/6_electrons_9_sites/training/ it
+For every run folder in runs/stage08/6_electrons_9_sites_real_gradient/training/ it
   1. reads the energy of every iteration and converts it to meV per electron,
      as the paper reports it;
   2. averages the last 20% of the iterations, with a blocking analysis
@@ -49,7 +49,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-DATA = Path(__file__).resolve().parents[4] / "runs" / "stage08" / "6_electrons_9_sites"
+DATA = Path(__file__).resolve().parents[4] / "runs" / "stage08" / "6_electrons_9_sites_real_gradient"
 RUNS = DATA / "training"
 ENERGY_UNIT_MEV = 3.375559          # hbar^2 / (m* a_M^2); learn/stage04_mcmc moire_units()
 N_ELECTRONS = 6

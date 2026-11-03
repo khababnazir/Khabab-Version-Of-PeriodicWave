@@ -5,8 +5,8 @@ the code we wrote in Stages 3–7, for two systems:
 
 | System | Paper | Data (weights, evaluations, figures, tables) | Analysis scripts |
 |---|---|---|---|
-| 6 electrons on 9 sites | Fig. 5 | `runs/stage08/6_electrons_9_sites/` | `analysis/6_electrons_9_sites/` |
-| 18 electrons on 27 sites | Table I, Fig. 6 | `runs/stage08/18_electrons_27_sites/` | `analysis/18_electrons_27_sites/` |
+| 6 electrons on 9 sites | Fig. 5 | `runs/stage08/6_electrons_9_sites_real_gradient/` | `analysis/6_electrons_9_sites/` |
+| 18 electrons on 27 sites | Table I, Fig. 6 | `runs/stage08/18_electrons_27_sites_real_gradient/` | `analysis/18_electrons_27_sites/` |
 
 The training program (`train_moire.py`) and the frozen-weight evaluation
 (`analysis/evaluate_weights.py`) serve both systems. The code parts:
@@ -39,7 +39,7 @@ Table II settings instead (`train_moire.py --settings table2`).
 4. **The four runs** of Fig. 5 (`launch_fig5.sh`), compared with the
    reference; SlaterNet first on each GPU. Started 2026-10-28 09:02. All
    four finished (200,000 iterations); the results are in
-   `runs/stage08/6_electrons_9_sites/training/README.md`. `attention_6e_eps5` was interrupted once:
+   `runs/stage08/6_electrons_9_sites_real_gradient/training/README.md`. `attention_6e_eps5` was interrupted once:
    GPU 1 dropped off the PCIe bus at iteration 190,863 (2026-10-28 16:00), and
    after a reboot the run continued from `checkpoint_174540.npz` on GPU 0. Done.
 5. **Frozen-weight evaluation and figures** (`analysis/`): the four final
@@ -47,12 +47,12 @@ Table II settings instead (`train_moire.py --settings table2`).
    tables as for the reference run, and a comparison with it. Frozen-weight
    energies within 0.026 meV per electron of the reference run; no
    honeycomb at 9 sites, as for the reference run. Results in
-   `runs/stage08/6_electrons_9_sites/results/`, figures in its `figures/`. Done.
+   `runs/stage08/6_electrons_9_sites_real_gradient/results/`, figures in its `figures/`. Done.
 6. **Gradient test** (2026-11-02): SlaterNet eps = 10 at 18 electrons, continued
    from its checkpoint 33,545 (before its energy rose) twice, with the
    authors' gradient and with the full one (imaginary part of E_loc kept),
    everything else unchanged (`branch_run.py`, `launch_gradient_test.sh`).
-   Data in `runs/stage08/18_electrons_27_sites/gradient_test/`. Result: the
+   Data in `runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/`. Result: the
    real branch repeats the original's rise exactly; the full branch does not
    rise, and at 76,070 its frozen energy is 0.125 meV per electron lower;
    continued to 150,000 (2026-11-03) it ends at -31.2838(5), 0.140 below the
@@ -65,17 +65,17 @@ Table II settings instead (`train_moire.py --settings table2`).
    added next to the Stage 3 and 4 versions, which stay the default), and
    `train_moire.py --electrons 18 --settings table2`. Started 2026-10-30,
    finished 2026-11-01, evaluated with frozen weights 2026-11-02; results in
-   `runs/stage08/18_electrons_27_sites/README.md`. Done.
+   `runs/stage08/18_electrons_27_sites_real_gradient/README.md`. Done.
 
 ## Files in this folder
 
 | File | What it is for |
 |---|---|
 | `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
-| `launch_fig5.sh` | **6 electrons, 9 sites.** Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power), and CPU and memory (`system_monitor.py`). Data in `runs/stage08/6_electrons_9_sites/training/`. |
-| `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites/training/`. |
+| `launch_fig5.sh` | **6 electrons, 9 sites.** Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power), and CPU and memory (`system_monitor.py`). Data in `runs/stage08/6_electrons_9_sites_real_gradient/training/`. |
+| `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/training/`. |
 | `branch_run.py` | Makes a new training folder from **one** checkpoint of an existing run, with only the gradient convention changed (`make`), and compares two runs row by row (`compare`). The original folder is only read. |
-| `launch_gradient_test.sh` | **18 electrons, 27 sites.** The gradient test: SlaterNet eps = 10 from checkpoint 33,545 with the authors' gradient (GPU 1) and the full one (GPU 0), to 76,070 iterations, each then compared with the original and evaluated with frozen weights. `launch_gradient_test.sh check` first runs 20 iterations of each, to check that the saved state comes back. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites/gradient_test/`. |
+| `launch_gradient_test.sh` | **18 electrons, 27 sites.** The gradient test: SlaterNet eps = 10 from checkpoint 33,545 with the authors' gradient (GPU 1) and the full one (GPU 0), to 76,070 iterations, each then compared with the original and evaluated with frozen weights. `launch_gradient_test.sh check` first runs 20 iterations of each, to check that the saved state comes back. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/`. |
 | `system_monitor.py` | Every 10 s: CPU and memory of the machine and of one job, to a CSV beside the GPU record. Started by every launcher. |
 | `speed_study/` | Why 18 electrons were slow, and the fix: report, measurements, scripts. |
 | `test_train_moire.py` | The settings equal the reference run's; KFAC receives Stage 6's gradient; one complete update (local energies, gradient, KFAC step) from the reference run's trained weights equals one of the authors' code; a restart continues exactly; a branch continues like the original; a damaged or incomplete checkpoint never counts as finished, nor is it trained over from zero. |
@@ -92,7 +92,7 @@ From this folder, with the project's environment:
 
 # one run per GPU:
 CUDA_VISIBLE_DEVICES=0 ../../.venv/bin/python train_moire.py --network slaternet --eps 10 \
-    --out ../../runs/stage08/6_electrons_9_sites/training/slaternet_6e_eps10
+    --out ../../runs/stage08/6_electrons_9_sites_real_gradient/training/slaternet_6e_eps10
 
 # 18 electrons (Table I), from ~/moire-nnvmc, both GPUs, one run on each:
 bash learn/stage08_own_code/launch_table1.sh test    # first: learning-rate check, about 30 minutes

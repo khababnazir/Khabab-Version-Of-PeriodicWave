@@ -5,8 +5,8 @@ analysis scripts here and its own data folder in `runs/stage08/`:
 
 | System | Paper | Scripts | Data: weights (`training/`), `evaluation/`, `figures/`, `results/` |
 |---|---|---|---|
-| 6 electrons on 9 sites | Fig. 5 | `6_electrons_9_sites/` | `runs/stage08/6_electrons_9_sites/` |
-| 18 electrons on 27 sites | Table I, Fig. 6 | `18_electrons_27_sites/` | `runs/stage08/18_electrons_27_sites/` |
+| 6 electrons on 9 sites | Fig. 5 | `6_electrons_9_sites/` | `runs/stage08/6_electrons_9_sites_real_gradient/` |
+| 18 electrons on 27 sites | Table I, Fig. 6 | `18_electrons_27_sites/` | `runs/stage08/18_electrons_27_sites_real_gradient/` |
 
 The files directly in this folder are **shared**: the frozen-weight
 evaluation and the observables it measures work for both systems (27 sites
@@ -30,7 +30,7 @@ our four runs, with the same file names. Since tag `9sites-own-code` only the
 paths changed (and `check_translation_symmetry.py` uses the new names of two
 functions of `evaluate_weights.py`).
 
-| File | What it is for | Writes (in `runs/stage08/6_electrons_9_sites/`) |
+| File | What it is for | Writes (in `runs/stage08/6_electrons_9_sites_real_gradient/`) |
 |---|---|---|
 | `analyse_runs.py` | The energy of every training iteration in meV per electron, the last 20 % averaged with a blocking error bar, a drift check, and the training curves against the paper's Fig. 5. | `figures/1_training_curves_vs_fig5.png` |
 | `plot_weights.py` | Figures 2–7 and the three result tables from the frozen-weight evaluations, and the comparison with the authors'-code reference run. | `figures/2_…` to `figures/7_…`, `results/*.csv` |
@@ -39,7 +39,7 @@ functions of `evaluate_weights.py`).
 
 ## 18 electrons on 27 sites (`18_electrons_27_sites/`) — the paper's Table I and Fig. 6
 
-| File | What it is for | Writes (in `runs/stage08/18_electrons_27_sites/`) |
+| File | What it is for | Writes (in `runs/stage08/18_electrons_27_sites_real_gradient/`) |
 |---|---|---|
 | `gradient_test_results.py` | The gradient test: SlaterNet eps = 10 continued from iteration 33,545 with the authors' and the full gradient, against the original run, row by row and with frozen weights; whether each evaluation had settled. | `gradient_test/results/*.csv`, `gradient_test/figures/gradient_test.png` |
 | `table1_results.py` | Frozen-weight and training energies against the paper's Table I, the correlation energy, where the electrons are (S(κ), sublattice occupations), and the paper's Fig. 6 for both networks. Uses the energy unit, blocking error bar and colours of `../6_electrons_9_sites/analyse_runs.py`, unchanged. | `results/*.csv`, `figures/1_…` to `figures/4_…` |
@@ -69,7 +69,7 @@ export PATH="$HOME/.local/bin:$PATH"                  # for uv
 ../../../.venv/bin/python test_evaluate_weights.py    # CPU, about two minutes
 
 # 6 electrons, 9 sites (one GPU)
-bash launch_evaluation.sh 0 6_electrons_9_sites
+bash launch_evaluation.sh 0 6_electrons_9_sites_real_gradient
 cd 6_electrons_9_sites
 uv run --no-project --with matplotlib --with pandas --with pyblock python analyse_runs.py
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib python plot_weights.py
@@ -77,8 +77,8 @@ uv run --no-project --python ../../../../.venv/bin/python --with matplotlib pyth
 cd ..
 
 # 18 electrons, 27 sites (one queue per GPU)
-bash launch_evaluation.sh 0 18_electrons_27_sites attention_18e_eps5 slaternet_18e_eps5
-bash launch_evaluation.sh 1 18_electrons_27_sites attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
+bash launch_evaluation.sh 0 18_electrons_27_sites_real_gradient attention_18e_eps5 slaternet_18e_eps5
+bash launch_evaluation.sh 1 18_electrons_27_sites_real_gradient attention_18e_eps10 slaternet_18e_eps10 slaternet_18e_eps10@33545
 cd 18_electrons_27_sites
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python gradient_test_results.py
@@ -92,6 +92,6 @@ matplotlib` adds it for one command without changing the environment.
 1. `evaluate_weights.py`, next to the archived one — what changes when our
    code replaces the authors'.
 2. `6_electrons_9_sites/plot_weights.py` — only the comparison at the end is new.
-3. `runs/stage08/6_electrons_9_sites/figures/README.md` — what each figure shows.
+3. `runs/stage08/6_electrons_9_sites_real_gradient/figures/README.md` — what each figure shows.
 4. `18_electrons_27_sites/table1_results.py` and
-   `runs/stage08/18_electrons_27_sites/README.md` — the 27-site results.
+   `runs/stage08/18_electrons_27_sites_real_gradient/README.md` — the 27-site results.

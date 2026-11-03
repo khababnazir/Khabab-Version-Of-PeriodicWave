@@ -4,15 +4,16 @@ Stage 8 (our code) -- Table I and Fig. 6 of the paper: 18 electrons on 27 sites.
 Run after the frozen-weight evaluations of the Table I runs (CPU is enough),
 from learn/stage08_own_code/analysis/18_electrons_27_sites:
     uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
+    (add --gradient full for runs/stage08/18_electrons_27_sites_full_gradient/)
 
-Reads   runs/stage08/18_electrons_27_sites/training/<run>/train_stats.csv         (training)
-        runs/stage08/18_electrons_27_sites/evaluation/<run>[_at_<N>]/      (frozen weights, evaluate_weights.py)
-Writes  runs/stage08/18_electrons_27_sites/results/table1.csv              energies against the paper's Table I
-        runs/stage08/18_electrons_27_sites/results/structure.csv           where the electrons are
-        runs/stage08/18_electrons_27_sites/figures/1_table1_energies.png
-        runs/stage08/18_electrons_27_sites/figures/2_fig6_attention.png    paper Fig. 6: density and pair correlation
-        runs/stage08/18_electrons_27_sites/figures/3_fig6_slaternet.png    the same for SlaterNet
-        runs/stage08/18_electrons_27_sites/figures/4_sublattices_during_evaluation.png
+Reads   runs/stage08/18_electrons_27_sites_real_gradient/training/<run>/train_stats.csv         (training)
+        runs/stage08/18_electrons_27_sites_real_gradient/evaluation/<run>[_at_<N>]/      (frozen weights, evaluate_weights.py)
+Writes  runs/stage08/18_electrons_27_sites_real_gradient/results/table1.csv              energies against the paper's Table I
+        runs/stage08/18_electrons_27_sites_real_gradient/results/structure.csv           where the electrons are
+        runs/stage08/18_electrons_27_sites_real_gradient/figures/1_table1_energies.png
+        runs/stage08/18_electrons_27_sites_real_gradient/figures/2_fig6_attention.png    paper Fig. 6: density and pair correlation
+        runs/stage08/18_electrons_27_sites_real_gradient/figures/3_fig6_slaternet.png    the same for SlaterNet
+        runs/stage08/18_electrons_27_sites_real_gradient/figures/4_sublattices_during_evaluation.png
 
 What is compared.  The paper's Table I gives one energy per network and eps,
 in meV per electron.  Ours is the frozen-weight energy: the final weights
@@ -42,6 +43,7 @@ orientations -- and (0, 1/2, 1/2) for a crystal that stays put.  S(kappa)
 (above 1 for a honeycomb; 4.5 for a perfect one, test_observables.py) and
 the pair correlation see the crystal in both cases.
 """
+import argparse
 import json
 import os
 import sys
@@ -63,9 +65,19 @@ sys.path.insert(0, str(HERE.parent / "6_electrons_9_sites"))
 import observables                                   # noqa: E402
 from analyse_runs import ENERGY_UNIT_MEV, COLOURS, LABELS, blocked_mean   # noqa: E402
 
-DATA = HERE.parents[3] / "runs" / "stage08" / "18_electrons_27_sites"
+DATA = HERE.parents[3] / "runs" / "stage08" / "18_electrons_27_sites_real_gradient"
 TRAINING = DATA / "training"
 EVALUATION, FIGURES, RESULTS = DATA / "evaluation", DATA / "figures", DATA / "results"
+GRADIENT = "real"
+
+
+def use(gradient):
+    """Point DATA and its subfolders at the runs of one gradient convention (--gradient)."""
+    global DATA, TRAINING, EVALUATION, FIGURES, RESULTS, GRADIENT
+    GRADIENT = gradient
+    DATA = HERE.parents[3] / "runs" / "stage08" / f"18_electrons_27_sites_{gradient}_gradient"
+    TRAINING = DATA / "training"
+    EVALUATION, FIGURES, RESULTS = DATA / "evaluation", DATA / "figures", DATA / "results"
 N = 18
 FINAL_FRACTION = 0.2
 KAPPA = 4 * np.pi / 3
@@ -107,6 +119,8 @@ def load(folder_name):
         sys.exit(f"{folder}: unfinished, or its files disagree about the number of steps")
     if summary["n_electrons"] != N or not summary["sanity_check"]["passed"]:
         sys.exit(f"{folder}: not an 18-electron evaluation that passed its sanity check")
+    if summary["gradient"] != GRADIENT:                 # never mix the two conventions in one table
+        sys.exit(f"{folder}: evaluated a run with --gradient {summary['gradient']}, not {GRADIENT}")
     n_configurations = steps * summary["batch_size"]
     assert totals["density"].sum() == N * n_configurations, "every electron counted once"
     supercell = np.array(summary["supercell"])
@@ -218,7 +232,8 @@ def energy_figure(runs, path):
     ax.set_yticks(range(len(runs)), [label_for(r) for r in runs])
     ax.set_ylim(len(runs) - 0.5, -0.5)
     ax.set_xlabel("E/N \u2212 paper's Table I (meV)      (grey: the paper's error bar)")
-    ax.set_title("Our 27-site energies relative to Table I (right = higher energy)")
+    ax.set_title("Our 27-site energies relative to Table I (right = higher energy)"
+                 + ("" if GRADIENT == "real" else ", full gradient"))
     ax.legend(frameon=False, loc="lower right")
     fig.savefig(path, dpi=300)
     plt.close(fig)
@@ -278,7 +293,8 @@ def fig6_figure(runs, network, path):
             if column == 1:
                 fig.colorbar(image, ax=axes[row, :], shrink=0.8,
                              label="n(r)  (a$_M^{-2}$)" if row == 0 else "g(\u0394r)  (1 = uniform, independent electrons)")
-    fig.suptitle(f"{LABELS[network]}, 27 sites, 18 electrons (dashed: the supercell) -- paper Fig. 6",
+    fig.suptitle(f"{LABELS[network]}, 27 sites, 18 electrons (dashed: the supercell) -- paper Fig. 6"
+                 + ("" if GRADIENT == "real" else ", full gradient"),
                  x=0.02, ha="left", fontsize=8)
     fig.savefig(path, dpi=300)
     plt.close(fig)
@@ -305,6 +321,11 @@ def sublattice_figure(runs, path, window=100):
 
 
 def main():
+    parser = argparse.ArgumentParser(allow_abbrev=False)
+    parser.add_argument("--gradient", choices=["real", "full"], default="real",
+                        help="real: runs/stage08/18_electrons_27_sites_real_gradient (the authors'); "
+                             "full: runs/stage08/18_electrons_27_sites_full_gradient")
+    use(parser.parse_args().gradient)
     runs = [r for r in (load(name) for name in FOLDERS) if r is not None]
     if not runs:
         sys.exit(f"no finished evaluations in {EVALUATION}")

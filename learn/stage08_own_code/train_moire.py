@@ -3,7 +3,7 @@ Stage 8 -- train one network on the paper's moire system, with OUR code.
 
 Run (one GPU per run), from learn/stage08_own_code:
     CUDA_VISIBLE_DEVICES=0 python train_moire.py --network slaternet --eps 10 \
-        --out ../../runs/stage08/6_electrons_9_sites/training/slaternet_6e_eps10
+        --out ../../runs/stage08/6_electrons_9_sites_real_gradient/training/slaternet_6e_eps10
 
 Options:  --network slaternet | attention     --eps 5 | 10
           --electrons 6 | 18    (default 6: 9 sites, Fig. 5;  18: 27 sites, Table I)

@@ -345,7 +345,7 @@ class SafetyTest(absltest.TestCase):
         options existed.  A default start must still match them -- so they can
         be continued and evaluated -- and a start with new options must not."""
         for run in ("attention_6e_eps5", "attention_6e_eps10", "slaternet_6e_eps5", "slaternet_6e_eps10"):
-            original = tm.REPO / "runs" / "stage08" / "6_electrons_9_sites" / "training" / run / "settings.json"
+            original = tm.REPO / "runs" / "stage08" / "6_electrons_9_sites_real_gradient" / "training" / run / "settings.json"
             saved = json.loads(original.read_text())
             wanted = dict(network=saved["network"], eps=saved["eps"], electrons=6, gradient=saved["gradient"],
                           seed=saved["seed"], iterations=saved["iterations"],
