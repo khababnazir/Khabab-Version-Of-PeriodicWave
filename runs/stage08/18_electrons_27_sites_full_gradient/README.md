@@ -95,9 +95,11 @@ gives S(kappa) = 4.5 and sublattices 0, 1/2, 1/2).
   it at eps = 5 (2.1 of the paper's error bars).
 - The attention network stays 0.029 and 0.039 above the paper (about 4 of its error bars), so
   the gradient does not explain that remaining gap.
-- The correlation energy moves to -0.69 and -1.01, close to the paper's -0.72 and -1.12 (with
-  the authors' gradient: -0.89 and -1.20). Most of the earlier difference came from our
-  SlaterNet.
+- The correlation energy at eps = 10 moves from -0.89 to -0.69, close to the paper's -0.72:
+  there most of the earlier difference came from our SlaterNet. At eps = 5 it moves from -1.20
+  to -1.01, which is no closer to the paper's -1.12 (0.10 smaller in size, where before it was
+  0.08 larger): our SlaterNet is now 0.064 below the paper's, while our attention network is
+  still 0.039 above it.
 
 **What it does not show.**
 - One seed per run. The earlier gradient test (`../18_electrons_27_sites_real_gradient/gradient_test/`)
