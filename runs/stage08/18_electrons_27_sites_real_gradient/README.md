@@ -6,7 +6,8 @@ iteration 33,545 with each gradient convention), `evaluation/` (the
 frozen-weight evaluations), `results/` (tables) and `figures/`. Scripts in
 `learn/stage08_own_code/` (training) and `learn/stage08_own_code/analysis/18_electrons_27_sites/`.
 Gradient: the authors' (`--gradient real`, the imaginary part of the local energy left out).
-The same four runs with the full gradient: `../18_electrons_27_sites_full_gradient/`.
+The same four runs with the full gradient: `../18_electrons_27_sites_full_gradient/` (finished
+2026-11-05: lower energies in all four, SlaterNet by 0.20 meV per electron; see its README).
 Named `18_electrons_27_sites/` until 2026-11-03, and `runs/stage08/table1/` (runs at its top
 level) until 2026-11-02.
 

@@ -41,6 +41,7 @@ functions of `evaluate_weights.py`).
 
 | File | What it is for | Writes (in `runs/stage08/18_electrons_27_sites_real_gradient/`) |
 |---|---|---|
+| `compare_gradients.py` | Table I with the authors' gradient against the full gradient: energies, correlation energies, training curves of both. Run after `table1_results.py` and `table1_results.py --gradient full`. | `18_electrons_27_sites_full_gradient/results/real_vs_full.csv`, `correlation_real_vs_full.csv`, `figures/5_real_vs_full.png` |
 | `gradient_test_results.py` | The gradient test: SlaterNet eps = 10 continued from iteration 33,545 with the authors' and the full gradient, against the original run, row by row and with frozen weights; whether each evaluation had settled. | `gradient_test/results/*.csv`, `gradient_test/figures/gradient_test.png` |
 | `table1_results.py` | Frozen-weight and training energies against the paper's Table I, the correlation energy, where the electrons are (S(κ), sublattice occupations), and the paper's Fig. 6 for both networks. Uses the energy unit, blocking error bar and colours of `../6_electrons_9_sites/analyse_runs.py`, unchanged. | `results/*.csv`, `figures/1_…` to `figures/4_…` |
 
@@ -82,6 +83,8 @@ bash launch_evaluation.sh 1 18_electrons_27_sites_real_gradient attention_18e_ep
 cd 18_electrons_27_sites
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python gradient_test_results.py
+uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py --gradient full
+uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python compare_gradients.py
 ```
 
 The project environment has no matplotlib; `uv run --no-project ... --with

@@ -7,7 +7,7 @@ gradient convention:
   its real part (`external/PeriodicWave/periodicwave/pbc/hamiltonian.py`, line 234), so the
   gradient term 2 < Im d  d phase/d theta > is left out. This is the reproduction of the paper.
 - `_full_gradient`: the same runs with that term kept (`train_moire.py --gradient full`),
-  everything else identical. Our addition, started 2026-11-03.
+  everything else identical. Our addition, run 2026-11-03 to 11-05; results in its README.
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|

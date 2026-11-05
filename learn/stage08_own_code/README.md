@@ -66,6 +66,12 @@ Table II settings instead (`train_moire.py --settings table2`).
    `train_moire.py --electrons 18 --settings table2`. Started 2026-10-30,
    finished 2026-11-01, evaluated with frozen weights 2026-11-02; results in
    `runs/stage08/18_electrons_27_sites_real_gradient/README.md`. Done.
+8. **Table I with the full gradient** (2026-11-03 to 11-05): the four runs again
+   with `--gradient full`, everything else identical (`launch_table1.sh full`).
+   Lower energies in all four: attention by 0.005 and 0.012, SlaterNet by 0.20
+   meV per electron, which brings it level with the paper's SlaterNet (eps = 10)
+   or below it (eps = 5). Results in
+   `runs/stage08/18_electrons_27_sites_full_gradient/README.md`. Done.
 
 ## Files in this folder
 

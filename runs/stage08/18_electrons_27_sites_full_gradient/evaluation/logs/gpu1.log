@@ -1,0 +1,11 @@
+=== 2026-11-05 02:43:07  waiting for the GPU 1 queue (PID 126529) to finish
+=== 2026-11-05 07:27:08  second frozen-weight evaluation of attention_18e_eps10 on GPU 1: burn-in 2000, seed 1
+burn-in of 2000 steps done after 618 s (includes compiling)
+sanity check: evaluation -170.85840, training before the checkpoint -170.92934
+step   1000  mean energy -170.85381  pmove 0.521  1.07 steps/s
+step   2000  mean energy -170.85619  pmove 0.518  1.09 steps/s
+step   3000  mean energy -170.85656  pmove 0.523  1.10 steps/s
+step   4000  mean energy -170.85556  pmove 0.520  1.11 steps/s
+step   5000  mean energy -170.85539  pmove 0.521  1.11 steps/s
+finished
+=== 2026-11-05 08:52:18  evaluation ended with exit code 0
