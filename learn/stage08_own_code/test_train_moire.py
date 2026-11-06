@@ -3,6 +3,7 @@ Stage 8 checks for train_moire.py.  Run:  python test_train_moire.py   (CPU, dou
 
   settings    every setting equals the reference run's config.json, at eps = 5
               and 10, the moire potential and the Coulomb strength included;
+              at eps = 3 (our diagnostic) only the Coulomb strength changes, as 1/eps;
   gradient    what KFAC receives is Stage 6's energy_gradient, in both
               --gradient modes;
   one update  from the reference run's TRAINED weights and 64 of its walkers,
@@ -102,6 +103,19 @@ class SettingsTest(absltest.TestCase):
                 np.testing.assert_allclose(phi, potential["moire_potential_phi"], rtol=1e-12)
                 self.assertEqual(cfg["system"]["electrons"], [6, 0])
 
+    def test_eps3_changes_only_the_coulomb_strength(self):
+        """eps = 3 has no reference run.  The test above ties U to the authors' configs at eps = 5
+        and 10; here U(3) must follow from both as 1/eps, with V and phi unchanged.  And U is the
+        Coulomb energy at one moire length in the code unit hbar^2 / (m* a_M^2) = 3.375559 meV:
+        e^2 / (4 pi eps0 eps a_M) = 1439.96448 meV nm / (3 x 8.031 nm) = 59.77 meV."""
+        self.assertEqual(sorted(tm.EPS_CHOICES), [3.0, 5.0, 10.0])
+        V3, U3, phi3 = tm.moire_constants(3.0)
+        for eps in (5.0, 10.0):
+            V, U, phi = tm.moire_constants(eps)
+            with self.subTest(eps=eps):
+                np.testing.assert_allclose(3.0 * U3, eps * U, rtol=1e-12)
+                self.assertEqual((V3, phi3), (V, phi))
+        np.testing.assert_allclose(U3 * 3.375559, 1439.96448 / (3.0 * 8.031), rtol=1e-5)
 
     def test_table2_is_the_papers_table_ii(self):
         """--settings table2 against the paper's Table II (p. 7), value by value."""

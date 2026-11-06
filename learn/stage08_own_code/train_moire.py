@@ -5,7 +5,7 @@ Run (one GPU per run), from learn/stage08_own_code:
     CUDA_VISIBLE_DEVICES=0 python train_moire.py --network slaternet --eps 10 \
         --out ../../runs/stage08/6_electrons_9_sites_real_gradient/training/slaternet_6e_eps10
 
-Options:  --network slaternet | attention     --eps 5 | 10
+Options:  --network slaternet | attention     --eps 5 | 10 | 3   (3: our diagnostic, not in the paper)
           --electrons 6 | 18    (default 6: 9 sites, Fig. 5;  18: 27 sites, Table I)
           --settings released | table2    (default released, see below)
           --laplacian hessian | folx      (default hessian;  folx for 18 electrons)
@@ -139,6 +139,12 @@ class Problem(NamedTuple):
     init: object          # init(key, arch) -> parameters
     log_psi: object       # log_psi(params, R) -> LogPsi, R of shape (N, 2)
     local_energy: object  # local_energy(params, R) -> complex E_loc
+
+
+# The paper's two dielectric constants, and eps = 3 (2026-11-06): our diagnostic,
+# a stronger repulsion, to see whether our network forms the honeycomb crystal
+# when it is favoured more strongly.  The paper has no eps = 3 value.
+EPS_CHOICES = (5.0, 10.0, 3.0)
 
 
 def moire_constants(eps):
@@ -506,7 +512,7 @@ def same_experiment_or_stop(folder, wanted, iterations_given):
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("--network", choices=["slaternet", "attention"], required=True)
-    parser.add_argument("--eps", type=float, choices=[5.0, 10.0], required=True)
+    parser.add_argument("--eps", type=float, choices=EPS_CHOICES, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--electrons", type=int, choices=sorted(SITES), default=6)
     parser.add_argument("--settings", choices=sorted(SETTINGS), default="released")

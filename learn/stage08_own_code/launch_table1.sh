@@ -21,6 +21,13 @@
 #       runs/stage08/18_electrons_27_sites_full_gradient/training/.  Each run
 #       is evaluated with frozen weights right after it (evaluate_weights.py,
 #       into ../evaluation/<run>/).  About 2.2 days per GPU.
+#   bash learn/stage08_own_code/launch_table1.sh eps3          (2026-11-06)
+#       One run, on GPU 0 only: the attention network at eps = 3 with the
+#       authors' gradient, everything else as above (seed 0, Table II, folx +
+#       slogdet), into runs/stage08/18_electrons_27_sites_eps3_real_gradient/training/,
+#       then its frozen-weight evaluation.  Not in the paper: a diagnostic --
+#       does our network form the honeycomb crystal when the repulsion is
+#       stronger?  About 33-41 hours.
 #
 # Safe to run again: train_moire.py continues every run from its newest
 # checkpoint, a finished run exits at once, and a run whose folder or GPU is
@@ -33,8 +40,8 @@
 #
 # Watch:  tail -f runs/stage08/18_electrons_27_sites_full_gradient/training/logs/gpu0.log
 case "$1" in
-    ""|test|full) ;;
-    *) echo "usage: bash launch_table1.sh [test | full]"; exit 2 ;;
+    ""|test|full|eps3) ;;
+    *) echo "usage: bash launch_table1.sh [test | full | eps3]"; exit 2 ;;
 esac
 cd "$(dirname "$0")" || exit 1
 PY=../../.venv/bin/python
@@ -43,6 +50,9 @@ EVALUATE=no
 if [ "$1" = "full" ]; then
     RUNS=../../runs/stage08/18_electrons_27_sites_full_gradient/training
     TABLE1="$TABLE1 --gradient full"
+    EVALUATE=yes
+elif [ "$1" = "eps3" ]; then
+    RUNS=../../runs/stage08/18_electrons_27_sites_eps3_real_gradient/training
     EVALUATE=yes
 else
     RUNS=../../runs/stage08/18_electrons_27_sites_real_gradient/training
@@ -93,8 +103,12 @@ if [ "$1" = "test" ]; then
 elif [ -z "$1" ] || [ "$1" = "full" ]; then
     start 0 "'attention_18e_eps5 --network attention --eps 5'" "'slaternet_18e_eps5 --network slaternet --eps 5'"
     start 1 "'attention_18e_eps10 --network attention --eps 10'" "'slaternet_18e_eps10 --network slaternet --eps 10'"
+elif [ "$1" = "eps3" ]; then
+    start 0 "'attention_18e_eps3 --network attention --eps 3'"
+    echo "launched, one run on GPU 0; logs in $LOGS/"
+    exit 0
 else
-    echo "usage: bash launch_table1.sh [test | full]"
+    echo "usage: bash launch_table1.sh [test | full | eps3]"
     exit 2
 fi
 echo "launched, one run on GPU 0 and one on GPU 1; logs in $LOGS/"
