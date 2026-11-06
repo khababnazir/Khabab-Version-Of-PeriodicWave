@@ -133,7 +133,7 @@ def main():
     self_check(geo)
     print("self-check passed: honeycombs 4.5, even filling 0")
 
-    fig, (ax_s, ax_share) = plt.subplots(1, 2, figsize=(10, 3.8), layout="constrained")
+    fig, (ax_s, ax_share) = plt.subplots(1, 2, figsize=(10, 4.4), layout="constrained")
     for run in runs:
         settings = json.loads((run / "settings.json").read_text())
         assert settings["electrons"] == N, f"{run}: not an 18-electron run"
@@ -156,17 +156,19 @@ def main():
         line, = ax_s.plot(it, [r["S_kappa"] for r in rows], marker=".", label=label)
         ax_share.plot(it, [min(r["sublattice_0"], r["sublattice_1"], r["sublattice_2"]) for r in rows],
                       marker=".", color=line.get_color())
-    ax_s.axhline(1.0, color="0.5", ls="--", lw=0.8)
-    ax_s.text(0.01, 0.97, "honeycomb, electrons on sites: 4.5\nindependent electrons: 1 (dashed)",
-              transform=ax_s.transAxes, va="top", fontsize=8)
+    # The reference lines go into the legend below the panels, so nothing is drawn over the data.
+    lines = list(ax_s.get_lines())
+    highest = max(max(line.get_ydata()) for line in lines)
+    lines.append(ax_s.axhline(1.0, color="0.45", ls="--", lw=0.9,
+                              label="a: independent electrons, S(κ) = 1  (a honeycomb, electrons on sites: 4.5)"))
+    lines.append(ax_share.axhline(1 / 3, color="0.45", ls=":", lw=1.2,
+                                  label="b: 1/3, no pattern in the density  (0: a honeycomb that stays put)"))
+    ax_s.set_ylim(top=max(1.05, 1.05 * highest))
     ax_s.set(xlabel="iteration (thousands)", ylabel="S(κ)", title="a   S(κ) at every checkpoint")
-    ax_share.axhline(1 / 3, color="0.5", ls="--", lw=0.8)
     ax_share.set_ylim(0, 0.36)
-    ax_share.text(0.01, 0.03, "1/3: no pattern in the density (dashed)\n0: a honeycomb that stays put",
-                  transform=ax_share.transAxes, va="bottom", fontsize=8)
-    ax_share.set(xlabel="iteration (thousands)", ylabel="share of electrons",
-                 title="b   emptiest sublattice")
-    ax_s.legend(fontsize=8, loc="center right")
+    ax_share.set(xlabel="iteration (thousands)", ylabel="share of the electrons",
+                 title="b   share on the emptiest sublattice")
+    fig.legend(handles=lines, loc="outside lower center", ncol=2, fontsize=8, frameon=False)
     figure = runs[0].parent.parent / "figures" / "checkpoint_structure.png"
     figure.parent.mkdir(exist_ok=True)
     fig.savefig(figure, dpi=150)
