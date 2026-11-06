@@ -86,6 +86,10 @@ SlaterNet is a little more uneven than with the authors' gradient: S(kappa) 0.68
 (before 0.66 and 0.60), sublattices 0.32/0.38/0.31 and 0.30/0.40/0.31 (before 0.31-0.35),
 site occupations 0.23-0.94 and 0.15-0.97. Still no honeycomb in either network (a perfect one
 gives S(kappa) = 4.5 and sublattices 0, 1/2, 1/2).
+At every training checkpoint of the attention network S(kappa) stays between 0.616 and 0.755
+(eps = 5, 83 checkpoints) and between 0.644 and 0.746 (eps = 10, 80 checkpoints): no crystal
+formed at any point of the training (`checkpoint_structure.py`, 2026-11-06;
+`results/checkpoint_structure_*.csv`, `figures/checkpoint_structure.png`).
 
 **What this says.**
 - The full gradient lowers every energy. For the attention network the effect is small

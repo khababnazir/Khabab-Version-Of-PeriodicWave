@@ -8,12 +8,16 @@ gradient convention:
   gradient term 2 < Im d  d phase/d theta > is left out. This is the reproduction of the paper.
 - `_full_gradient`: the same runs with that term kept (`train_moire.py --gradient full`),
   everything else identical. Our addition, run 2026-11-03 to 11-05; results in its README.
+- `18_electrons_27_sites_eps3_real_gradient/`: not in the paper. The attention network at
+  eps = 3 (a stronger repulsion) with the authors' gradient: does it form the honeycomb crystal
+  that ours does not form at eps = 5? Started 2026-11-06.
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|
 | `6_electrons_9_sites_real_gradient/` | 6 electrons on 9 sites | authors' (real) | Fig. 5 | `learn/stage08_own_code/analysis/6_electrons_9_sites/` |
 | `18_electrons_27_sites_real_gradient/` | 18 electrons on 27 sites | authors' (real) | Table I, Fig. 6 | `learn/stage08_own_code/analysis/18_electrons_27_sites/` |
 | `18_electrons_27_sites_full_gradient/` | 18 electrons on 27 sites | full | Table I, Fig. 6 | the same, with `--gradient full` |
+| `18_electrons_27_sites_eps3_real_gradient/` | 18 electrons on 27 sites, eps = 3 | authors' (real) | none (our diagnostic) | the same; `checkpoint_structure.py` |
 
 Until 2026-11-03 the two `_real_gradient` folders were named `6_electrons_9_sites/` and
 `18_electrons_27_sites/`; `summary.json` and `branch.json` files written before still show the
