@@ -6,13 +6,15 @@ Our attention network shows none: in the frozen evaluations S(kappa) is 0.726 at
 (`../18_electrons_27_sites_real_gradient/README.md`, `../18_electrons_27_sites_full_gradient/README.md`).
 
 Lowering eps only makes the Coulomb repulsion stronger: U = e^2 / (4 pi eps0 eps a_M) is
-35.9 meV at eps = 5 and 59.8 meV at eps = 3 (tested in `test_train_moire.py`). For electrons
-kept on the moire sites, the repulsion favours the honeycomb at nu = 2/3: it keeps the empty
-sites as far apart as possible. So:
+35.9 meV at eps = 5 and 59.8 meV at eps = 3 (tested in `test_train_moire.py`). For classical
+point electrons kept on the moire sites, the repulsion favours the honeycomb at nu = 2/3: it
+keeps the empty sites as far apart as possible. For the quantum ground state this is an
+expectation, not a guarantee, and no guarantee that training finds it. So:
 - **a crystal at eps = 3**: our network can form one; at eps = 5 it lands in a competing state,
   and the network form (the paper's printed tanh network, Eqs. 18-20, against the released
   one we train) or the training is the next suspect;
-- **no crystal even at eps = 3**: our network or its training cannot form it, whatever the physics.
+- **no crystal even at eps = 3**: our network or its training does not find it even where it
+  should be favoured more (one run cannot show that the network cannot represent it).
 
 Too low an eps could also pull the electrons off their sites, where other arrangements compete;
 eps = 3 is a moderate step. There is no paper value and no BP-ED at eps = 3.
@@ -81,9 +83,17 @@ During the evaluation the three sublattices stay at about 1/3 each (figure 2).
 the moire lattice's own, is 3.41, against 0.31 at eps = 10 and 0.34 at eps = 5
 (`results/density_modulation.csv`). Its largest parts, 0.14 each, are at
 m = +-(7/9, -5/9) and +-(2/9, 5/9), then 0.12 at +-(2/3, -2/3) (q = m1 b1 + m2 b2); at kappa,
-the honeycomb's wave vector, it is 0.002. So at eps = 3 the network breaks the moire lattice's
-translation symmetry, but into a pattern with several unrelated wave vectors, not into the
-honeycomb.
+the honeycomb's wave vector, it is 0.002. The first two are one modulation of the site
+occupations seen twice: (7/9, -5/9) + (2/9, 5/9) = (1, 0), a moire reciprocal vector, which
+gives the same phase on every site. The 27 mean site occupations themselves, at their 27 wave
+vectors (`results/site_pattern.csv`, without such double counting), carry a pattern of 0.875
+(0.093 at eps = 5, 0.105 at eps = 10): 58 % of it in the shell q = (2/3) kappa, with all three
+directions comparably strong (0.10, 0.08, 0.07 per +-q pair), 25 % at |q| = |b|/3, 15 % at
+|q| = 3.69 / a_M, and 0.9 % at kappa. Three comparable directions whose wave vectors add up to
+zero make a regular triangular modulation. Its period is half our supercell, 6.75 sites and 4.5
+electrons per repeat, so it is a density wave, not a crystal of whole electrons; with one cell
+size we cannot tell whether the cell sets it. So at eps = 3 the network breaks the moire
+lattice's translation symmetry, regularly, but not into the honeycomb.
 
 **The electrons stay on their sites** (`results/off_site.csv`). At all three eps 0.26 of the
 density lies more than 0.35 a_M from the nearest site, and about 0.06 within 0.15 a_M of the
@@ -95,10 +105,25 @@ their sites; at eps = 3 it does not.
 **What this says.**
 - Our network can make an uneven density: at eps = 3 it breaks the translation symmetry
   strongly. So the missing honeycomb at eps = 5 is not because it can only make even ones.
-- With the stronger repulsion it made an irregular pattern, not the honeycomb, although for
-  electrons kept on the sites a stronger repulsion should favour the honeycomb more. Either the
-  honeycomb is not the lowest state this network can reach for our Hamiltonian, or the training
-  settles in another state and stays there. A pattern with several unrelated wave vectors looks
-  more like the second, but this run cannot decide it: that needs the energy of a honeycomb
-  state of the same network to compare with.
+- With the stronger repulsion it made a different, regular modulation, not the honeycomb,
+  although for classical electrons on the sites a stronger repulsion favours the honeycomb more.
+  Either the honeycomb is not the lowest state this network can reach for our Hamiltonian, or
+  the training settles in another state and stays there. This run cannot decide it: that needs
+  the energy of a honeycomb state of the same network to compare with. One run also cannot show
+  that the network cannot represent a honeycomb.
 - One seed, one network form (the released one, Table II sizes), the authors' gradient.
+
+## Corrections (2026-11-08, after an external review)
+
+- The first version of the results called the eps = 3 pattern irregular, with "several
+  unrelated wave vectors", and read that as a hint of a trapped training. Two of those wave
+  vectors differ by a moire reciprocal vector and are the same modulation of the sites; on the
+  sites the pattern is regular (above, `results/site_pattern.csv`). "Irregular" and that reading
+  are withdrawn.
+- The plan said that no crystal at eps = 3 would mean that the network or its training "cannot
+  form it, whatever the physics". One run cannot show that; reworded.
+- A lower eps favours the honeycomb for classical point electrons on the sites; for the quantum
+  state, and for what training finds, it was an expectation, not a guarantee. Reworded.
+- Checked and unchanged: the recorded settings differ from `attention_18e_eps5` of the
+  real-gradient folder only in eps; S(kappa) is 0.6314 in the frozen evaluation and 0.633 with
+  the last checkpoint's walkers.

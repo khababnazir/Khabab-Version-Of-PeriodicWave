@@ -18,6 +18,8 @@ Writes into runs/stage08/18_electrons_27_sites_eps3_real_gradient/:
                            centres of the triangles (the potential's second, shallower minima)
   results/density_modulation.csv   the static part |<rho_q>|^2 / N of S(q): summed over all
                            wave vectors but the moire lattice's own, at kappa, and the largest six
+  results/site_pattern.csv the pattern of the 27 mean site occupations at its 27 wave vectors,
+                           without the aliasing of the continuous density (2026-11-08)
   figures/1_density_pair_correlation.png   density and pair correlation at eps = 10, 5, 3
   figures/2_sublattices_during_evaluation.png   the three sublattices step by step, eps = 3
 
@@ -120,6 +122,46 @@ def modulation_table(runs, largest=6):
     return pd.DataFrame(rows)
 
 
+def site_pattern_table(runs):
+    """The pattern of the 27 mean site occupations <n_k>, by wave vector, without aliasing.
+
+    On the sites R_k, q and q + G (G a moire reciprocal vector) give the same phase
+    exp(-i q . R_k), so the continuous density's modulation shows a site pattern at several
+    q that differ by a G (in density_modulation.csv, for example, (7/9, -5/9) and -(2/9, 5/9)).
+    Here the site pattern has exactly 27 wave vectors, each reduced to its shortest form
+    q_BZ (inside the moire Brillouin zone): A(q) = sum_k (<n_k> - 2/3) exp(-i q . R_k),
+    and |A(q)|^2 / N.  A(-q) = conj A(q), so the q come in +- pairs.  Rows with the same
+    |q_BZ| are related by the lattice's rotations; how many of them carry the pattern tells
+    whether it picks one direction.  The honeycomb is the pair q = +-kappa."""
+    rows = []
+    for r in runs:
+        cell = r["supercell"]
+        sites = t1.observables.moire_sites(cell)
+        lattice = t1.observables.MOIRE_LATTICE
+        b = 2 * np.pi * np.linalg.inv(lattice).T                              # columns: b1, b2
+        q = np.array(r["summary"]["q_vectors"])
+        m = q @ lattice / (2 * np.pi)
+        reduced = {}
+        for mi in np.round(np.mod(m, 1.0) * 27).astype(int) % 27:                # 1/27 is finer than needed
+            reduced[tuple(mi)] = mi / 27
+        assert len(reduced) == 27, f"expected the 27 wave vectors of the 27 sites, found {len(reduced)}"
+        dn = r["occupation"] - t1.N / 27
+        assert np.isclose(r["occupation"].sum(), t1.N)
+        for mi in reduced.values():
+            shifts = [(mi + np.array([i, j])) for i in (-1, 0, 1) for j in (-1, 0, 1)]
+            m_bz = min(shifts, key=lambda s: np.linalg.norm(b @ s))             # the shortest equivalent
+            q_bz = b @ m_bz
+            A = np.sum(dn * np.exp(-1j * sites @ q_bz))
+            rows.append(dict(run=r["folder"], eps=r["eps"], m1=m_bz[0], m2=m_bz[1], q_bz=np.linalg.norm(q_bz),
+                             at_kappa=bool(np.isclose(np.linalg.norm(q_bz), t1.KAPPA, atol=1e-6)),
+                             site_pattern=abs(A) ** 2 / t1.N))
+        mine = pd.DataFrame([row for row in rows if row["run"] == r["folder"]])
+        # Parseval: summed over the 27 q, |A|^2 = 27 sum_k (<n_k> - 2/3)^2.
+        assert np.isclose(mine["site_pattern"].sum() * t1.N, 27 * np.sum(dn ** 2)), "Parseval"
+    table = pd.DataFrame(rows).sort_values(["eps", "site_pattern"], ascending=[False, False])
+    return table
+
+
 def density_pair_figure(runs, path):
     """Fig. 6's layout with one column per eps: density (top), pair correlation (bottom)."""
     fig, axes = plt.subplots(2, len(runs), figsize=(3.2 * len(runs) + 0.8, 6.0), constrained_layout=True)
@@ -162,7 +204,14 @@ def main():
     (EPS3 / "results").mkdir(exist_ok=True)
     (EPS3 / "figures").mkdir(exist_ok=True)
     energies, structure = energy_table(runs), t1.structure_table(runs)
-    off_site, modulation = off_site_table(runs), modulation_table(runs)
+    # Self-check: a perfect honeycomb (sublattice 0 empty) puts its whole pattern at +-kappa, 4.5 each.
+    honeycomb = dict(runs[0], folder="honeycomb", eps=0.0,
+                     occupation=(t1.sublattice_of_sites(runs[0]["supercell"]) != 0).astype(float))
+    check = site_pattern_table([honeycomb])
+    assert check["at_kappa"].sum() == 2 and np.allclose(check.loc[check["at_kappa"], "site_pattern"], 4.5), check
+    assert np.isclose(check.loc[~check["at_kappa"], "site_pattern"].sum(), 0.0, atol=1e-9), check
+    off_site, modulation, site_pattern = off_site_table(runs), modulation_table(runs), site_pattern_table(runs)
+    site_pattern.to_csv(EPS3 / "results" / "site_pattern.csv", index=False)
     energies.to_csv(EPS3 / "results" / "energies.csv", index=False)
     structure.to_csv(EPS3 / "results" / "structure.csv", index=False)
     off_site.to_csv(EPS3 / "results" / "off_site.csv", index=False)
@@ -175,6 +224,9 @@ def main():
         print(structure.drop(columns=["electrons", "sites", "network"]).to_string(index=False))
         print(off_site.to_string(index=False))
         print(modulation[modulation["rank"] <= 3].to_string(index=False))
+        for eps, group in site_pattern.groupby("eps", sort=False):
+            print(f"eps {eps:g}: site pattern summed over q {group['site_pattern'].sum():.4f}")
+            print(group.head(8).to_string(index=False))
 
 
 if __name__ == "__main__":
