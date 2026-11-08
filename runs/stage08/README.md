@@ -12,6 +12,9 @@ gradient convention:
   eps = 3 (a stronger repulsion) with the authors' gradient: does it form the honeycomb crystal
   that ours does not form at eps = 5? Run 2026-11-06 to 11-07: no honeycomb, but an uneven
   density (dominated by three directions, not the honeycomb); results in its README.
+- `18_electrons_27_sites_paper_network_real_gradient/`: the attention network as the paper
+  prints it (`--network-form paper`: tanh, no layer norm) at eps = 5 with the authors' gradient,
+  against our released-network run: does it form the honeycomb? Started 2026-11-08.
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|
@@ -19,6 +22,7 @@ gradient convention:
 | `18_electrons_27_sites_real_gradient/` | 18 electrons on 27 sites | authors' (real) | Table I, Fig. 6 | `learn/stage08_own_code/analysis/18_electrons_27_sites/` |
 | `18_electrons_27_sites_full_gradient/` | 18 electrons on 27 sites | full | Table I, Fig. 6 | the same, with `--gradient full` |
 | `18_electrons_27_sites_eps3_real_gradient/` | 18 electrons on 27 sites, eps = 3 | authors' (real) | none (our diagnostic) | the same; `checkpoint_structure.py` |
+| `18_electrons_27_sites_paper_network_real_gradient/` | 18 electrons on 27 sites, eps = 5, the paper's printed network | authors' (real) | Fig. 6 | the same; `checkpoint_structure.py` |
 
 Until 2026-11-03 the two `_real_gradient` folders were named `6_electrons_9_sites/` and
 `18_electrons_27_sites/`; `summary.json` and `branch.json` files written before still show the

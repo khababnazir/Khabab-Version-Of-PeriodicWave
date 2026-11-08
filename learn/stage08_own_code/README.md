@@ -101,6 +101,8 @@ Table II settings instead (`train_moire.py --settings table2`).
    `launch_table1.sh paper5 [ITERATIONS]` runs it at eps = 5 against
    `attention_18e_eps5` of the real-gradient folder: first `paper5 5000` (a look
    at 5,000 iterations, no evaluation), then `paper5 150000` continues it.
+   Step 1 started 2026-11-08 06:44 UTC, in
+   `runs/stage08/18_electrons_27_sites_paper_network_real_gradient/`.
 
 ## Files in this folder
 
