@@ -11,7 +11,7 @@ gradient convention:
 - `18_electrons_27_sites_eps3_real_gradient/`: not in the paper. The attention network at
   eps = 3 (a stronger repulsion) with the authors' gradient: does it form the honeycomb crystal
   that ours does not form at eps = 5? Run 2026-11-06 to 11-07: no honeycomb, but an uneven
-  density (a regular modulation, not the honeycomb); results in its README.
+  density (dominated by three directions, not the honeycomb); results in its README.
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|

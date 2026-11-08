@@ -28,14 +28,18 @@
 #       then its frozen-weight evaluation.  Not in the paper: a diagnostic --
 #       does our network form the honeycomb crystal when the repulsion is
 #       stronger?  About 33-41 hours.
-#   bash learn/stage08_own_code/launch_table1.sh paper5        (2026-11-08)
+#   bash learn/stage08_own_code/launch_table1.sh paper5 [ITERATIONS]   (2026-11-08)
 #       One run, on GPU 0 only: the attention network as the paper prints it
 #       (--network-form paper: tanh residual blocks, no layer norm, Eq. 18's
 #       attention; Stage 5) at eps = 5 with the authors' gradient, everything
 #       else as above (seed 0, Table II, folx + slogdet), into
 #       runs/stage08/18_electrons_27_sites_paper_network_real_gradient/training/,
 #       then its frozen-weight evaluation.  Against attention_18e_eps5 of the
-#       real-gradient folder only the network form differs.
+#       real-gradient folder the network implementation differs, its initial
+#       weights included (Stage 5's 0.1 x normal; the paper gives none).
+#       With ITERATIONS (e.g. 5000) the run stops there, without the evaluation:
+#       a first look.  Run it again with 150000 to continue the same run from its
+#       checkpoint; without --iterations the trainer keeps the folder's saved target.
 #
 # Safe to run again: train_moire.py continues every run from its newest
 # checkpoint, a finished run exits at once, and a run whose folder or GPU is
@@ -49,8 +53,11 @@
 # Watch:  tail -f runs/stage08/18_electrons_27_sites_full_gradient/training/logs/gpu0.log
 case "$1" in
     ""|test|full|eps3|paper5) ;;
-    *) echo "usage: bash launch_table1.sh [test | full | eps3 | paper5]"; exit 2 ;;
+    *) echo "usage: bash launch_table1.sh [test | full | eps3 | paper5 [ITERATIONS]]"; exit 2 ;;
 esac
+if [ -n "$2" ] && { [ "$1" != "paper5" ] || [ -n "$3" ] || ! [[ "$2" =~ ^[1-9][0-9]*$ ]]; }; then
+    echo "usage: bash launch_table1.sh [test | full | eps3 | paper5 [ITERATIONS]]"; exit 2
+fi
 cd "$(dirname "$0")" || exit 1
 PY=../../.venv/bin/python
 TABLE1="--electrons 18 --settings table2 --laplacian folx --determinants slogdet"
@@ -65,6 +72,11 @@ elif [ "$1" = "eps3" ]; then
 elif [ "$1" = "paper5" ]; then
     RUNS=../../runs/stage08/18_electrons_27_sites_paper_network_real_gradient/training
     EVALUATE=yes
+    TARGET=""
+    if [ -n "$2" ]; then
+        TARGET="--iterations $2"
+        [ "$2" != "150000" ] && EVALUATE=no          # a first look: no frozen evaluation yet
+    fi
 else
     RUNS=../../runs/stage08/18_electrons_27_sites_real_gradient/training
 fi
@@ -119,7 +131,7 @@ elif [ "$1" = "eps3" ]; then
     echo "launched, one run on GPU 0; logs in $LOGS/"
     exit 0
 elif [ "$1" = "paper5" ]; then
-    start 0 "'attention_18e_eps5 --network attention --eps 5 --network-form paper'"
+    start 0 "'attention_18e_eps5 --network attention --eps 5 --network-form paper $TARGET'"
     echo "launched, one run on GPU 0; logs in $LOGS/"
     exit 0
 else

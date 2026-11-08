@@ -79,8 +79,8 @@ Table II settings instead (`train_moire.py --settings table2`).
    checkpoint_structure.py` measures S(kappa) at every checkpoint. In
    `runs/stage08/18_electrons_27_sites_eps3_real_gradient/`. Done (2026-11-07):
    no honeycomb, S(kappa) 0.63, lower than at eps = 5; but an uneven density
-   (static modulation 3.4 against 0.3 at eps = 5; on the sites a regular
-   modulation, mostly at q = (2/3) kappa), the electrons still on their sites.
+   (static modulation 3.4 against 0.3 at eps = 5; on the sites dominated by
+   three directions at q = (2/3) kappa), the electrons still on their sites.
    Results in that folder's README.
 10. **The paper's printed network in the trainer** (2026-11-08):
    `--network-form paper` trains the attention network as the paper prints it
@@ -88,7 +88,9 @@ Table II settings instead (`train_moire.py --settings table2`).
    query and value matrix per head), stored in the trainer's layout
    (`psiformer.py`, last section): kfac-jax recognised none of Stage 5's layers
    as written, and every parameter fell back to its crude diagonal block.
-   Initial weights are Stage 5's (0.1 x normal); the paper gives none.
+   Initial weights are Stage 5's (0.1 x normal); the paper gives none. So paper5
+   against the released run compares two implementations, their initial weights
+   included; it cannot isolate tanh against GELU.
    Tests: it is Stage 5's network (wave function and both derivative parts, 6
    and 18 electrons), Appendix C's parameter count, kfac-jax sees only dense
    layers; the trainer builds it and refuses what the paper does not have; its
@@ -96,8 +98,9 @@ Table II settings instead (`train_moire.py --settings table2`).
    exactly. 7 mutants caught. Smoke run (300 iterations, 18 electrons, eps = 5,
    GPU 0): finite, 1.08 s per iteration, higher energies than the released
    network at the same iteration (-41.4 against -52.1 meV per electron at 299).
-   `launch_table1.sh paper5` runs it at eps = 5 against `attention_18e_eps5` of
-   the real-gradient folder. Not started.
+   `launch_table1.sh paper5 [ITERATIONS]` runs it at eps = 5 against
+   `attention_18e_eps5` of the real-gradient folder: first `paper5 5000` (a look
+   at 5,000 iterations, no evaluation), then `paper5 150000` continues it.
 
 ## Files in this folder
 

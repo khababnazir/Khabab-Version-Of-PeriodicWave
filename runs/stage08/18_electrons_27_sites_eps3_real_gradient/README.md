@@ -89,11 +89,12 @@ gives the same phase on every site. The 27 mean site occupations themselves, at 
 vectors (`results/site_pattern.csv`, without such double counting), carry a pattern of 0.875
 (0.093 at eps = 5, 0.105 at eps = 10): 58 % of it in the shell q = (2/3) kappa, with all three
 directions comparably strong (0.10, 0.08, 0.07 per +-q pair), 25 % at |q| = |b|/3, 15 % at
-|q| = 3.69 / a_M, and 0.9 % at kappa. Three comparable directions whose wave vectors add up to
-zero make a regular triangular modulation. Its period is half our supercell, 6.75 sites and 4.5
-electrons per repeat, so it is a density wave, not a crystal of whole electrons; with one cell
-size we cannot tell whether the cell sets it. So at eps = 3 the network breaks the moire
-lattice's translation symmetry, regularly, but not into the honeycomb.
+|q| = 3.69 / a_M, and 0.9 % at kappa. The (2/3) kappa part alone, three directions whose wave
+vectors add up to zero, would repeat every half supercell (6.75 sites and 4.5 electrons per
+repeat); the other 41.5 % of the pattern does not, so the pattern as a whole has no such period.
+What it is: a density modulation dominated by three directions, without the honeycomb's signal.
+So at eps = 3 the network breaks the moire lattice's translation symmetry, but not into the
+honeycomb.
 
 **The electrons stay on their sites** (`results/off_site.csv`). At all three eps 0.26 of the
 density lies more than 0.35 a_M from the nearest site, and about 0.06 within 0.15 a_M of the
@@ -105,7 +106,7 @@ their sites; at eps = 3 it does not.
 **What this says.**
 - Our network can make an uneven density: at eps = 3 it breaks the translation symmetry
   strongly. So the missing honeycomb at eps = 5 is not because it can only make even ones.
-- With the stronger repulsion it made a different, regular modulation, not the honeycomb,
+- With the stronger repulsion it made a different modulation, not the honeycomb,
   although for classical electrons on the sites a stronger repulsion favours the honeycomb more.
   Either the honeycomb is not the lowest state this network can reach for our Hamiltonian, or
   the training settles in another state and stays there. This run cannot decide it: that needs
@@ -118,8 +119,11 @@ their sites; at eps = 3 it does not.
 - The first version of the results called the eps = 3 pattern irregular, with "several
   unrelated wave vectors", and read that as a hint of a trapped training. Two of those wave
   vectors differ by a moire reciprocal vector and are the same modulation of the sites; on the
-  sites the pattern is regular (above, `results/site_pattern.csv`). "Irregular" and that reading
-  are withdrawn.
+  sites the pattern is dominated by three directions at q = (2/3) kappa (above,
+  `results/site_pattern.csv`). "Irregular" and that reading are withdrawn.
+- The second version (same day) called it a regular triangular modulation with half the
+  supercell's period. Only its (2/3) kappa part, 58.5 %, has that period; 41.5 % lies in other
+  shells. Reworded after a fourth review.
 - The plan said that no crystal at eps = 3 would mean that the network or its training "cannot
   form it, whatever the physics". One run cannot show that; reworded.
 - A lower eps favours the honeycomb for classical point electrons on the sites; for the quantum
