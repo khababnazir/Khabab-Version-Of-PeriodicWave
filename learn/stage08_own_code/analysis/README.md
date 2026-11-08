@@ -43,6 +43,7 @@ functions of `evaluate_weights.py`).
 |---|---|---|
 | `checkpoint_structure.py` | Does a crystal form during training? At every training checkpoint of the runs given: S(κ), its connected part, S(κ) with the electrons moved onto their nearest sites, the share of the electrons on each sublattice, and the share of walkers whose emptiest sublattice holds 3 electrons or fewer. CPU; reads only complete checkpoints, so it can run while a run trains. Checks itself on ideal honeycombs and an even filling at every start. | `results/checkpoint_structure_<run>.csv` beside each run, `figures/checkpoint_structure.png` in the first run's folder |
 | `compare_gradients.py` | Table I with the authors' gradient against the full gradient: energies, correlation energies, training curves of both. Run after `table1_results.py` and `table1_results.py --gradient full`. | `18_electrons_27_sites_full_gradient/results/real_vs_full.csv`, `correlation_real_vs_full.csv`, `figures/5_real_vs_full.png` |
+| `eps3_results.py` | The attention network at ε = 3 (our diagnostic) against ε = 5 and 10, authors' gradient: frozen and training energies and whether the evaluation settled, S(κ) and the sublattices, the share of the density away from the sites, the static density modulation at every wave vector, and the paper's Fig. 6 layout with a third column. | `18_electrons_27_sites_eps3_real_gradient/results/energies.csv`, `structure.csv`, `off_site.csv`, `density_modulation.csv`, `figures/1_…`, `figures/2_…` |
 | `gradient_test_results.py` | The gradient test: SlaterNet eps = 10 continued from iteration 33,545 with the authors' and the full gradient, against the original run, row by row and with frozen weights; whether each evaluation had settled. | `gradient_test/results/*.csv`, `gradient_test/figures/gradient_test.png` |
 | `table1_results.py` | Frozen-weight and training energies against the paper's Table I, the correlation energy, where the electrons are (S(κ), sublattice occupations), and the paper's Fig. 6 for both networks. Uses the energy unit, blocking error bar and colours of `../6_electrons_9_sites/analyse_runs.py`, unchanged. | `results/*.csv`, `figures/1_…` to `figures/4_…` |
 
@@ -87,6 +88,7 @@ uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --wi
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python table1_results.py --gradient full
 uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python compare_gradients.py
 JAX_PLATFORMS=cpu CUDA_VISIBLE_DEVICES= uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python checkpoint_structure.py RUN [RUN ...]
+uv run --no-project --python ../../../../.venv/bin/python --with matplotlib --with pyblock python eps3_results.py
 ```
 
 The project environment has no matplotlib; `uv run --no-project ... --with

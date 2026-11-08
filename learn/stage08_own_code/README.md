@@ -77,7 +77,10 @@ Table II settings instead (`train_moire.py --settings table2`).
    (`launch_table1.sh eps3`). Not in the paper: at eps = 5 ours shows no
    honeycomb (S(kappa) 0.72-0.73, as at eps = 10). `analysis/18_electrons_27_sites/
    checkpoint_structure.py` measures S(kappa) at every checkpoint. In
-   `runs/stage08/18_electrons_27_sites_eps3_real_gradient/`. Running.
+   `runs/stage08/18_electrons_27_sites_eps3_real_gradient/`. Done (2026-11-07):
+   no honeycomb, S(kappa) 0.63, lower than at eps = 5; but an irregular uneven
+   density (static modulation 3.4 against 0.3 at eps = 5), the electrons still on
+   their sites. Results in that folder's README.
 
 ## Files in this folder
 
