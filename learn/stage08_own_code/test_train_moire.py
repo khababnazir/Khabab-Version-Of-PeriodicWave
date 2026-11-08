@@ -23,6 +23,11 @@ Stage 8 checks for train_moire.py.  Run:  python test_train_moire.py   (CPU, dou
   18 e        --settings table2 is the paper's Table II; the 27-site cell is
               the authors'; at 27 sites our local energy, fast (folx +
               slogdet) and reference (full Hessian + det), equals theirs.
+  paper form  --network-form paper (2026-11-08) builds the paper's printed
+              attention network (test_networks.py: it IS Stage 5's), refuses
+              what the paper does not have, keeps the released network the
+              default; its fast and reference local energies agree at 27
+              sites; stop and restart gives exactly the run that never stopped.
 
 What this cannot show: that a long run converges.  Two runs with different
 random numbers (initial weights, Metropolis moves) follow different paths;
@@ -506,6 +511,73 @@ class EighteenElectronsTest(absltest.TestCase):
 
 def setUpModule():
     reference.SameNetworksTest.setUpClass()       # loads the reference runs once
+
+
+class PaperFormTest(absltest.TestCase):
+    """--network-form paper: the paper's printed attention network in the trainer (2026-11-08)."""
+
+    def test_the_trainer_builds_the_paper_network(self):
+        import psiformer
+        paper = dataclasses.replace(tm.TABLE_II, network_form="paper")
+        problem = tm.make_problem("attention", 5.0, 18, paper)
+        arch = problem.arch
+        self.assertIsInstance(arch, psiformer.PaperAttentionArchitecture)
+        self.assertEqual((arch.n_layers, arch.n_heads, arch.attention_dim, arch.width, arch.n_determinants),
+                         (3, 6, 16, 64, 4))
+        params = problem.init(jax.random.PRNGKey(0), arch)
+        self.assertEqual(sum(int(np.prod(x.shape)) for x in jax.tree.leaves(params)), 95680)   # Appendix C
+        lattice = slaternet.supercell_vectors(27)
+        R = slaternet.random_walkers(jax.random.PRNGKey(1), 1, 18, lattice)[0]
+        expected = psiformer.log_psi_paper(params, R, slaternet.reciprocal_vectors(lattice), arch)
+        np.testing.assert_array_equal(problem.log_psi(params, R).log_abs, expected.log_abs)
+        for network, settings, message in (
+                ("slaternet", paper, "attention network only"),
+                ("attention", dataclasses.replace(paper, attention_perceptrons=2), "one perceptron"),
+                ("attention", dataclasses.replace(paper, network_form="tanh"), "network_form must be")):
+            with self.subTest(message), self.assertRaisesRegex(ValueError, message):
+                tm.make_problem(network, 5.0, 18, settings)
+        # The released network stays the default, and Table II does not change it.
+        self.assertEqual((tm.Settings().network_form, tm.TABLE_II.network_form), ("released", "released"))
+        self.assertIsInstance(tm.make_problem("attention", 5.0, 18, tm.TABLE_II).arch,
+                              psiformer.ReleasedAttentionArchitecture)
+
+    def test_fast_local_energy_equals_the_reference_at_27_sites(self):
+        """folx + slogdet against full Hessian + det for the paper network at 18 electrons.  Its
+        softmax is jax.nn.softmax, in double precision here, so no exact_attention is needed."""
+        lattice = slaternet.supercell_vectors(27)
+        walkers = slaternet.random_walkers(jax.random.PRNGKey(6), 2, 18, lattice)
+        energies = {}
+        for laplacian, determinants in (("folx", "slogdet"), ("hessian", "det")):
+            problem = tm.make_problem("attention", 5.0, 18, dataclasses.replace(
+                tm.TABLE_II, network_form="paper", laplacian=laplacian, determinants=determinants))
+            params = jax.tree.map(lambda x: 4.0 * x + 0.05, problem.init(jax.random.PRNGKey(5), problem.arch))
+            one = jax.jit(lambda R: problem.local_energy(params, R))
+            energies[laplacian] = np.array([complex(one(R)) for R in walkers])
+        fast, reference_e = energies["folx"], energies["hessian"]
+        print(f"paper network, 27 sites: folx + slogdet {fast}, hessian + det {reference_e}")
+        np.testing.assert_allclose(fast.real, reference_e.real, rtol=1e-9)
+        np.testing.assert_allclose(fast.imag, reference_e.imag, rtol=0, atol=1e-9 * np.max(np.abs(reference_e)))
+
+    def test_restart_continues_exactly_with_the_paper_network(self):
+        small = dataclasses.replace(tm.Settings(), batch=16, burn_in=2, mcmc_steps=3, network_form="paper",
+                                    attention_layers=1, attention_heads=2, attention_perceptrons=1)
+        quiet = lambda *args: None                              # noqa: E731
+        with tempfile.TemporaryDirectory() as scratch:
+            straight, restarted = Path(scratch, "straight"), Path(scratch, "restarted")
+            straight.mkdir()
+            restarted.mkdir()
+            tm.train(straight, "attention", 5.0, "real", 0, 4, small, log=quiet)
+            tm.train(restarted, "attention", 5.0, "real", 0, 2, small, log=quiet)
+            tm.train(restarted, "attention", 5.0, "real", 0, 4, small, log=quiet)
+            with np.load(straight / "checkpoint_000004.npz") as a, np.load(restarted / "checkpoint_000004.npz") as b:
+                self.assertEqual(sorted(a.files), sorted(b.files))
+                for name in a.files:
+                    np.testing.assert_array_equal(a[name], b[name], err_msg=name)
+                    self.assertTrue(np.all(np.isfinite(a[name])), name)
+            with np.load(restarted / "checkpoint_000002.npz") as early, np.load(straight / "checkpoint_000004.npz") as last:
+                moved = [name for name in early.files if name.startswith("params_")
+                         and not np.array_equal(early[name], last[name])]
+            self.assertTrue(moved, "KFAC changed no parameter between iterations 2 and 4")
 
 
 if __name__ == "__main__":

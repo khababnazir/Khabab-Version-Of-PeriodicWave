@@ -152,6 +152,11 @@ class EvaluateWeightsTest(absltest.TestCase):
             fake_run(folder, 0.0, electrons=18)
             saved, settings = evaluate_weights.run_settings(folder)
             self.assertEqual((saved["electrons"], settings), (18, EIGHTEEN))
+            text = json.loads((folder / "settings.json").read_text())   # a paper-network run (2026-11-08)
+            text["settings"]["network_form"] = "paper"
+            (folder / "settings.json").write_text(json.dumps(text))
+            self.assertEqual(evaluate_weights.run_settings(folder)[1],
+                             dataclasses.replace(EIGHTEEN, network_form="paper"))
             fake_run(folder, 0.0)                               # a folder made before 2026-10-30
             saved, settings = evaluate_weights.run_settings(folder)
             self.assertEqual(saved["electrons"], 6)

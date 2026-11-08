@@ -82,6 +82,22 @@ Table II settings instead (`train_moire.py --settings table2`).
    (static modulation 3.4 against 0.3 at eps = 5; on the sites a regular
    modulation, mostly at q = (2/3) kappa), the electrons still on their sites.
    Results in that folder's README.
+10. **The paper's printed network in the trainer** (2026-11-08):
+   `--network-form paper` trains the attention network as the paper prints it
+   (Stage 5: tanh residual blocks, no layer norm, Eq. 18's attention, one key,
+   query and value matrix per head), stored in the trainer's layout
+   (`psiformer.py`, last section): kfac-jax recognised none of Stage 5's layers
+   as written, and every parameter fell back to its crude diagonal block.
+   Initial weights are Stage 5's (0.1 x normal); the paper gives none.
+   Tests: it is Stage 5's network (wave function and both derivative parts, 6
+   and 18 electrons), Appendix C's parameter count, kfac-jax sees only dense
+   layers; the trainer builds it and refuses what the paper does not have; its
+   fast and reference local energies agree at 27 sites; a restart continues
+   exactly. 7 mutants caught. Smoke run (300 iterations, 18 electrons, eps = 5,
+   GPU 0): finite, 1.08 s per iteration, higher energies than the released
+   network at the same iteration (-41.4 against -52.1 meV per electron at 299).
+   `launch_table1.sh paper5` runs it at eps = 5 against `attention_18e_eps5` of
+   the real-gradient folder. Not started.
 
 ## Files in this folder
 
@@ -89,7 +105,7 @@ Table II settings instead (`train_moire.py --settings table2`).
 |---|---|
 | `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
 | `launch_fig5.sh` | **6 electrons, 9 sites.** Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power), and CPU and memory (`system_monitor.py`). Data in `runs/stage08/6_electrons_9_sites_real_gradient/training/`. |
-| `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check; `launch_table1.sh full` the four runs with the full gradient; `launch_table1.sh eps3` the attention network at eps = 3 on GPU 0 (2026-11-06). Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/training/`. |
+| `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check; `launch_table1.sh full` the four runs with the full gradient; `launch_table1.sh eps3` the attention network at eps = 3 on GPU 0 (2026-11-06); `launch_table1.sh paper5` the paper's printed attention network at eps = 5 on GPU 0 (2026-11-08). Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/training/`. |
 | `branch_run.py` | Makes a new training folder from **one** checkpoint of an existing run, with only the gradient convention changed (`make`), and compares two runs row by row (`compare`). The original folder is only read. |
 | `launch_gradient_test.sh` | **18 electrons, 27 sites.** The gradient test: SlaterNet eps = 10 from checkpoint 33,545 with the authors' gradient (GPU 1) and the full one (GPU 0), to 76,070 iterations, each then compared with the original and evaluated with frozen weights. `launch_gradient_test.sh check` first runs 20 iterations of each, to check that the saved state comes back. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/`. |
 | `system_monitor.py` | Every 10 s: CPU and memory of the machine and of one job, to a CSV beside the GPU record. Started by every launcher. |

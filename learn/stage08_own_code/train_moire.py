@@ -10,6 +10,8 @@ Options:  --network slaternet | attention     --eps 5 | 10 | 3   (3: our diagnos
           --settings released | table2    (default released, see below)
           --laplacian hessian | folx      (default hessian;  folx for 18 electrons)
           --determinants det | slogdet    (default det;  slogdet for 18 electrons)
+          --network-form released | paper (default released; paper: the attention network
+                                the paper prints, Stage 5 -- added 2026-11-08)
           --learning-rate ETA0    (default: that of --settings)
           --iterations N    (default 200,000 released, 150,000 table2)
           --gradient real | full    (default real, see below)
@@ -118,6 +120,9 @@ class Settings:
     attention_perceptrons: int = 2     # perceptrons per layer
     laplacian: str = "hessian"         # kinetic energy: "hessian" (Stage 4) or "folx"
     determinants: str = "det"          # adding the determinants: "det" (Stage 3) or "slogdet"
+    # Added 2026-11-08.  "released": the authors' released network (every run before);
+    # "paper": the attention network the paper prints (psiformer.PaperAttentionArchitecture).
+    network_form: str = "released"
 
 
 # The paper's Table II (p. 7).  What it does not list keeps the released value.
@@ -128,8 +133,9 @@ ITERATIONS = {"released": 200000, "table2": 150000}
 SITES = {6: 9, 18: 27}                 # electrons -> sites at filling 2/3: Fig. 5 and Table I
 
 # Folders made before 2026-10-30 lack these entries in settings.json; their runs used these values.
+# Folders made before 2026-11-08 also lack network_form: they all trained the released network.
 BEFORE_18_ELECTRONS = dict(attention_layers=4, attention_heads=4, attention_perceptrons=2,
-                           laplacian="hessian", determinants="det")
+                           laplacian="hessian", determinants="det", network_form="released")
 
 
 # ------------------------------------------------------------- the physics
@@ -164,14 +170,27 @@ def make_problem(network, eps, electrons=6, settings=Settings()):
 
     lattice = slaternet.supercell_vectors(SITES[electrons])
     G = slaternet.reciprocal_vectors(lattice)
-    if network == "slaternet":
+    if settings.network_form not in ("released", "paper"):
+        raise ValueError(f"network_form must be 'released' or 'paper', not {settings.network_form!r}")
+    if settings.network_form == "paper":
+        # The paper's printed network: attention only (Table II gives no SlaterNet sizes), with
+        # one perceptron per layer, as its Eq. (20) has.
+        if network != "attention":
+            raise ValueError("network_form 'paper' is for the attention network only")
+        if settings.attention_perceptrons != 1:
+            raise ValueError("the paper's network has one perceptron per layer (Eq. 20)")
+        arch = psiformer.PaperAttentionArchitecture(
+            n_electrons=electrons, n_layers=settings.attention_layers, n_heads=settings.attention_heads,
+            determinants=settings.determinants)
+        init, network_log_psi = psiformer.init_paper, psiformer.log_psi_paper
+    elif network == "slaternet":
         arch = slaternet.ReleasedArchitecture(n_electrons=electrons, determinants=settings.determinants)
-        init, log_psi_released = slaternet.init_released, slaternet.log_psi_released
+        init, network_log_psi = slaternet.init_released, slaternet.log_psi_released
     elif network == "attention":
         arch = psiformer.ReleasedAttentionArchitecture(
             n_electrons=electrons, n_layers=settings.attention_layers, n_heads=settings.attention_heads,
             perceptrons_per_layer=settings.attention_perceptrons, determinants=settings.determinants)
-        init, log_psi_released = psiformer.init_released, psiformer.log_psi_released
+        init, network_log_psi = psiformer.init_released, psiformer.log_psi_released
     else:
         raise ValueError(f"unknown network {network!r}")
     if settings.laplacian not in ("hessian", "folx"):
@@ -181,7 +200,7 @@ def make_problem(network, eps, electrons=6, settings=Settings()):
     ewald = make_ewald_setup(lattice)
 
     def log_psi(params, R):
-        return log_psi_released(params, R, G, arch)
+        return network_log_psi(params, R, G, arch)
 
     def e_loc(params, R):
         psi = lambda X: log_psi(params, X)                 # noqa: E731
@@ -518,6 +537,8 @@ def main():
     parser.add_argument("--settings", choices=sorted(SETTINGS), default="released")
     parser.add_argument("--laplacian", choices=["hessian", "folx"], default="hessian")
     parser.add_argument("--determinants", choices=["det", "slogdet"], default="det")
+    parser.add_argument("--network-form", choices=["released", "paper"], default="released",
+                        help="released: the authors' released network; paper: the one the paper prints")
     parser.add_argument("--learning-rate", type=float, default=None, help="default: that of --settings")
     parser.add_argument("--iterations", type=int, default=None,
                         help="default 200000 (released), 150000 (table2)")
@@ -525,7 +546,7 @@ def main():
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     settings = dataclasses.replace(SETTINGS[args.settings], laplacian=args.laplacian,
-                                   determinants=args.determinants)
+                                   determinants=args.determinants, network_form=args.network_form)
     if args.learning_rate is not None:
         settings = dataclasses.replace(settings, learning_rate=args.learning_rate)
     folder = args.out.resolve()

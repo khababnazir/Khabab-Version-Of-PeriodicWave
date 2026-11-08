@@ -296,5 +296,77 @@ class SameNetworksTest(absltest.TestCase):
                 self.assertEqual(covered, case["n_parameters"])
 
 
+def assert_same_tree(test, a, b, **tolerance):
+    test.assertEqual(jax.tree.structure(a), jax.tree.structure(b))
+    for x, y in zip(jax.tree.leaves(a), jax.tree.leaves(b)):
+        np.testing.assert_allclose(np.asarray(x), np.asarray(y), **tolerance)
+
+
+class PaperNetworkTest(absltest.TestCase):
+    """psiformer.py's paper network in the trainer's layout (2026-11-08) IS Stage 5's network,
+    the one the paper prints, and kfac-jax sees its layers."""
+
+    def cases(self):
+        """(electrons, G, Table II sizes, Stage 5 parameters, 3 walkers) at 6 and 18 electrons."""
+        for electrons, sites in ((6, 9), (18, 27)):
+            lattice = slaternet.supercell_vectors(sites)
+            arch = psiformer.PaperAttentionArchitecture(n_electrons=electrons)
+            stage5 = psiformer.init_parameters(jax.random.PRNGKey(3), arch.stage5())
+            # Larger weights than at initialisation, so that every layer matters.
+            stage5 = jax.tree.map(lambda x: 4.0 * x + 0.05, stage5)
+            walkers = slaternet.random_walkers(jax.random.PRNGKey(4), 3, electrons, lattice)
+            yield electrons, slaternet.reciprocal_vectors(lattice), arch, stage5, walkers
+
+    def test_same_wave_function_as_stage5(self):
+        for electrons, G, arch, stage5, walkers in self.cases():
+            ours = psiformer.paper_from_stage5(stage5)
+            assert_same_tree(self, psiformer.init_paper(jax.random.PRNGKey(3), arch),
+                             psiformer.paper_from_stage5(psiformer.init_parameters(jax.random.PRNGKey(3), arch.stage5())),
+                             rtol=0, atol=0)
+            for determinants in ("det", "slogdet"):
+                for R in walkers:
+                    mine = psiformer.log_psi_paper(ours, R, G, PaperArch(arch, determinants))
+                    theirs = psiformer.log_psi(stage5, R, G)
+                    with self.subTest(electrons=electrons, determinants=determinants):
+                        np.testing.assert_allclose(mine.log_abs, theirs.log_abs, rtol=1e-11)
+                        self.assertLess(abs(np.angle(np.exp(1j * (mine.phase - theirs.phase)))), 1e-9)
+
+    def test_same_derivatives_as_stage5(self):
+        """d log|Psi| / d theta and d phase / d theta, the two parts of the gradient (Stage 6):
+        the rearrangement carries them over number by number."""
+        for electrons, G, arch, stage5, walkers in self.cases():
+            ours = psiformer.paper_from_stage5(stage5)
+            arch = PaperArch(arch, "slogdet")
+            for part in ("log_abs", "phase"):
+                mine = jax.grad(lambda p: getattr(psiformer.log_psi_paper(p, walkers[0], G, arch), part))(ours)
+                theirs = jax.grad(lambda p: getattr(psiformer.log_psi(p, walkers[0], G), part))(stage5)
+                scale = max(float(np.max(np.abs(x))) for x in jax.tree.leaves(mine))
+                with self.subTest(electrons=electrons, part=part):
+                    assert_same_tree(self, mine, psiformer.paper_from_stage5(theirs), rtol=1e-8, atol=1e-10 * scale)
+
+    def test_parameter_count_is_appendix_c(self):
+        for electrons, G, arch, stage5, walkers in self.cases():
+            n = sum(int(np.prod(x.shape)) for x in jax.tree.leaves(psiformer.paper_from_stage5(stage5)))
+            self.assertEqual(n, psiformer.appendix_c_parameter_count(arch.stage5()))
+            self.assertEqual(n, {6: 89536, 18: 95680}[electrons])
+
+    def test_kfac_sees_only_dense_layers(self):
+        """Every parameter in a dense block (RepeatedDenseBlock); the Stage 5 layout, the reason for
+        this one, gives kfac-jax's fallback (NaiveDiagonal) instead."""
+        electrons, G, arch, stage5, walkers = next(self.cases())                  # 6 electrons
+        ours = psiformer.paper_from_stage5(stage5)
+        layers = kfac_layers(lambda p, R: psiformer.log_psi_paper(p, R, G, arch).log_abs, ours, walkers)
+        self.assertEqual({block for block, _ in layers}, {"RepeatedDenseBlock"})
+        covered = sum(int(np.prod(s)) for _, shapes in layers for s in shapes)
+        self.assertEqual(covered, sum(int(np.prod(x.shape)) for x in jax.tree.leaves(ours)))
+        stage5_layers = kfac_layers(lambda p, R: psiformer.log_psi(p, R, G).log_abs, stage5, walkers)
+        self.assertIn("NaiveDiagonal", {block for block, _ in stage5_layers})
+
+
+def PaperArch(arch, determinants):
+    import dataclasses
+    return dataclasses.replace(arch, determinants=determinants)
+
+
 if __name__ == "__main__":
     absltest.main()

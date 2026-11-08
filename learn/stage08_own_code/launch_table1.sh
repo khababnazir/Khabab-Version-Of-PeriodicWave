@@ -28,6 +28,14 @@
 #       then its frozen-weight evaluation.  Not in the paper: a diagnostic --
 #       does our network form the honeycomb crystal when the repulsion is
 #       stronger?  About 33-41 hours.
+#   bash learn/stage08_own_code/launch_table1.sh paper5        (2026-11-08)
+#       One run, on GPU 0 only: the attention network as the paper prints it
+#       (--network-form paper: tanh residual blocks, no layer norm, Eq. 18's
+#       attention; Stage 5) at eps = 5 with the authors' gradient, everything
+#       else as above (seed 0, Table II, folx + slogdet), into
+#       runs/stage08/18_electrons_27_sites_paper_network_real_gradient/training/,
+#       then its frozen-weight evaluation.  Against attention_18e_eps5 of the
+#       real-gradient folder only the network form differs.
 #
 # Safe to run again: train_moire.py continues every run from its newest
 # checkpoint, a finished run exits at once, and a run whose folder or GPU is
@@ -40,8 +48,8 @@
 #
 # Watch:  tail -f runs/stage08/18_electrons_27_sites_full_gradient/training/logs/gpu0.log
 case "$1" in
-    ""|test|full|eps3) ;;
-    *) echo "usage: bash launch_table1.sh [test | full | eps3]"; exit 2 ;;
+    ""|test|full|eps3|paper5) ;;
+    *) echo "usage: bash launch_table1.sh [test | full | eps3 | paper5]"; exit 2 ;;
 esac
 cd "$(dirname "$0")" || exit 1
 PY=../../.venv/bin/python
@@ -53,6 +61,9 @@ if [ "$1" = "full" ]; then
     EVALUATE=yes
 elif [ "$1" = "eps3" ]; then
     RUNS=../../runs/stage08/18_electrons_27_sites_eps3_real_gradient/training
+    EVALUATE=yes
+elif [ "$1" = "paper5" ]; then
+    RUNS=../../runs/stage08/18_electrons_27_sites_paper_network_real_gradient/training
     EVALUATE=yes
 else
     RUNS=../../runs/stage08/18_electrons_27_sites_real_gradient/training
@@ -107,8 +118,12 @@ elif [ "$1" = "eps3" ]; then
     start 0 "'attention_18e_eps3 --network attention --eps 3'"
     echo "launched, one run on GPU 0; logs in $LOGS/"
     exit 0
+elif [ "$1" = "paper5" ]; then
+    start 0 "'attention_18e_eps5 --network attention --eps 5 --network-form paper'"
+    echo "launched, one run on GPU 0; logs in $LOGS/"
+    exit 0
 else
-    echo "usage: bash launch_table1.sh [test | full | eps3]"
+    echo "usage: bash launch_table1.sh [test | full | eps3 | paper5]"
     exit 2
 fi
 echo "launched, one run on GPU 0 and one on GPU 1; logs in $LOGS/"

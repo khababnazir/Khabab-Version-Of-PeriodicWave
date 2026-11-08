@@ -276,6 +276,99 @@ def log_psi_released(params: dict, positions: jax.Array, G: jax.Array,
     return add(released_orbitals(params["orbital"], h, arch.n_determinants))
 
 
+# ---------------------------------------------------------------------------
+#  Stage 8 (2026-11-08): the paper's network above, in the trainer's layout
+# ---------------------------------------------------------------------------
+#
+# Until now train_moire.py trained only the released network (the section above).  This is
+# the network the paper prints, the functions at the top of this file: Eqs. (7), (8),
+# (15)-(20), (22), (23) -- four inputs, tanh residual blocks, no layer norm, one key, query
+# and value matrix per head, softmax_j(k_i . q_j) and then 1 / sqrt(d_values).
+#
+# Why a second copy?  kfac-jax finds the layers of a network by pattern: a dense layer is
+# x @ w (+ b), with w as it is stored.  The functions at the top compute x @ W.T and an einsum,
+# and kfac-jax recognises none of them: every parameter silently falls back to its crude
+# diagonal block (NaiveDiagonal), which is a different optimiser.  So here the SAME parameters
+# are stored transposed, (inputs, outputs), and the orbital projection as one dense layer in
+# the released packing (released_orbitals).  paper_from_stage5 is that rearrangement and
+# nothing else; test_networks.py checks that the two give the same wave function and the
+# same derivatives, and that kfac-jax now sees only dense layers.
+#
+# Initial weights: the paper gives none.  These are Stage 5's (0.1 x normal, perceptron
+# biases zero), rearranged.  determinants="slogdet" as in the released sections.
+
+@dataclass(frozen=True)
+class PaperAttentionArchitecture:
+    """The paper's attention network for train_moire.py; defaults are Table II's sizes."""
+    n_electrons: int
+    n_determinants: int = 4
+    n_layers: int = 3
+    n_heads: int = 6
+    attention_dim: int = 16
+    value_dim: int = 16
+    width: int = 64
+    init_scale: float = 0.1
+    determinants: str = "det"       # "det" or "slogdet": see slaternet.sum_of_determinants_slogdet
+
+    def stage5(self) -> AttentionArchitecture:
+        """The same sizes as the Stage 5 architecture at the top of this file."""
+        return AttentionArchitecture(n_electrons=self.n_electrons, n_determinants=self.n_determinants,
+                                     n_layers=self.n_layers, n_heads=self.n_heads,
+                                     attention_dim=self.attention_dim, value_dim=self.value_dim,
+                                     width=self.width, init_scale=self.init_scale)
+
+
+def paper_from_stage5(params: dict) -> dict:
+    """Stage 5's parameters (init_parameters) in the trainer's layout, dense layers {"w": (in, out), "b"}.
+
+    Only a rearrangement: every number appears once, transposed or reshaped."""
+    proj = params["proj"]                                         # (D, N, 2, width), Eq. (22)
+    return {
+        "embed": {"w": params["embed"].T},                        # (4, width)
+        "layers": [{
+            "heads": [{"k": {"w": head["W_k"].T}, "q": {"w": head["W_q"].T}, "v": {"w": head["W_v"].T}}
+                      for head in layer["attention"]["heads"]],
+            "output": {"w": layer["attention"]["W_o"].T},         # (heads * d_values, width)
+            "perceptron": {"w": layer["perceptron"][0].T, "b": layer["perceptron"][1]},
+        } for layer in params["layers"]],
+        # released_orbitals reads column 2 (m N + j) + r as part r (0 real, 1 imaginary) of
+        # orbital j of determinant m: proj[m, j, r, :] goes there.
+        "orbital": {"w": jnp.transpose(proj, (3, 0, 1, 2)).reshape(proj.shape[3], -1)},
+    }
+
+
+def init_paper(key, arch: PaperAttentionArchitecture) -> dict:
+    """Stage 5's initial parameters for these sizes, in the trainer's layout."""
+    return paper_from_stage5(init_parameters(key, arch.stage5()))
+
+
+def self_attention_paper(layer: dict, h: jax.Array) -> jax.Array:
+    """self_attention at the top (Eqs. 15-19), with the rearranged parameters."""
+    head_outputs = []
+    for head in layer["heads"]:
+        keys, queries, values = dense(h, head["k"]), dense(h, head["q"]), dense(h, head["v"])
+        weights = jax.nn.softmax(keys @ queries.T, axis=1)               # [i, j] = exp(k_i . q_j) / sum_j
+        head_outputs.append(weights @ values / jnp.sqrt(values.shape[1]))
+    return dense(jnp.concatenate(head_outputs, axis=1), layer["output"])
+
+
+def hidden_states_paper(params: dict, positions: jax.Array, G: jax.Array) -> jax.Array:
+    """hidden_states at the top (Eqs. 8, 19, 20), with the rearranged parameters."""
+    h = dense(periodic_features(positions, G), params["embed"])            # Eq. (8)
+    for layer in params["layers"]:
+        f = h + self_attention_paper(layer, h)                              # Eq. (19)
+        h = f + jnp.tanh(dense(f, layer["perceptron"]))                     # Eq. (20)
+    return h
+
+
+def log_psi_paper(params: dict, positions: jax.Array, G: jax.Array,
+                  arch: PaperAttentionArchitecture) -> LogPsi:
+    """The paper's attention network: log|Psi| and arg Psi (Eqs. 22, 23)."""
+    h = hidden_states_paper(params, positions, G)
+    add = determinant_sum(arch.determinants)
+    return add(released_orbitals(params["orbital"], h, arch.n_determinants))
+
+
 if __name__ == "__main__":
     import time
     import numpy as np
