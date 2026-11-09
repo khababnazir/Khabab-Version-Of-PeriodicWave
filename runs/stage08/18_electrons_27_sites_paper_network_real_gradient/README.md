@@ -82,6 +82,17 @@ server, one line every 30 minutes into `training/logs/watch.log`: iteration and 
 acceptance, variance, S(kappa) at the newest checkpoint, the GPU; ALERT lines for non-finite
 numbers, a stall, an early stop, a non-zero exit code, or the GPU at 88 C. It only reads.
 
+**Progress at 30,000 iterations** (2026-11-09, 08:50 UTC): the imbalance seen at 5,000 has
+faded steadily since. S(kappa) went from 0.951 to 0.703 (checkpoint 29,814), its static part
+from 0.40 to 0.077, the emptiest sublattice's share from 0.205 to 0.278
+(`results/checkpoint_structure_attention_18e_eps5.csv`; `figures/checkpoint_structure.png`, now
+with the released run beside it). Over the same stretch the gap to the released network's energy
+at the same iterations closed from 1.01 to 0.24 meV per electron (4,500-4,999: -57.644 against
+-58.658; 29,000-29,499: -58.791 against -59.033). Both networks started with one sublattice
+emptier at their first checkpoint (shares 0.263 and 0.242); the paper network kept it longer
+and is now losing it too. So far the honeycomb trend of the first 5,000 iterations looks
+transient.
+
 ## Results
 
 After the run.

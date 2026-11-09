@@ -152,7 +152,8 @@ def main():
               f"sublattices {last['sublattice_0']:.3f} / {last['sublattice_1']:.3f} / {last['sublattice_2']:.3f}"
               f"  -> {out}")
         it = np.array([r["iteration"] for r in rows]) / 1000
-        label = f"{settings['network']}, ε = {settings['eps']:g}, {settings['gradient']} gradient"
+        form = settings["settings"].get("network_form", "released")     # missing before 2026-11-08: released
+        label = f"{settings['network']} ({form} network), ε = {settings['eps']:g}, {settings['gradient']} gradient"
         line, = ax_s.plot(it, [r["S_kappa"] for r in rows], marker=".", label=label)
         ax_share.plot(it, [min(r["sublattice_0"], r["sublattice_1"], r["sublattice_2"]) for r in rows],
                       marker=".", color=line.get_color())
