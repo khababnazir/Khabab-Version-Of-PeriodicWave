@@ -39,9 +39,48 @@ iterations: finite, 1.08 s per iteration.
 
 Folders: `training/` (the run and `logs/`); later `evaluation/`, `results/`, `figures/`.
 
-## After 5,000 iterations
+## After 5,000 iterations (reviewed 2026-11-09)
 
-To come.
+Step 1 ended on 2026-11-08 at 08:17:51 server time (exit code 0; 5,000 iterations in 5,487 s,
+1.09 s per iteration). All 5,000 rows are there, in order, with no non-finite number. Against
+the released run (`attention_18e_eps5` of the real-gradient folder) at the same iterations,
+means over 500 iterations, energies in meV per electron:
+
+| iterations | paper network E/N | released E/N | paper variance | released variance | paper acceptance | released acceptance |
+|---|---|---|---|---|---|---|
+| 0-499 | -36.61 | -49.30 | 2812 | 1416 | 0.21 | 0.09 |
+| 1000-1499 | -49.63 | -57.59 | 1504 | 171 | 0.49 | 0.43 |
+| 2500-2999 | -56.63 | -58.35 | 376 | 96 | 0.51 | 0.53 |
+| 4500-4999 | -57.64 | -58.66 | 211 | 63 | 0.52 | 0.54 |
+
+Healthy: finite, the acceptance settled at 0.52 as in the released run, the energy still
+falling. But it is 1.0 meV per electron above the released network at the same iteration, with
+3.3 times its variance.
+
+Where the electrons are (`results/checkpoint_structure_attention_18e_eps5.csv`,
+`figures/checkpoint_structure.png`):
+
+| iteration | S(kappa) | connected part | share on the three sublattices | walkers with an emptiest sublattice of <= 3 electrons |
+|---|---|---|---|---|
+| 1,626 | 0.699 | 0.570 | 0.263 / 0.361 / 0.376 | 14 % |
+| 3,273 | 0.806 | 0.527 | 0.226 / 0.386 / 0.388 | 27 % |
+| 4,922 | 0.940 | 0.551 | 0.207 / 0.398 / 0.395 | 45 % |
+| 5,000 | 0.951 | 0.550 | 0.205 / 0.403 / 0.392 | 45 % |
+
+The released run at its checkpoints 1,627, 3,283 and 4,933: S(kappa) 0.791, 0.635, 0.619, its
+emptiest sublattice at 0.242, 0.318, 0.330. Both started with one sublattice emptier; the
+released network lost that, the paper network deepens it, towards the 0 / 1/2 / 1/2 of a
+honeycomb that stays put. The rise of S(kappa) is in its static part (S(kappa) minus the
+connected part is 0.40 at 5,000): the density itself begins to show one honeycomb. It is early:
+S(kappa) is still below 1 (electrons fixed on a perfect honeycomb give 4.5), and the energy is
+above the released network's. A trend, not a crystal.
+
+**Step 2**: `bash learn/stage08_own_code/launch_table1.sh paper5 150000` started on 2026-11-09
+at 01:08:59 server time and continued from `checkpoint_005000.npz` (GPU 0; about 44 hours,
+then the frozen-weight evaluation). `learn/stage08_own_code/watch_run.py` watches it from the
+server, one line every 30 minutes into `training/logs/watch.log`: iteration and speed, energy,
+acceptance, variance, S(kappa) at the newest checkpoint, the GPU; ALERT lines for non-finite
+numbers, a stall, an early stop, a non-zero exit code, or the GPU at 88 C. It only reads.
 
 ## Results
 

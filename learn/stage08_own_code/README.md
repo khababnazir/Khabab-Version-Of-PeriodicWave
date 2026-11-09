@@ -102,7 +102,11 @@ Table II settings instead (`train_moire.py --settings table2`).
    `attention_18e_eps5` of the real-gradient folder: first `paper5 5000` (a look
    at 5,000 iterations, no evaluation), then `paper5 150000` continues it.
    Step 1 started 2026-11-08 06:44 UTC, in
-   `runs/stage08/18_electrons_27_sites_paper_network_real_gradient/`.
+   `runs/stage08/18_electrons_27_sites_paper_network_real_gradient/`. Reviewed
+   at 5,000 iterations (2026-11-09): healthy, 1.0 meV per electron above the
+   released network, and one sublattice emptying (S(kappa) 0.70 -> 0.95, its
+   share 0.26 -> 0.21), where the released run's evened out. Step 2 to 150,000
+   started 2026-11-09 01:09 UTC, watched by `watch_run.py`.
 
 ## Files in this folder
 
@@ -111,6 +115,7 @@ Table II settings instead (`train_moire.py --settings table2`).
 | `train_moire.py` | Trains **one** network at one ε with our code: Metropolis moves (Stage 4), local energy (Stages 4 + 7), clipped gradient (Stage 6), KFAC step. All settings are the reference run's. Continues from its newest checkpoint when started again. |
 | `launch_fig5.sh` | **6 electrons, 9 sites.** Starts the four runs, one queue per GPU (GPU 0: ε = 10, GPU 1: ε = 5; SlaterNet first, then the attention network). Each queue records its GPU every 10 s (utilization, memory, temperature, power), and CPU and memory (`system_monitor.py`). Data in `runs/stage08/6_electrons_9_sites_real_gradient/training/`. |
 | `launch_table1.sh` | **18 electrons, 27 sites.** The runs of Table I with the paper's Table II settings, one queue per GPU (GPU 0: ε = 5, GPU 1: ε = 10; attention network first, then SlaterNet). `launch_table1.sh test` first runs the 2,000-iteration learning-rate check; `launch_table1.sh full` the four runs with the full gradient; `launch_table1.sh eps3` the attention network at eps = 3 on GPU 0 (2026-11-06); `launch_table1.sh paper5` the paper's printed attention network at eps = 5 on GPU 0 (2026-11-08). Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/training/`. |
+| `watch_run.py` | A watchdog for one training run, on the server (2026-11-09): one line every `--every` seconds into `<system>/training/logs/watch.log` -- iteration, speed, energy, acceptance, variance, S(κ) at the newest checkpoint, the GPU -- and ALERT lines for non-finite numbers, a stall, an early stop, a non-zero exit code, the GPU at 88 °C. Reads only; never restarts anything. |
 | `branch_run.py` | Makes a new training folder from **one** checkpoint of an existing run, with only the gradient convention changed (`make`), and compares two runs row by row (`compare`). The original folder is only read. |
 | `launch_gradient_test.sh` | **18 electrons, 27 sites.** The gradient test: SlaterNet eps = 10 from checkpoint 33,545 with the authors' gradient (GPU 1) and the full one (GPU 0), to 76,070 iterations, each then compared with the original and evaluated with frozen weights. `launch_gradient_test.sh check` first runs 20 iterations of each, to check that the saved state comes back. Same records as `launch_fig5.sh`. Data in `runs/stage08/18_electrons_27_sites_real_gradient/gradient_test/`. |
 | `system_monitor.py` | Every 10 s: CPU and memory of the machine and of one job, to a CSV beside the GPU record. Started by every launcher. |
