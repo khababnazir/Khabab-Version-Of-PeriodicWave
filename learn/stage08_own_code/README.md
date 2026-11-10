@@ -131,8 +131,18 @@ Table II settings instead (`train_moire.py --settings table2`).
 13. **A reference with the authors' own code** (from 2026-11-10): their program
    and their script, unchanged, for 18 electrons on 27 sites at eps = 5 and 10
    (their script's settings: 1024 walkers, learning rate 0.1, 4 layers, 4 heads,
-   200,000 iterations -- not Table II). GPU 1, about 19 hours each. In
-   `runs/stage08/18_electrons_27_sites_authors_code/`. Running.
+   200,000 iterations -- not Table II). About 19 hours each. In
+   `runs/stage08/18_electrons_27_sites_authors_code/`. First start 2026-11-10 on
+   GPU 1: lost after 11 minutes, GPU 1 fell off the bus (Xid 79; the second
+   time). No new program can start on either GPU until a reboot; then to be
+   started again (the start script now checks the GPU before each run).
+14. **The authors' code with Table II's values** (prepared 2026-11-10): a copy of
+   their script with seven numbers changed (4096 walkers, 150,000 iterations,
+   learning rate 10 / (1 + t/100000), 3 layers, 6 heads, 1 perceptron), for
+   eps = 10; the configuration it builds was checked to differ from theirs in
+   exactly those seven entries. One GPU, about 44 hours. In
+   `runs/stage08/18_electrons_27_sites_authors_code_table2/`. Not started:
+   waiting for the reboot.
 
 ## Files in this folder
 

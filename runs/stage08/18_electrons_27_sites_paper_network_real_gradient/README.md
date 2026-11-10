@@ -102,6 +102,12 @@ weight is on the six total momenta of the open shell (`momentum_sectors.py`; see
 This is one seed, at 84,600 of 150,000 iterations, with other initial weights than the released
 network: it does not show that the network form plays no role.
 
+**2026-11-10, 02:25:35: GPU 1 fell off the bus** (`../18_electrons_27_sites_authors_code/README.md`).
+This run, on GPU 0, goes on (iteration 89,261 at 02:39). But no new program can start on either
+GPU until the server is rebooted, so the frozen-weight evaluation that follows the training
+will refuse to start. After a reboot, `bash learn/stage08_own_code/launch_table1.sh paper5 150000`
+continues the training from its newest checkpoint if it was cut short, and runs the evaluation.
+
 ## Results
 
 After the run.

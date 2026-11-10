@@ -17,7 +17,11 @@ gradient convention:
   against our released-network run: does it form the honeycomb? Started 2026-11-08.
 - `18_electrons_27_sites_authors_code/`: a reference. The authors' own program, unchanged and
   started with their own script (its settings, not Table II; no line of ours in the training),
-  for 18 electrons at eps = 5 and 10. Started 2026-11-10.
+  for 18 electrons at eps = 5 and 10. First start 2026-11-10: lost after 11 minutes, GPU 1 fell
+  off the bus; to be started again after a reboot.
+- `18_electrons_27_sites_authors_code_table2/`: the authors' program with the paper's Table II
+  values, through a copy of their script with seven numbers changed, for 18 electrons at
+  eps = 10. Prepared 2026-11-10; not started (the GPUs need the reboot).
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|
@@ -27,6 +31,7 @@ gradient convention:
 | `18_electrons_27_sites_eps3_real_gradient/` | 18 electrons on 27 sites, eps = 3 | authors' (real) | none (our diagnostic) | the same; `checkpoint_structure.py` |
 | `18_electrons_27_sites_paper_network_real_gradient/` | 18 electrons on 27 sites, eps = 5, the paper's printed network | authors' (real) | Fig. 6 | the same; `checkpoint_structure.py` |
 | `18_electrons_27_sites_authors_code/` | 18 electrons on 27 sites, eps = 5 and 10, the AUTHORS' program and script, unchanged | theirs | Table I, Fig. 6 | to come |
+| `18_electrons_27_sites_authors_code_table2/` | 18 electrons on 27 sites, eps = 10, the AUTHORS' program, their script with Table II's seven numbers | theirs | Table I, Fig. 6 | to come |
 
 Until 2026-11-03 the two `_real_gradient` folders were named `6_electrons_9_sites/` and
 `18_electrons_27_sites/`; `summary.json` and `branch.json` files written before still show the

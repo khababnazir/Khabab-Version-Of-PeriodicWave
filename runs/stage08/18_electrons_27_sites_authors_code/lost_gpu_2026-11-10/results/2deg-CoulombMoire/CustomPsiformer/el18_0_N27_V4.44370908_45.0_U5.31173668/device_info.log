@@ -1,0 +1,113 @@
+2026-11-10 02:25:41,337 - JAX version: 0.8.0
+2026-11-10 02:25:41,337 - jax_enable_x64: False
+2026-11-10 02:25:41,337 - JAXlib version: 0.8.0
+2026-11-10 02:25:41,337 - KFAC-JAX version: 0.0.7
+2026-11-10 02:25:41,337 - Available devices: ['TFRT_CPU_0']
+2026-11-10 02:25:41,337 - Platform: cpu
+2026-11-10 02:25:41,338 - Default precision: float32
+2026-11-10 02:25:41,338 - Default matmul precision: float32
+2026-11-10 02:25:41,338 - GPU information: No GPU detected.
+2026-11-10 02:25:41,338 - Python version: 3.13.15
+2026-11-10 02:25:41,338 - System: Linux #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026
+2026-11-10 02:25:41,338 - Processor: x86_64
+2026-11-10 02:25:41,338 - Numpy version: 2.3.4
+2026-11-10 02:25:41,338 - CUDA_VISIBLE_DEVICES: 1
+2026-11-10 02:25:41,338 - NVIDIA driver version: 595.99.02
+2026-11-10 02:25:41,338 - GPU models: NVIDIA GeForce RTX 3090
+2026-11-10 02:25:41,340 - Starting QMC with 1 XLA devices per host across 1 hosts.
+2026-11-10 02:25:43,715 - No checkpoint found. Training new model.
+2026-11-10 02:25:51,411 - ==================================================
+2026-11-10 02:25:51,413 - Graph parameter registrations:
+{'envelope': [{}],
+ 'layers': {'attention': [{'attn_output': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias]',
+                           'k_w': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias]',
+                           'q_w': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias]',
+                           'v_w': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias]'},
+                          {'attn_output': 'Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias]',
+                           'k_w': 'Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias]',
+                           'q_w': 'Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias]',
+                           'v_w': 'Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias]'},
+                          {'attn_output': 'Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias]',
+                           'k_w': 'Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias]',
+                           'q_w': 'Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias]',
+                           'v_w': 'Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias]'},
+                          {'attn_output': 'Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias]',
+                           'k_w': 'Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias]',
+                           'q_w': 'Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias]',
+                           'v_w': 'Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias]'}],
+            'embed': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_no_bias]',
+            'input': {},
+            'ln': [[{'offset': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]'},
+                    {'offset': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]'}],
+                   [{'offset': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]'},
+                    {'offset': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]'}],
+                   [{'offset': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]'},
+                    {'offset': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]'}],
+                   [{'offset': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]'},
+                    {'offset': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]',
+                     'scale': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]'}]],
+            'mlp': [[{'b': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]'},
+                     {'b': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]'}],
+                    [{'b': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]'},
+                     {'b': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]'}],
+                    [{'b': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]'},
+                     {'b': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]'}],
+                    [{'b': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]'},
+                     {'b': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]',
+                      'w': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]'}]]},
+ 'orbital': [{'w': 'Auto[tag_variant=repeated_dense(25)|match_type=repeated_dense1_no_bias]'}]}
+2026-11-10 02:25:51,413 - ==================================================
+2026-11-10 02:25:51,439 - Graph registered losses:
+2026-11-10 02:25:51,439 - NormalMeanNegativeLogProbLoss(mean=Var(id=138229431145088):float32[1024,1], variance=Literal(TypedFloat(0.5, dtype=float32)), weight=Literal(TypedFloat(1.0, dtype=float32)), normalize_log_prob=Literal(True))
+2026-11-10 02:25:51,439 - ==================================================
+2026-11-10 02:25:51,441 - BlockDiagonalCurvature blocks:
+2026-11-10 02:25:51,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,442 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,443 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,443 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,443 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,443 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-11-10 02:25:51,443 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_no_bias], params shapes: ((5, 64),)
+2026-11-10 02:25:51,443 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,443 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,443 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,443 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,443 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,444 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,444 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,444 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,444 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,445 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias], params shapes: ((64, 64), (64,))
+2026-11-10 02:25:51,445 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(25)|match_type=repeated_dense1_no_bias], params shapes: ((64, 144),)
+2026-11-10 02:25:51,445 - ==================================================
+2026-11-10 02:25:51,650 - Burning in MCMC chain for 300 steps

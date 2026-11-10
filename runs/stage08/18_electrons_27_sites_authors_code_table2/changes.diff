@@ -1,0 +1,22 @@
+148c148
+< cfg.batch_size = 1024
+---
+> cfg.batch_size = 4096
+153,155c153,155
+< cfg.optim.iterations = 200000
+< cfg.optim.lr.rate    = 0.1
+< cfg.optim.lr.delay   = 20000
+---
+> cfg.optim.iterations = 150000
+> cfg.optim.lr.rate    = 10.0
+> cfg.optim.lr.delay   = 100000
+178,179c178,179
+<     cfg.network.CustomPsiformer.num_layers = 4
+<     cfg.network.CustomPsiformer.num_heads  = 4
+---
+>     cfg.network.CustomPsiformer.num_layers = 3
+>     cfg.network.CustomPsiformer.num_heads  = 6
+183c183
+<     cfg.network.CustomPsiformer.num_perceptrons_per_layer = 2
+---
+>     cfg.network.CustomPsiformer.num_perceptrons_per_layer = 1
