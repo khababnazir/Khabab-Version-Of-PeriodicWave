@@ -106,7 +106,16 @@ Table II settings instead (`train_moire.py --settings table2`).
    at 5,000 iterations (2026-11-09): healthy, 1.0 meV per electron above the
    released network, and one sublattice emptying (S(kappa) 0.70 -> 0.95, its
    share 0.26 -> 0.21), where the released run's evened out. Step 2 to 150,000
-   started 2026-11-09 01:09 UTC, watched by `watch_run.py`.
+   started 2026-11-09 01:09 UTC, watched by `watch_run.py`. At 84,600 iterations
+   (2026-11-10): the same liquid as the released network, S(kappa) 0.71.
+11. **Why our densities are uneven: an open shell** (2026-11-10,
+   `analysis/18_electrons_27_sites/shell_structure.py`). 18 electrons on the 27
+   allowed momenta leave one place free in a shell of six, so the liquid is
+   six-fold degenerate and its mixtures have an uneven density at the wave
+   vectors between the shell's members. 98-99 % of our site patterns at eps = 10,
+   5 and 3 lie there (69 % by chance). Our networks are on the liquid branch at
+   every eps; why they do not reach the paper's honeycomb at eps = 5 is open.
+   In `runs/stage08/18_electrons_27_sites_eps3_real_gradient/README.md`.
 
 ## Files in this folder
 

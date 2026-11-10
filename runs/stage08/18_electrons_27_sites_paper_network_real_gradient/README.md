@@ -93,6 +93,11 @@ emptier at their first checkpoint (shares 0.263 and 0.242); the paper network ke
 and is now losing it too. So far the honeycomb trend of the first 5,000 iterations looks
 transient.
 
+**Progress at 84,600 iterations** (2026-11-10, 01:24 UTC; `training/logs/watch.log`, no ALERT):
+S(kappa) has been between 0.70 and 0.72 since about 45,000, its static part 0.001 to 0.004:
+the same liquid as the released network, no honeycomb. Energy over the last 500 iterations
+-59.032 meV per electron (variance 25).
+
 ## Results
 
 After the run.

@@ -114,6 +114,52 @@ their sites; at eps = 3 it does not.
   that the network cannot represent a honeycomb.
 - One seed, one network form (the released one, Table II sizes), the authors' gradient.
 
+## Why the density is uneven: an open shell (2026-11-10)
+
+`shell_structure.py` (same analysis folder; `results/shell_structure.csv`). A cell of 27 sites
+allows 27 crystal momenta. One electron in the moire potential, without interaction, has these
+lowest-band energies on them (band width 14.2 meV):
+
+| shell, at k (1/a_M) | momenta | energy (meV) | filled by 18 electrons |
+|---|---|---|---|
+| 0 | 1 | -11.99 | 1 |
+| 1.396 | 6 | -9.39 | 6 |
+| 2.418 | 6 | -4.71 | 6 |
+| 2.793 | 6 | -2.58 | **5 of 6: an open shell** |
+| 3.694 | 6 | 0.17 | 0 |
+| 4.189 (kappa) | 2 | 2.24 | 0 |
+
+With one place free in a shell of six, a liquid ground state of 18 electrons in this cell is
+six-fold degenerate (one state for each momentum left out; the lattice's rotations and k -> -k
+turn them into each other, also with the interaction). Any mixture of them is an equally good
+ground state, and a mixture has an uneven density at the wave vectors k_i - k_j between
+members of the shell, and only there: |q| = 2.418, 2.793 and 3.694 -- not 1.396, and not kappa.
+
+That is where our site patterns are (`results/site_pattern.csv`):
+
+| eps | pattern | on those three shells | at 1.396 | at kappa |
+|---|---|---|---|---|
+| 10 | 0.105 | 98.8 % | 0.8 % | 0.5 % |
+| 5 | 0.093 | 98.1 % | 1.9 % | 0.0 % |
+| 3 | 0.875 | 99.0 % | 0.2 % | 0.9 % |
+
+(The three shells hold 18 of the 26 wave vectors, so a pattern without this origin would put
+about 69 % there.) So the uneven density of our trained networks, at all three eps, is the
+mark of the open shell: they are on the liquid branch, in a mixture of its degenerate states.
+That is not an error of the wave function -- every such mixture has the same energy -- but it is
+not a crystal. An even density at eps = 10, as the paper's Fig. 6(a) looks, is the member with
+one momentum left out. At eps = 3 the pattern is far stronger than one free place can give
+(site occupations up to 0.87), so the interaction has deepened it, at the same wave vectors.
+
+For 6 electrons on 9 sites the shell at 2.418 is open too (5 of 6), and its differences lie at
+2.418 and at kappa.
+
+Size of the repulsion against the band width: e^2 / (4 pi eps0 eps a_M) / 14.2 meV is 1.3 at
+eps = 10, 2.5 at eps = 5 and 4.2 at eps = 3: neither weak nor far in the crystal's regime.
+
+What it does not say: why our training stays on the liquid branch at eps = 5, where the paper
+shows the honeycomb. For that the energy of a honeycomb state of our network is needed.
+
 ## Corrections (2026-11-08, after an external review)
 
 - The first version of the results called the eps = 3 pattern irregular, with "several
