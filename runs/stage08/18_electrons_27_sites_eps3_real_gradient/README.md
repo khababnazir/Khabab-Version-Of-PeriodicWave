@@ -114,11 +114,11 @@ their sites; at eps = 3 it does not.
   that the network cannot represent a honeycomb.
 - One seed, one network form (the released one, Table II sizes), the authors' gradient.
 
-## Why the density is uneven: an open shell (2026-11-10)
+## The uneven density and the open shell (2026-11-10; corrected the same day, see Corrections)
 
-`shell_structure.py` (same analysis folder; `results/shell_structure.csv`). A cell of 27 sites
-allows 27 crystal momenta. One electron in the moire potential, without interaction, has these
-lowest-band energies on them (band width 14.2 meV):
+**One electron, no interaction** (`shell_structure.py`, `results/shell_structure.csv`). A cell
+of 27 sites allows 27 crystal momenta. One electron in the moire potential has these lowest-band
+energies on them (band width 14.2 meV):
 
 | shell, at k (1/a_M) | momenta | energy (meV) | filled by 18 electrons |
 |---|---|---|---|
@@ -129,13 +129,13 @@ lowest-band energies on them (band width 14.2 meV):
 | 3.694 | 6 | 0.17 | 0 |
 | 4.189 (kappa) | 2 | 2.24 | 0 |
 
-With one place free in a shell of six, a liquid ground state of 18 electrons in this cell is
-six-fold degenerate (one state for each momentum left out; the lattice's rotations and k -> -k
-turn them into each other, also with the interaction). Any mixture of them is an equally good
-ground state, and a mixture has an uneven density at the wave vectors k_i - k_j between
-members of the shell, and only there: |q| = 2.418, 2.793 and 3.694 -- not 1.396, and not kappa.
+Without interaction the ground state of 18 electrons is therefore six-fold degenerate: one state
+for each momentum left out, with total momentum minus that momentum. Each of them alone has an
+even density, and so has a statistical mixture of them. A coherent superposition of several has
+an uneven density, at the wave vectors k_i - k_j between members of the shell and only there:
+|q| = 2.418, 2.793 and 3.694 -- not 1.396, and not kappa.
 
-That is where our site patterns are (`results/site_pattern.csv`):
+**Our site patterns lie at those wave vectors** (`results/site_pattern.csv`):
 
 | eps | pattern | on those three shells | at 1.396 | at kappa |
 |---|---|---|---|---|
@@ -143,22 +143,54 @@ That is where our site patterns are (`results/site_pattern.csv`):
 | 5 | 0.093 | 98.1 % | 1.9 % | 0.0 % |
 | 3 | 0.875 | 99.0 % | 0.2 % | 0.9 % |
 
-(The three shells hold 18 of the 26 wave vectors, so a pattern without this origin would put
-about 69 % there.) So the uneven density of our trained networks, at all three eps, is the
-mark of the open shell: they are on the liquid branch, in a mixture of its degenerate states.
-That is not an error of the wave function -- every such mixture has the same energy -- but it is
-not a crystal. An even density at eps = 10, as the paper's Fig. 6(a) looks, is the member with
-one momentum left out. At eps = 3 the pattern is far stronger than one free place can give
-(site occupations up to 0.87), so the interaction has deepened it, at the same wave vectors.
+(The three shells hold 18 of the 26 wave vectors: about 69 % by chance.)
+
+**The non-interacting picture is not the whole description.** In it no site can be filled more
+than 19/27 = 0.704: all six momenta of the shell filled give 19 electrons, 19/27 on every site,
+and taking one electron out lowers the density. Our largest site occupations are 0.723
+(eps = 10), 0.732 (eps = 5) and 0.868 (eps = 3). And the calculation has no interaction in it.
+
+**The trained, interacting wave functions, measured** (`momentum_sectors.py`,
+`results/momentum_sectors.csv`). The full Hamiltonian, interaction included, does not change
+when every electron is moved by the same lattice vector, so every wave function is a sum of
+parts with a definite total momentum K, with weights w_K that add up to 1. From the newest
+checkpoint of each run (its 4,096 walkers; errors from their spread, in brackets):
+
+| run | weight on the six momenta of the 2.793 shell | each of the six | largest weights elsewhere |
+|---|---|---|---|
+| attention eps = 10 (released network, authors' gradient) | 0.984(10) | 0.14 - 0.19 | 0.005 (1.396, 2.418) |
+| attention eps = 5 (released, authors' gradient) | 0.963(8) | 0.15 - 0.18 | 0.013 (3.694) |
+| attention eps = 5 (released, full gradient) | 0.983(13) | 0.14 - 0.19 | 0.007 |
+| attention eps = 5 (paper network, at 86,034) | 0.970(9) | 0.10 - 0.20 | 0.015 (2.418) |
+| attention eps = 3 | 0.541(7) | 0.06 - 0.11 | 0.173 (3.694), 0.145 (2.418), 0.085 (1.396) |
+| SlaterNet eps = 5 (released, authors' gradient) | 0.159(1) | 0.005 - 0.070 | 0.332 (3.694), 0.261 (2.418) |
+
+What follows, and what does not:
+- **Measured**: at eps = 10 and 5 the attention networks hold 96-98 % of their weight on the six
+  total momenta that the open shell gives, spread over all six. So the shell picture does
+  describe these interacting wave functions, and a coherent sum over several momenta is what
+  makes their densities uneven.
+- **Exact**: the Hamiltonian does not mix different K, so the energy of a wave function is the
+  weighted average of the energies of its parts; and the lattice's symmetries turn the six
+  momenta into each other, so the lowest energy is the same in each. Unevenness of this kind
+  costs no energy by itself.
+- **Exact**: a honeycomb in the density needs weight on momenta that differ by kappa (an ideal
+  one that stays put has three such momenta, 1/3 each). No two momenta of the 2.793 shell differ
+  by kappa, so a wave function with its weight in that shell cannot show a honeycomb in its
+  density, at any eps. (A honeycomb only in the correlations is not excluded by this; S(kappa)
+  of 0.72 excludes it.)
+- **Not shown**: that these six momenta hold the ground state, or that the part of our wave
+  function in each momentum is the best possible one. "Liquid or crystal at eps = 5" is the
+  question which momenta hold the lower energy; it is not answered here.
+- **Not described by this picture**: eps = 3 (46 % of the weight outside the shell) and the
+  SlaterNet (spread over all shells).
+- One checkpoint and 4,096 walkers per run, one seed per run.
 
 For 6 electrons on 9 sites the shell at 2.418 is open too (5 of 6), and its differences lie at
 2.418 and at kappa.
 
 Size of the repulsion against the band width: e^2 / (4 pi eps0 eps a_M) / 14.2 meV is 1.3 at
-eps = 10, 2.5 at eps = 5 and 4.2 at eps = 3: neither weak nor far in the crystal's regime.
-
-What it does not say: why our training stays on the liquid branch at eps = 5, where the paper
-shows the honeycomb. For that the energy of a honeycomb state of our network is needed.
+eps = 10, 2.5 at eps = 5 and 4.2 at eps = 3.
 
 ## Corrections (2026-11-08, after an external review)
 
@@ -177,3 +209,15 @@ shows the honeycomb. For that the energy of a honeycomb state of our network is 
 - Checked and unchanged: the recorded settings differ from `attention_18e_eps5` of the
   real-gradient folder only in eps; S(kappa) is 0.6314 in the frozen evaluation and 0.633 with
   the last checkpoint's walkers.
+- 2026-11-10, after a fifth review of the open-shell section's first version (commit 5a58bc8):
+  - It said "any mixture of them is an equally good ground state, and a mixture has an uneven
+    density". A statistical mixture of the momentum states has an even density; only a coherent
+    superposition is uneven. And the calculation had no interaction in it, so "equally good
+    ground state" of the interacting system was not established. Rewritten; the interacting
+    wave functions are now measured (`momentum_sectors.py`).
+  - It did not say that the non-interacting picture limits a site's occupation to 19/27 = 0.704,
+    which our networks exceed at all three eps (0.723, 0.732, 0.868). Added.
+  - It called the unevenness "not an error of the wave function" and the states "the liquid
+    branch". What is shown: the weight is on the open shell's momenta (96-98 % at eps = 10 and
+    5), and unevenness of that kind costs no energy by itself. Not shown: that these are ground
+    states.

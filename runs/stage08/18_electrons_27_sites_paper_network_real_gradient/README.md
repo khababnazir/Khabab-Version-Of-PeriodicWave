@@ -94,9 +94,13 @@ and is now losing it too. So far the honeycomb trend of the first 5,000 iteratio
 transient.
 
 **Progress at 84,600 iterations** (2026-11-10, 01:24 UTC; `training/logs/watch.log`, no ALERT):
-S(kappa) has been between 0.70 and 0.72 since about 45,000, its static part 0.001 to 0.004:
-the same liquid as the released network, no honeycomb. Energy over the last 500 iterations
--59.032 meV per electron (variance 25).
+S(kappa) has been between 0.70 and 0.72 since about 45,000, its static part 0.001 to 0.004,
+as in the released network's run: no honeycomb so far. Energy over the last 500 iterations
+-59.032 meV per electron (variance 25). At checkpoint 86,034, 97.0(9) % of the wave function's
+weight is on the six total momenta of the open shell (`momentum_sectors.py`; see
+`../18_electrons_27_sites_eps3_real_gradient/README.md`), as for the released network.
+This is one seed, at 84,600 of 150,000 iterations, with other initial weights than the released
+network: it does not show that the network form plays no role.
 
 ## Results
 

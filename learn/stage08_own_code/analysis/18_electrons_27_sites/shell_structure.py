@@ -10,10 +10,17 @@ electron in the moire potential (no interaction) has a lowest-band energy E(k), 
 diagonalising  H = -1/2 laplacian + V_moire  in plane waves exp(i (k + G) . r).  Momenta related
 by the lattice's rotations by 120 degrees and by k -> -k have the same energy: a SHELL.  The
 electrons fill the shells from below, as in an atom.  If the last shell is only partly filled
-(an OPEN shell), the non-interacting ground state is degenerate, and so is the interacting one
-as long as it stays a liquid: its states can be labelled by the momentum left out, and any
-mixture of them is an equally good ground state.  A mixture has an uneven density, at the
-wave vectors q = k_i - k_j between members of the open shell -- and only there.
+(an OPEN shell), the NON-INTERACTING ground state is degenerate: one state for each momentum
+left out.  Each of them alone has an even density, and so has a statistical mixture of them.
+A coherent superposition of several has an uneven density, at the wave vectors q = k_i - k_j
+between members of the open shell -- and only there.  This script has no interaction in it:
+whether the trained, interacting wave functions sit in those states is measured by
+momentum_sectors.py, not here.  (Corrected 2026-11-10: the first version said "mixture" for
+"coherent superposition" and called the superpositions equally good interacting ground states.)
+
+In this non-interacting picture no site can be filled more than (electrons + free places) /
+sites = 19/27: the full shell gives that everywhere, and taking an electron out lowers the
+density.  The script prints how far the trained networks exceed it.
 
 Output (printed, and results/shell_structure.csv in the eps = 3 folder, where
 site_pattern.csv is):
@@ -141,6 +148,17 @@ def main():
         one_body = row["kinetic"] + row["moire"]
         assert one_body > energy27, f"{row['run']}: kinetic + moire {one_body} below the non-interacting {energy27}"
         print(f"   check, {row['run']}: kinetic + moire {one_body:.3f} meV per electron > {energy27:.3f}")
+
+    # The non-interacting one-hole picture's limit on a site's occupation, against the networks'.
+    free = sum(r["members"] - r["filled"] for r in open27)
+    bound = (18 + free) / 27
+    structure = pd.read_csv(EPS3 / "results" / "structure.csv")
+    print(f"   non-interacting limit on a site's occupation: (18 + {free}) / 27 = {bound:.3f}")
+    for _, row in structure.iterrows():
+        print(f"   {row['run']}: largest site occupation {row['site_occupation_max']:.3f}, "
+              f"{row['site_occupation_max'] - bound:+.3f} against the limit")
+        table.append(dict(sites=27, electrons=18, eps=row["eps"], site_occupation_max=row["site_occupation_max"],
+                          non_interacting_limit=bound))
 
     print("the measured site pattern (site_pattern.csv): share on the open shell's difference wave vectors")
     pattern = pd.read_csv(EPS3 / "results" / "site_pattern.csv")
