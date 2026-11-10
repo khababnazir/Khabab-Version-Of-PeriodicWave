@@ -128,6 +128,11 @@ Table II settings instead (`train_moire.py --settings table2`).
    (no extra potential) against the existing state. A reliably lower energy
    would show that the existing state is not the best variational result; a
    higher one, or a crystal that melts when trained on, would be inconclusive.
+13. **A reference with the authors' own code** (from 2026-11-10): their program
+   and their script, unchanged, for 18 electrons on 27 sites at eps = 5 and 10
+   (their script's settings: 1024 walkers, learning rate 0.1, 4 layers, 4 heads,
+   200,000 iterations -- not Table II). GPU 1, about 19 hours each. In
+   `runs/stage08/18_electrons_27_sites_authors_code/`. Running.
 
 ## Files in this folder
 

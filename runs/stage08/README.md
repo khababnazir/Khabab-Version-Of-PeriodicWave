@@ -15,6 +15,9 @@ gradient convention:
 - `18_electrons_27_sites_paper_network_real_gradient/`: the attention network as the paper
   prints it (`--network-form paper`: tanh, no layer norm) at eps = 5 with the authors' gradient,
   against our released-network run: does it form the honeycomb? Started 2026-11-08.
+- `18_electrons_27_sites_authors_code/`: a reference. The authors' own program, unchanged and
+  started with their own script (its settings, not Table II; no line of ours in the training),
+  for 18 electrons at eps = 5 and 10. Started 2026-11-10.
 
 | Folder | System | Gradient | Paper | Analysis scripts |
 |---|---|---|---|---|
@@ -23,6 +26,7 @@ gradient convention:
 | `18_electrons_27_sites_full_gradient/` | 18 electrons on 27 sites | full | Table I, Fig. 6 | the same, with `--gradient full` |
 | `18_electrons_27_sites_eps3_real_gradient/` | 18 electrons on 27 sites, eps = 3 | authors' (real) | none (our diagnostic) | the same; `checkpoint_structure.py` |
 | `18_electrons_27_sites_paper_network_real_gradient/` | 18 electrons on 27 sites, eps = 5, the paper's printed network | authors' (real) | Fig. 6 | the same; `checkpoint_structure.py` |
+| `18_electrons_27_sites_authors_code/` | 18 electrons on 27 sites, eps = 5 and 10, the AUTHORS' program and script, unchanged | theirs | Table I, Fig. 6 | to come |
 
 Until 2026-11-03 the two `_real_gradient` folders were named `6_electrons_9_sites/` and
 `18_electrons_27_sites/`; `summary.json` and `branch.json` files written before still show the
