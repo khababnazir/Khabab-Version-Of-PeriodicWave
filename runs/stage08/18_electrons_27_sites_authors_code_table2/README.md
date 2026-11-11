@@ -69,6 +69,9 @@ although the run had crashed, so a finished run is recognised by its last step, 
 line; and between 03:30 and 03:48 nobody noticed -- a row count of `train_stats.csv` was taken
 for progress without looking at the file's time or the process.
 
+**2026-11-11, 03:57: started again, on GPU 0** (no cap on GPU 0), from the beginning, after the
+power cycle at 03:52 (`../18_electrons_27_sites_authors_code/README.md`).
+
 ## Results
 
 After the run.

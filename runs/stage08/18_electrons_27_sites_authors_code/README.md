@@ -90,6 +90,15 @@ GPU 1 has now been lost three times: 2026-10-28 (after about 190,000 iterations 
 run), 2026-11-10 (11 minutes into this run) and 2026-11-11 (7 minutes). Nothing new can start
 on either GPU until the server is switched off and on.
 
+**2026-11-11, 04:03: started again on GPU 1, now capped at 250 W** (`sudo nvidia-smi -i 1 -pl 250`,
+typed by Khabab; the cap is gone after every boot). The server had been restarted at 03:52 with
+`sync; sudo ipmitool chassis power cycle`, which cuts the power and came back by itself in
+about a minute -- unlike `sudo reboot`, which twice did not come back after this fault.
+With the cap GPU 1 runs at about 235 W and 70-75 C (before: about 275 W, 83-87 C) and one
+iteration takes about 0.37 s (before: 0.34 s), so about 21 hours for each eps. It passed the
+points of the two earlier losses (7 and 11 minutes) without a fault; that is one observation,
+not proof that the cap is the cure.
+
 ## Results
 
 After the runs.

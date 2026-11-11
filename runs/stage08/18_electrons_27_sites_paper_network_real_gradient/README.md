@@ -116,6 +116,10 @@ the GPU 0 lock, checks that the GPU can start a program, then runs
 `launch_table1.sh paper5 150000` and the watchdog; its lines are in
 `training/logs/waiting_for_gpu0.log`.
 
+**2026-11-11, 03:57: `resume_when_gpu0_is_free.sh` waits again**, behind the Table II run that
+was started again on GPU 0 after a power cycle. (At 03:30 it had seen GPU 0 become free,
+found that the GPU could not start a program, and started nothing, as intended.)
+
 ## Results
 
 After the run.
