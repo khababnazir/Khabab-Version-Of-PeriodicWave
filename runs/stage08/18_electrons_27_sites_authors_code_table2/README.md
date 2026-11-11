@@ -59,7 +59,15 @@ from the unmodified run's in exactly the seven values above, plus the interactio
 (eps = 10 here, eps = 5 there) and the output path.
 
 **2026-11-11, 03:21:00: GPU 1 fell off the bus** (`../18_electrons_27_sites_authors_code/README.md`).
-This run, on GPU 0, goes on.
+**03:30:01: this run, on GPU 0, died too**, nine minutes later, at step 701 (no checkpoint yet): `CUDA error: Failed to get module function: CUDA_ERROR_UNKNOWN`
+at `train.py` line 703 (the update of the sampling step width). After the fault the driver
+refuses anything new on both GPUs, and here their program asked for something new. (Our own
+paper-network run had gone on for hours in the same state on 2026-11-10; it does not follow
+that a run of the authors' code will.) The partial output is in `lost_gpu_2026-11-11/`.
+Two things to know when reading the logs: the start script printed "ended with exit code 0"
+although the run had crashed, so a finished run is recognised by its last step, not by that
+line; and between 03:30 and 03:48 nobody noticed -- a row count of `train_stats.csv` was taken
+for progress without looking at the file's time or the process.
 
 ## Results
 
