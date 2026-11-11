@@ -54,6 +54,13 @@ Results will be in `results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.4437
 `config.json`, `train_stats.csv` (`energy` x 3.375559 / 18 = meV per electron),
 `qmcjax_ckpt_<step>.npz` every 30 minutes.
 
+**2026-11-11, 03:14: started, on GPU 0** (G = 0), eps = 10. The written `config.json` differs
+from the unmodified run's in exactly the seven values above, plus the interaction strength
+(eps = 10 here, eps = 5 there) and the output path.
+
+**2026-11-11, 03:21:00: GPU 1 fell off the bus** (`../18_electrons_27_sites_authors_code/README.md`).
+This run, on GPU 0, goes on.
+
 ## Results
 
 After the run.

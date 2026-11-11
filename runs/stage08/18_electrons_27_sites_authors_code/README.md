@@ -73,6 +73,23 @@ Watch:  `tail -f runs/stage08/18_electrons_27_sites_authors_code/logs/gpuG.log`
 iterations against Table I, and S(kappa), the sublattices and the density from the walkers in
 the checkpoints -- is there a honeycomb at eps = 5?
 
+**2026-11-11, 03:14: started again, on GPU 1** (the same command with G = 1), eps = 5 and then
+eps = 10. Before that: `sudo reboot` on 2026-11-10 06:30 did not bring the server back (as on
+2026-10-29, the other time GPU 1 had fallen off the bus); it was switched off and on by hand on
+2026-11-11 02:36, and both GPUs then passed the check. `config.json` of the new run was
+compared with the Table II run's: they differ only in the seven Table II values, the
+interaction strength and the output path.
+
+**2026-11-11, 03:21:00: GPU 1 fell off the bus again, 7 minutes after the start** (kernel log:
+Xid 79 on PCI 0000:65:00, then Xid 154 "Node Reboot Required" on both GPUs). The eps = 5 run
+had reached step 727 (energy -291.3 code units; no checkpoint yet); the start script saw that
+the GPU could not start a program and did not begin eps = 10. The partial output is in
+`lost_gpu_2026-11-11/`. Last lines of `logs/gpu1_monitor_2026-11-11_031400.csv` before the
+loss: 100 % load, 85-87 C, 262-273 W, with the thermal-slowdown or power-cap flag set.
+GPU 1 has now been lost three times: 2026-10-28 (after about 190,000 iterations of a 6-electron
+run), 2026-11-10 (11 minutes into this run) and 2026-11-11 (7 minutes). Nothing new can start
+on either GPU until the server is switched off and on.
+
 ## Results
 
 After the runs.

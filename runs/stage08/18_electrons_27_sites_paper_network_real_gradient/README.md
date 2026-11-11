@@ -108,6 +108,14 @@ GPU until the server is rebooted, so the frozen-weight evaluation that follows t
 will refuse to start. After a reboot, `bash learn/stage08_own_code/launch_table1.sh paper5 150000`
 continues the training from its newest checkpoint if it was cut short, and runs the evaluation.
 
+**2026-11-11: stopped by the reboot at iteration 102,300, waiting for GPU 0.** The reboot of
+2026-11-10 06:30 ended the training (last row of `train_stats.csv`: 102,300; newest checkpoint:
+101,146, so about 1,150 iterations are repeated). GPU 0 went to the authors'-code Table II run
+first (about 44 hours). `resume_when_gpu0_is_free.sh` (in this folder, started 03:15) waits for
+the GPU 0 lock, checks that the GPU can start a program, then runs
+`launch_table1.sh paper5 150000` and the watchdog; its lines are in
+`training/logs/waiting_for_gpu0.log`.
+
 ## Results
 
 After the run.
