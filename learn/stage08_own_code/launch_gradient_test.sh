@@ -76,7 +76,8 @@ branch () {   # gpu, gradient, folder, iterations, evaluate (yes/no)
             echo "=== $(date '+%F %T')  frozen-weight evaluation of $folder at $iterations on GPU $gpu, into $out"
             CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY analysis/evaluate_weights.py $folder \
                 --checkpoint $iterations --out $out
-            echo "=== $(date '+%F %T')  evaluation ended with exit code $?"
+            status=$?    # saved first: $(date) below would overwrite $?
+            echo "=== $(date '+%F %T')  evaluation ended with exit code $status"
         fi
     fi
     kill $gpu_monitor $system_monitor
@@ -89,7 +90,8 @@ settle () {   # gpu, training folder, checkpoint: the second evaluation, 10x bur
     echo "=== $(date '+%F %T')  second frozen-weight evaluation of $folder at $checkpoint on GPU $gpu: burn-in 2000, seed 1"
     CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY analysis/evaluate_weights.py $folder \
         --checkpoint $checkpoint --burn-in 2000 --seed 1 --out $out
-    echo "=== $(date '+%F %T')  evaluation ended with exit code $?"
+    status=$?    # saved first: $(date) below would overwrite $?
+    echo "=== $(date '+%F %T')  evaluation ended with exit code $status"
     kill $gpu_monitor $system_monitor
 }
 

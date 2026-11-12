@@ -1,0 +1,18 @@
+2026-11-12 01:34:48,434 - JAX version: 0.8.0
+2026-11-12 01:34:48,434 - jax_enable_x64: False
+2026-11-12 01:34:48,434 - JAXlib version: 0.8.0
+2026-11-12 01:34:48,434 - KFAC-JAX version: 0.0.7
+2026-11-12 01:34:48,435 - Available devices: ['cuda:0']
+2026-11-12 01:34:48,435 - Platform: gpu
+2026-11-12 01:34:48,435 - Default precision: float32
+2026-11-12 01:34:48,435 - Default matmul precision: float32
+2026-11-12 01:34:48,435 - GPU information: ['NVIDIA GeForce RTX 3090']
+2026-11-12 01:34:48,435 - Python version: 3.13.15
+2026-11-12 01:34:48,435 - System: Linux #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:33:16 UTC 2026
+2026-11-12 01:34:48,435 - Processor: x86_64
+2026-11-12 01:34:48,435 - Numpy version: 2.3.4
+2026-11-12 01:34:48,435 - CUDA_VISIBLE_DEVICES: 1
+2026-11-12 01:34:48,435 - NVIDIA driver version: 595.99.02
+595.99.02
+2026-11-12 01:34:48,435 - GPU models: NVIDIA GeForce RTX 3090, NVIDIA GeForce RTX 3090
+2026-11-12 01:34:48,438 - Starting QMC with 1 XLA devices per host across 1 hosts.

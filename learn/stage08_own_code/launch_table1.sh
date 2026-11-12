@@ -108,7 +108,8 @@ queue () {   # gpu, then one "folder train_moire.py-options" string per run
         if [ $status -eq 0 ] && [ "$EVALUATE" = yes ]; then
             echo "=== $(date '+%F %T')  frozen-weight evaluation of $folder on GPU $gpu"
             CUDA_VISIBLE_DEVICES=$gpu PYTHONUNBUFFERED=1 $PY analysis/evaluate_weights.py $RUNS/$folder
-            echo "=== $(date '+%F %T')  evaluation of $folder ended with exit code $?"
+            status=$?    # saved first: $(date) below would overwrite $?
+            echo "=== $(date '+%F %T')  evaluation of $folder ended with exit code $status"
         fi
     done
     kill $gpu_monitor $system_monitor

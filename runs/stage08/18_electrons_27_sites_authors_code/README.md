@@ -99,6 +99,45 @@ iteration takes about 0.37 s (before: 0.34 s), so about 21 hours for each eps. I
 points of the two earlier losses (7 and 11 minutes) without a fault; that is one observation,
 not proof that the cap is the cure.
 
+**2026-11-12, 01:34: eps = 5 finished** (step 199,999; 21.5 hours on GPU 1 under the 250 W cap,
+no fault). The queue then began eps = 10; it was stopped by hand after 3 seconds
+(`stopped_2026-11-12/`) so that GPU 1 runs the Table II values at eps = 5 first
+(`../18_electrons_27_sites_authors_code_table2/`), and eps = 10 of this folder after it:
+
+    cd runs/stage08
+    setsid nohup bash -c 'cd 18_electrons_27_sites_authors_code_table2 && flock ~/moire-nnvmc/runs/gpu_locks/gpu1.lock bash how_this_was_started.sh 1 0.2 >> logs/gpu1.log 2>&1; cd ../18_electrons_27_sites_authors_code && flock ~/moire-nnvmc/runs/gpu_locks/gpu1.lock bash how_this_was_started.sh 1 0.1 >> logs/gpu1.log 2>&1' < /dev/null > /dev/null 2>&1 &
+
+`how_this_was_started.sh` takes the 1/eps to run as an optional second argument since then.
+Its line "ended with exit code ..." was wrong until 2026-11-12: it always said 0, also for the
+two runs that crashed (bash ran `$(date)` first, which overwrites `$?`). Corrected; lines
+before 2026-11-12 01:36 in `logs/` carry the wrong 0.
+
 ## Results
 
-After the runs.
+**eps = 5, the authors' released settings** (1024 walkers, 4 layers, 4 heads, 2 perceptrons per
+layer, learning rate 0.1 / (1 + t/20000), 200,000 iterations; their random seed). Made by
+`learn/stage08_own_code/analysis/18_electrons_27_sites/authors_code_results.py`, which only
+reads their files; numbers in `analysis/summary.csv`.
+
+| | this run | paper, Table I | our code, Table II values |
+|---|---|---|---|
+| energy, meV per electron | -59.1187(1), mean of the last 40,000 training iterations | -59.127(9) | -59.0758(2) frozen weights; about -59.093 training mean |
+| S(kappa); a honeycomb gives 4.5 | 0.729 (9,216 walkers of the 9 checkpoints in the last 20 %); 0.64 to 0.75 over all 43 checkpoints | | 0.726 |
+| sublattice shares; a honeycomb gives 0, 1/2, 1/2 | 0.334, 0.332, 0.334 | | even |
+
+![S(kappa) and sublattice shares at every checkpoint](analysis/checkpoint_structure.png)
+
+What this shows, and what it does not:
+
+- **The energy agrees with the paper's**: 0.008 above -59.127, inside the paper's error bar of
+  0.009. It is a training average (the weights still change a little), not a frozen-weight
+  evaluation.
+- **There is no honeycomb**, at any checkpoint: the walkers look like those of our own runs.
+  So the missing honeycomb is not explained by a mistake in our code alone.
+- The run is 0.03 meV per electron below our run. The two differ in the code AND in the
+  settings (released values here, Table II values there), so this run cannot say which matters.
+- One run, one random start. And these are the released settings, not the Table II values the
+  paper names for its 18-electron figures: that run is in
+  `../18_electrons_27_sites_authors_code_table2/` (eps = 5 started 2026-11-12 01:36).
+
+**eps = 10:** after the Table II run at eps = 5 (see above).

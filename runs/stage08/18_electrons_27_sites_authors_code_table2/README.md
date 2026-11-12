@@ -72,6 +72,14 @@ for progress without looking at the file's time or the process.
 **2026-11-11, 03:57: started again, on GPU 0** (no cap on GPU 0), from the beginning, after the
 power cycle at 03:52 (`../18_electrons_27_sites_authors_code/README.md`).
 
+**2026-11-12, 01:36: eps = 5 started as well, on GPU 1** (250 W cap), with the same copy of
+their script: `bash how_this_was_started.sh 1 0.2` (the optional second argument, the 1/eps to
+run, was added for this; without it the script runs eps = 10 as before). Asked for by Khabab:
+this is the combination closest to the paper's Fig. 6 -- the authors' code, the Table II values,
+eps = 5. Output in `results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U10.62347336/`.
+The line "ended with exit code ..." of the start script always said 0 until 2026-11-12 01:36
+(`../18_electrons_27_sites_authors_code/README.md`); corrected.
+
 ## Results
 
 After the run.
