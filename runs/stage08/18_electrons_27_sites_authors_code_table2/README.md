@@ -82,4 +82,23 @@ The line "ended with exit code ..." of the start script always said 0 until 2026
 
 ## Results
 
-After the run.
+Made by `learn/stage08_own_code/analysis/18_electrons_27_sites/authors_code_results.py`, which only
+reads their files; numbers in `analysis/summary.csv`, figure `analysis/checkpoint_structure.png`.
+
+**eps = 10, finished 2026-11-12 about 19:27** (step 149,999; 79 checkpoints; no GPU fault).
+
+| | this run (authors' code, Table II values) | paper, Table I | our code, Table II values |
+|---|---|---|---|
+| energy, meV per electron | -32.0471(1), mean of the last 30,000 training iterations | -32.070(7) | about -32.047 training mean; -32.0354(2) frozen weights |
+| S(kappa); a honeycomb gives 4.5 | 0.731 (65,536 walkers of the checkpoints in the last 20 %) | | 0.732 |
+| sublattice shares | 0.334, 0.333, 0.333 | | even |
+
+- With the Table II values the authors' code gives the same training energy as our code,
+  0.023 above the paper's value. So at eps = 10 our difference to Table I is not a difference
+  between the two codes. One run each, one random start each; a training average, not a
+  frozen-weight evaluation.
+- No honeycomb, as expected at eps = 10.
+
+**eps = 5: still training** (step 86,480 of 150,000 on 2026-11-13 01:45). So far: S(kappa)
+0.60 to 0.73 over 48 checkpoints (0.723 at step 86,289), sublattice shares 0.33 each, energy
+-59.083 meV per electron over steps 81,481 to 86,480. No honeycomb so far; the run is not finished.
