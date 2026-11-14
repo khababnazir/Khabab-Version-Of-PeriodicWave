@@ -1,0 +1,162 @@
+--- ../learn/stage08_own_code/train_moire.py	2026-11-08 06:02:39.372707567 +0000
++++ code/train_moire.py	2026-11-14 05:24:11.742210327 +0000
+@@ -1,4 +1,28 @@
+ """
++PARADOX EXPERIMENT -- twisted boundary conditions.  THIS FILE IS A COPY.
++
++It is learn/stage08_own_code/train_moire.py (repository commit b6f773f) with ONE
++addition, the option --twist T1 T2.  The original in learn/ is untouched;
++../CHANGES.diff lists every changed line.  Without --twist (or with
++--twist 0 0) this file computes exactly what the original computes
++(test_twist.py checks it).  Run it from this folder; launch_twisted.sh holds the
++command of the experiment.  The text from "Stage 8" on is the original's.
++
++What the twist is.  The periodic wave function returns to itself when one
++electron goes once around the supercell.  With a twist it returns multiplied by
++a fixed phase:
++    Psi(..., r_j + L_i, ...) = exp(2 pi i T_i) Psi(..., r_j, ...)      i = 1, 2
++T_1, T_2 are the twists along the two supercell vectors, in units of a full
++turn (--twist 1/3 1/3 is a third of a turn along each).  One line does it:
++    Psi_twisted(R) = exp(i k_twist . (r_1 + ... + r_N)) Psi_periodic(R)
++with k_twist = T_1 G_1 + T_2 G_2 (G_1, G_2: the supercell's reciprocal vectors,
++G_i . L_j = 2 pi if i = j, else 0).  Only the PHASE of Psi changes, so the
++sampling (|Psi|^2 at fixed weights) is untouched; the kinetic energy changes
++because it differentiates the phase.  Why: the one-electron momenta move from
++k to k + k_twist; at (1/3, 1/3) the 18 lowest levels are a closed shell
++(twist_shells.py), which they are not without a twist.
++A twisted wave function is necessarily complex: use --gradient full.
++
+ Stage 8 -- train one network on the paper's moire system, with OUR code.
+ 
+ Run (one GPU per run), from learn/stage08_own_code:
+@@ -16,6 +40,8 @@
+           --iterations N    (default 200,000 released, 150,000 table2)
+           --gradient real | full    (default real, see below)
+           --seed S          (default 0)
++          --twist T1 T2     (default 0 0: periodic, the original.  Fractions of a full
++                             turn, e.g. --twist 1/3 1/3 -- ADDED IN THIS COPY)
+ 
+ Which code does what.  Everything is ours except the KFAC library:
+     wave function   Stage 3 / Stage 5, their "released settings" sections
+@@ -77,6 +103,7 @@
+ import csv
+ import dataclasses
+ import fcntl
++import fractions
+ import json
+ import os
+ import sys
+@@ -123,6 +150,10 @@
+     # Added 2026-11-08.  "released": the authors' released network (every run before);
+     # "paper": the attention network the paper prints (psiformer.PaperAttentionArchitecture).
+     network_form: str = "released"
++    # ADDED IN THIS COPY (twisted boundary conditions).  The twist along L1 and along L2 as a
++    # fraction of a full turn; 0, 0 is the periodic wave function of every earlier run.
++    twist_1: float = 0.0
++    twist_2: float = 0.0
+ 
+ 
+ # The paper's Table II (p. 7).  What it does not list keeps the released value.
+@@ -136,6 +167,8 @@
+ # Folders made before 2026-11-08 also lack network_form: they all trained the released network.
+ BEFORE_18_ELECTRONS = dict(attention_layers=4, attention_heads=4, attention_perceptrons=2,
+                            laplacian="hessian", determinants="det", network_form="released")
++# ADDED IN THIS COPY.  Folders made by the original code have no twist entries: they are periodic.
++BEFORE_TWIST = dict(twist_1=0.0, twist_2=0.0)
+ 
+ 
+ # ------------------------------------------------------------- the physics
+@@ -161,6 +194,22 @@
+     return V, moire_interaction_strength(dielectric_constant=eps), np.pi / 4
+ 
+ 
++# ADDED IN THIS COPY: the two functions that make the twist.
++
++def twist_vector(G, twist_1, twist_2):
++    """k_twist = twist_1 G1 + twist_2 G2, with G1, G2 the rows of G (the supercell's
++    reciprocal vectors).  Then k_twist . L_i = 2 pi twist_i."""
++    G = np.asarray(G, dtype=np.float64)
++    return twist_1 * G[0] + twist_2 * G[1]
++
++
++def add_twist(psi, R, k_twist):
++    """Multiply the wave function by exp(i k_twist . (r_1 + ... + r_N)).
++    psi is a LogPsi (log_abs, phase) and R has shape (N, 2): only the phase changes."""
++    import jax.numpy as jnp
++    return psi._replace(phase=psi.phase + jnp.sum(R @ jnp.asarray(k_twist, dtype=R.dtype)))
++
++
+ def make_problem(network, eps, electrons=6, settings=Settings()):
+     """The wave function and local energy: 6 electrons on 9 sites, or 18 on 27."""
+     import slaternet
+@@ -199,8 +248,14 @@
+     V, U, phi = moire_constants(eps)
+     ewald = make_ewald_setup(lattice)
+ 
++    # ADDED IN THIS COPY.  With no twist the network's output is returned as it is, so the
++    # periodic case runs the original's operations and nothing else.
++    twisted = settings.twist_1 != 0 or settings.twist_2 != 0
++    k_twist = twist_vector(G, settings.twist_1, settings.twist_2)
++
+     def log_psi(params, R):
+-        return network_log_psi(params, R, G, arch)
++        psi = network_log_psi(params, R, G, arch)
++        return add_twist(psi, R, k_twist) if twisted else psi
+ 
+     def e_loc(params, R):
+         psi = lambda X: log_psi(params, X)                 # noqa: E731
+@@ -517,7 +572,7 @@
+     saved = json.loads(path.read_text())
+     # Folders made before 2026-10-30 lack the 18-electron entries: 6 electrons and BEFORE_18_ELECTRONS.
+     saved.setdefault("electrons", 6)
+-    saved["settings"] = {**BEFORE_18_ELECTRONS, **saved["settings"]}
++    saved["settings"] = {**BEFORE_18_ELECTRONS, **BEFORE_TWIST, **saved["settings"]}   # BEFORE_TWIST: added in this copy
+     differing = [name for name in wanted if name != "iterations" and saved.get(name) != wanted[name]]
+     if differing:
+         sys.exit(f"{folder} holds a different experiment (differs in {differing}); use another --out")
+@@ -544,9 +599,14 @@
+                         help="default 200000 (released), 150000 (table2)")
+     parser.add_argument("--gradient", choices=["real", "full"], default="real")
+     parser.add_argument("--seed", type=int, default=0)
++    # ADDED IN THIS COPY.  Fractions are read exactly: "1/3" becomes the float nearest to 1/3.
++    parser.add_argument("--twist", nargs=2, default=("0", "0"), metavar=("T1", "T2"),
++                        help="twist along L1 and L2 as fractions of a full turn, e.g. 1/3 1/3 (default 0 0)")
+     args = parser.parse_args()
++    twist_1, twist_2 = (float(fractions.Fraction(text)) for text in args.twist)
+     settings = dataclasses.replace(SETTINGS[args.settings], laplacian=args.laplacian,
+-                                   determinants=args.determinants, network_form=args.network_form)
++                                   determinants=args.determinants, network_form=args.network_form,
++                                   twist_1=twist_1, twist_2=twist_2)
+     if args.learning_rate is not None:
+         settings = dataclasses.replace(settings, learning_rate=args.learning_rate)
+     folder = args.out.resolve()
+--- ../learn/stage08_own_code/analysis/evaluate_weights.py	2026-11-03 05:26:59.966194481 +0000
++++ code/evaluate_weights.py	2026-11-14 05:24:17.012388587 +0000
+@@ -1,4 +1,15 @@
+ """
++PARADOX EXPERIMENT -- twisted boundary conditions.  THIS FILE IS A COPY.
++
++It is learn/stage08_own_code/analysis/evaluate_weights.py (repository commit
++b6f773f).  The only change: it imports the train_moire.py of THIS folder (the
++copy that knows --twist) instead of the one in learn/, so the evaluated wave
++function carries the twist stored in the run's settings.json.  The original
++refuses twisted runs ("settings this code does not know").  observables.py is
++not copied: it is read, unchanged, from learn/.  ../CHANGES.diff lists every
++changed line.  Run it from this folder (launch_twisted.sh does); the text from
++"Stage 8" on is the original's.
++
+ Stage 8 (our code) -- evaluate a trained network with its weights FROZEN.
+ 
+ Run (one GPU, one evaluation), from learn/stage08_own_code/analysis:
+@@ -92,8 +103,9 @@
+ import numpy as np
+ 
+ HERE = Path(__file__).resolve().parent
+-sys.path.insert(0, str(HERE))             # observables.py
+-sys.path.insert(0, str(HERE.parent))      # train_moire.py, one folder up
++# CHANGED IN THIS COPY (the two path lines only).
++sys.path.insert(0, str(HERE.parents[1] / "learn" / "stage08_own_code" / "analysis"))   # observables.py, unchanged
++sys.path.insert(0, str(HERE))             # train_moire.py of THIS folder: the copy with the twist
+ import train_moire                        # noqa: E402 -- imports JAX only inside its functions
+ 
+ BINS_PER_MOIRE_LENGTH = 30     # density and pair maps: 90 x 90 bins (9 sites), 156 x 156 (27 sites)
