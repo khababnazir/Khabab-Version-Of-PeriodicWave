@@ -1,0 +1,7 @@
+=== 2026-11-11 03:15:14  waiting for /home/khabab/moire-nnvmc/runs/gpu_locks/gpu0.lock
+=== 2026-11-11 03:30:03  GPU 0 is free
+=== 2026-11-11 03:30:04  GPU 0 cannot start a program (reboot needed?). Nothing started.
+=== 2026-11-11 03:57:17  waiting for /home/khabab/moire-nnvmc/runs/gpu_locks/gpu0.lock
+=== 2026-11-12 19:27:15  GPU 0 is free
+launched, one run on GPU 0; logs in ../../runs/stage08/18_electrons_27_sites_paper_network_real_gradient/training/logs/
+=== 2026-11-12 19:32:15  done

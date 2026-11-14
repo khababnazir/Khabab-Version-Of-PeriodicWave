@@ -122,4 +122,26 @@ found that the GPU could not start a program, and started nothing, as intended.)
 
 ## Results
 
-After the run.
+**Finished 2026-11-13: training 09:30, frozen-weight evaluation 10:52** (the run had continued by
+itself on GPU 0 on 2026-11-12 19:27, when the authors'-code run before it ended). Numbers made by
+`results/paper_network_results.py` (it only calls the functions of `table1_results.py` and
+`eps3_results.py`); files `results/energies.csv`, `results/structure.csv`, `results/site_pattern.csv`.
+5,000 evaluation steps x 4,096 walkers = 20,480,000 configurations each.
+
+| eps = 5, authors' gradient, Table II | paper's printed network (this run) | released network (`../18_electrons_27_sites_real_gradient`) | paper, Table I |
+|---|---|---|---|
+| energy, frozen weights, meV per electron | -59.0385(2) | -59.0758(2) | -59.127(9) |
+| energy, mean of the last 20 % of training | -59.0540(2) | -59.0933(1) | |
+| S(kappa); a honeycomb gives 4.5 | 0.717 | 0.726 | Fig. 6: a honeycomb |
+| sublattice shares | 0.328, 0.330, 0.342 | 0.334, 0.333, 0.333 | Fig. 6: one sublattice empty |
+| site occupations, smallest to largest | 0.43 to 0.76 | 0.53 to 0.73 | |
+| site pattern, summed over its wave vectors | 0.174 | 0.093 | |
+
+- **No honeycomb.** The network as the paper prints it does not form the crystal either.
+- Its energy is 0.037 meV per electron ABOVE the released network's and 0.089 above the paper's.
+  So the printed network form does not explain the paper's lower energy; in this one run it is
+  the worse of the two.
+- Its site occupations are more uneven than the released network's (0.43 to 0.76), and the two
+  halves of the evaluation agree (0.9 combined errors apart).
+- One seed, and other initial weights than the released network (Stage 5's 0.1 x normal; the
+  paper gives none).

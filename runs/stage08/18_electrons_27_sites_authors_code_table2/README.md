@@ -99,6 +99,19 @@ reads their files; numbers in `analysis/summary.csv`, figure `analysis/checkpoin
   frozen-weight evaluation.
 - No honeycomb, as expected at eps = 10.
 
-**eps = 5: still training** (step 86,480 of 150,000 on 2026-11-13 01:45). So far: S(kappa)
-0.60 to 0.73 over 48 checkpoints (0.723 at step 86,289), sublattice shares 0.33 each, energy
--59.083 meV per electron over steps 81,481 to 86,480. No honeycomb so far; the run is not finished.
+**eps = 5, finished 2026-11-13 19:43** (step 149,999; 85 checkpoints; no GPU fault; GPU 1 at its
+250 W cap throughout). This is the combination closest to the paper's Fig. 6: the authors' code,
+the Table II values, eps = 5.
+
+| | this run (authors' code, Table II values) | paper, Table I | our code, Table II values |
+|---|---|---|---|
+| energy, meV per electron | -59.0920(1), mean of the last 30,000 training iterations | -59.127(9) | about -59.093 training mean; -59.0758(2) frozen weights |
+| S(kappa); a honeycomb gives 4.5 | 0.722 (73,728 walkers of the checkpoints in the last 20 %); 0.60 to 0.73 over all 85 checkpoints | Fig. 6: a honeycomb | 0.726 |
+| sublattice shares | 0.334, 0.334, 0.332 | Fig. 6: one sublattice empty | even |
+
+- **No honeycomb**, at any of the 85 checkpoints. With the paper's settings the authors' own code
+  gives the same liquid-like pattern as our code.
+- The training energy equals our code's (-59.092 against about -59.093) and is 0.035 above the
+  paper's Table I. The authors' UNMODIFIED script (released settings; `../18_electrons_27_sites_authors_code/`)
+  came closer, -59.1187(1), also without a honeycomb.
+- One run, one random start; a training average, not a frozen-weight evaluation.
