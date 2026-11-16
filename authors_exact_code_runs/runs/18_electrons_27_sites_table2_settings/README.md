@@ -1,4 +1,8 @@
-# runs/stage08/18_electrons_27_sites_authors_code_table2 — the authors' code with the paper's Table II values
+# authors_exact_code_runs/runs/18_electrons_27_sites_table2_settings — the authors' code with the paper's Table II values
+
+**Moved on 2026-11-16** from `runs/stage08/18_electrons_27_sites_authors_code_table2/` to this folder, unchanged (`git mv`).
+The overview of all runs with the authors' code is `../../README.md`. Commands below written
+before that date use the old path.
 
 **What this is.** The authors' released program (`external/PeriodicWave`, their published commit
 `6525d2f3eec53f085b55d485e1bff45d61ef1782`, no file of it changed) for 18 electrons on 27 sites,
@@ -20,7 +24,7 @@ changed and nothing else (`changes.diff` is the output of `diff` between the two
 | 183 | `cfg.network.CustomPsiformer.num_perceptrons_per_layer = 2` | `1` |
 
 Their file in `external/PeriodicWave` is untouched (the other reference folder,
-`../18_electrons_27_sites_authors_code/`, runs it as it is). Table II's remaining entries --
+`../18_electrons_27_sites_released_settings/`, runs it as it is). Table II's remaining entries --
 attention dimension 16, perceptron dimension 64, 4 determinants, clipping 5, KFAC norm
 constraint and damping 1e-3 -- are their script's values already.
 
@@ -37,7 +41,7 @@ them, so they are left as their script has them.
 
 **Not started yet.** GPU 1 fell off the bus on 2026-11-10 at 02:25:35 server time, and since then
 no new program can start on either GPU until the server is rebooted
-(`../18_electrons_27_sites_authors_code/README.md`). After a reboot (G = the GPU, 0 or 1):
+(`../18_electrons_27_sites_released_settings/README.md`). After a reboot (G = the GPU, 0 or 1):
 
 ```bash
 cd ~/moire-nnvmc/runs/stage08/18_electrons_27_sites_authors_code_table2
@@ -58,7 +62,7 @@ Results will be in `results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.4437
 from the unmodified run's in exactly the seven values above, plus the interaction strength
 (eps = 10 here, eps = 5 there) and the output path.
 
-**2026-11-11, 03:21:00: GPU 1 fell off the bus** (`../18_electrons_27_sites_authors_code/README.md`).
+**2026-11-11, 03:21:00: GPU 1 fell off the bus** (`../18_electrons_27_sites_released_settings/README.md`).
 **03:30:01: this run, on GPU 0, died too**, nine minutes later, at step 701 (no checkpoint yet): `CUDA error: Failed to get module function: CUDA_ERROR_UNKNOWN`
 at `train.py` line 703 (the update of the sampling step width). After the fault the driver
 refuses anything new on both GPUs, and here their program asked for something new. (Our own
@@ -70,7 +74,7 @@ line; and between 03:30 and 03:48 nobody noticed -- a row count of `train_stats.
 for progress without looking at the file's time or the process.
 
 **2026-11-11, 03:57: started again, on GPU 0** (no cap on GPU 0), from the beginning, after the
-power cycle at 03:52 (`../18_electrons_27_sites_authors_code/README.md`).
+power cycle at 03:52 (`../18_electrons_27_sites_released_settings/README.md`).
 
 **2026-11-12, 01:36: eps = 5 started as well, on GPU 1** (250 W cap), with the same copy of
 their script: `bash how_this_was_started.sh 1 0.2` (the optional second argument, the 1/eps to
@@ -78,7 +82,7 @@ run, was added for this; without it the script runs eps = 10 as before). Asked f
 this is the combination closest to the paper's Fig. 6 -- the authors' code, the Table II values,
 eps = 5. Output in `results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U10.62347336/`.
 The line "ended with exit code ..." of the start script always said 0 until 2026-11-12 01:36
-(`../18_electrons_27_sites_authors_code/README.md`); corrected.
+(`../18_electrons_27_sites_released_settings/README.md`); corrected.
 
 ## Results
 
@@ -112,6 +116,6 @@ the Table II values, eps = 5.
 - **No honeycomb**, at any of the 85 checkpoints. With the paper's settings the authors' own code
   gives the same liquid-like pattern as our code.
 - The training energy equals our code's (-59.092 against about -59.093) and is 0.035 above the
-  paper's Table I. The authors' UNMODIFIED script (released settings; `../18_electrons_27_sites_authors_code/`)
+  paper's Table I. The authors' UNMODIFIED script (released settings; `../18_electrons_27_sites_released_settings/`)
   came closer, -59.1187(1), also without a honeycomb.
 - One run, one random start; a training average, not a frozen-weight evaluation.

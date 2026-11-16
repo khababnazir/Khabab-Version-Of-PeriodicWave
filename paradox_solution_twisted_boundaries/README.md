@@ -8,7 +8,7 @@ changed: the two files that had to change were **copied** here and changed here,
 
 The paper's Fig. 6 shows, at eps = 5, a honeycomb crystal (18 electrons on 27 sites: two of
 every three sites filled).  No run of ours shows it, and neither do the reference runs with the
-authors' own code (`runs/stage08/18_electrons_27_sites_authors_code*/`).  The energies agree
+authors' own code (`authors_exact_code_runs/`).  The energies agree
 with the paper to a few hundredths of a meV; the pattern does not.
 
 Our diagnosis so far (`shell_structure.py`, the open-shell report): in the 27-site supercell with

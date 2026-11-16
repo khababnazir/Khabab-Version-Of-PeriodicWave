@@ -1,4 +1,8 @@
-# runs/stage08/18_electrons_27_sites_authors_code — the authors' own code, unchanged, as a reference
+# authors_exact_code_runs/runs/18_electrons_27_sites_released_settings — the authors' own code, unchanged, as a reference
+
+**Moved on 2026-11-16** from `runs/stage08/18_electrons_27_sites_authors_code/` to this folder, unchanged (`git mv`).
+The overview of all runs with the authors' code is `../../README.md`. Commands below written
+before that date use the old path.
 
 **What this is.** The authors' released program (`external/PeriodicWave`, their published commit
 `6525d2f3eec53f085b55d485e1bff45d61ef1782`, no file of it changed; checked with `git status`
@@ -102,7 +106,7 @@ not proof that the cap is the cure.
 **2026-11-12, 01:34: eps = 5 finished** (step 199,999; 21.5 hours on GPU 1 under the 250 W cap,
 no fault). The queue then began eps = 10; it was stopped by hand after 3 seconds
 (`stopped_2026-11-12/`) so that GPU 1 runs the Table II values at eps = 5 first
-(`../18_electrons_27_sites_authors_code_table2/`), and eps = 10 of this folder after it:
+(`../18_electrons_27_sites_table2_settings/`), and eps = 10 of this folder after it:
 
     cd runs/stage08
     setsid nohup bash -c 'cd 18_electrons_27_sites_authors_code_table2 && flock ~/moire-nnvmc/runs/gpu_locks/gpu1.lock bash how_this_was_started.sh 1 0.2 >> logs/gpu1.log 2>&1; cd ../18_electrons_27_sites_authors_code && flock ~/moire-nnvmc/runs/gpu_locks/gpu1.lock bash how_this_was_started.sh 1 0.1 >> logs/gpu1.log 2>&1' < /dev/null > /dev/null 2>&1 &
@@ -138,7 +142,7 @@ What this shows, and what it does not:
   settings (released values here, Table II values there), so this run cannot say which matters.
 - One run, one random start. And these are the released settings, not the Table II values the
   paper names for its 18-electron figures: that run is in
-  `../18_electrons_27_sites_authors_code_table2/` (eps = 5 started 2026-11-12 01:36).
+  `../18_electrons_27_sites_table2_settings/` (eps = 5 started 2026-11-12 01:36).
 
 **eps = 10, the authors' released settings, finished 2026-11-14 17:16** (step 199,999; 21.5 hours
 on GPU 1 under the 250 W cap; 44 checkpoints; no GPU fault).
@@ -153,7 +157,7 @@ on GPU 1 under the 250 W cap; 44 checkpoints; no GPU fault).
   expected at eps = 10.
 
 **All four runs of the authors' code together** (training means; `analysis/summary.csv` here and
-in `../18_electrons_27_sites_authors_code_table2/`):
+in `../18_electrons_27_sites_table2_settings/`):
 
 | settings | eps | energy, meV per electron | paper, Table I | this run - paper | S(kappa) |
 |---|---|---|---|---|---|
