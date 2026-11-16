@@ -140,4 +140,31 @@ What this shows, and what it does not:
   paper names for its 18-electron figures: that run is in
   `../18_electrons_27_sites_authors_code_table2/` (eps = 5 started 2026-11-12 01:36).
 
-**eps = 10:** after the Table II run at eps = 5 (see above).
+**eps = 10, the authors' released settings, finished 2026-11-14 17:16** (step 199,999; 21.5 hours
+on GPU 1 under the 250 W cap; 44 checkpoints; no GPU fault).
+
+| | this run | paper, Table I | our code, Table II values |
+|---|---|---|---|
+| energy, meV per electron | -32.0606(1), mean of the last 40,000 training iterations | -32.070(7) | -32.0354(2) frozen weights; about -32.047 training mean |
+| S(kappa); a honeycomb gives 4.5 | 0.738 (10,240 walkers of the checkpoints in the last 20 %); 0.71 to 0.76 over all 44 checkpoints | | 0.732 |
+| sublattice shares | 0.334, 0.333, 0.333 | | even |
+
+- The energy is 0.009 above the paper's, 1.3 of the paper's error bars. No honeycomb, as
+  expected at eps = 10.
+
+**All four runs of the authors' code together** (training means; `analysis/summary.csv` here and
+in `../18_electrons_27_sites_authors_code_table2/`):
+
+| settings | eps | energy, meV per electron | paper, Table I | this run - paper | S(kappa) |
+|---|---|---|---|---|---|
+| released (1024 walkers, 4 layers, 4 heads, rate 0.1, 200,000 iterations) | 5 | -59.1187(1) | -59.127(9) | +0.008 | 0.729 |
+| released | 10 | -32.0606(1) | -32.070(7) | +0.009 | 0.738 |
+| Table II (4096 walkers, 3 layers, 6 heads, rate 10, 150,000 iterations) | 5 | -59.0920(1) | -59.127(9) | +0.035 | 0.722 |
+| Table II | 10 | -32.0471(1) | -32.070(7) | +0.023 | 0.731 |
+
+- **With the released settings the authors' code comes within about one error bar of Table I at
+  both eps; with the Table II values it stays 3 to 4 error bars above**, at the energy of our
+  own code. This suggests that the Table I energies were obtained with settings like the
+  released ones rather than those of Table II. It is a suggestion from one run per case, each
+  with one random start, and from training averages; it is not shown.
+- **No honeycomb in any of the four**, eps = 5 included.

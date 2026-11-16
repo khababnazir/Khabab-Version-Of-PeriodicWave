@@ -54,8 +54,11 @@ Two things to keep in mind:
       twist_shells.py      new: the one-electron levels with and without a twist (numpy only)
       test_twist.py        new: the checks (below)
       twist_mutants.py     new: plants mistakes to see whether the checks notice them
+      twist_results.py     new: the result (calls learn's analysis functions, unchanged)
       launch_twisted.sh    new: starts the run
     results/one_electron_levels.csv     written by twist_shells.py
+    results/energies.csv, structure.csv, site_pattern.csv, momentum_weights.csv    written by twist_results.py
+    figures/1_density_pair_correlation.png, 2_training_energy.png                  written by twist_results.py
     runs/18_electrons_27_sites_twist_one_third_full_gradient/
       training/attention_18e_eps5/      settings.json, train_stats.csv, checkpoints, starts.log
       training/logs/                    gpu0.log, GPU and CPU/memory monitors (every 10 s), watch.log
@@ -150,6 +153,71 @@ What the result can and cannot say:
   paper shows a honeycomb.
 - One run, one seed.
 
-## Results
+## Results (2026-11-16)
 
-(to be written when the run has finished)
+The run finished without incident: training 2026-11-14 05:56 to 2026-11-15 15:52 (34 hours,
+0.84 s per iteration, no non-finite number, no GPU fault), frozen-weight evaluation until 16:55
+(5,000 steps x 4,096 walkers = 20,480,000 configurations; sanity check passed). Numbers made by
+`code/twist_results.py`, with learn's functions and the same settings for both runs; it checks
+that the two runs differ in the twist and in nothing else.
+
+| eps = 5, full gradient, frozen final weights | periodic (baseline) | twist (1/3, 1/3) |
+|---|---|---|
+| energy, meV per electron | -59.0878(2) | -59.0224(2) |
+| kinetic / moire / Coulomb | 21.307 / -25.695 / -54.700 | 21.519 / -25.860 / -54.681 |
+| energy, mean of the last 20 % of training | -59.1033(1) | -59.0427(1) |
+| S(kappa); a honeycomb gives 4.5 | 0.722 | 0.631 |
+| sublattice shares; a honeycomb gives 0, 1/2, 1/2 | 0.334, 0.328, 0.338 | 0.324, 0.346, 0.330 |
+| site occupations, smallest to largest (even: 0.667) | 0.554 to 0.749 | 0.412 to 0.825 |
+| site pattern, summed over its 27 wave vectors | 0.121 | 0.732 |
+| ... of which at +-kappa (the honeycomb's) | 0.003 | 0.013 |
+| ... of which at the six wave vectors with |q| = 3.694 | 0.013 | 0.691 |
+| weight at total momentum K = 0 | 0.000(1) | 0.218(5) |
+| weight on the six momenta with |K| = 2.793 (the periodic open shell) | 0.983(13) | 0.019(2) |
+| weight on the six momenta with |K| = 3.694 | 0.007(1) | 0.622(9) |
+| weight on the six momenta with |K| = 2.418 | 0.003(1) | 0.113(4) |
+
+![density and pair correlation](figures/1_density_pair_correlation.png)
+
+![training energy](figures/2_training_energy.png)
+
+Against the three predictions:
+
+1. **The network did not follow the closed shell.** Only 22 % of its weight is at K = 0; the
+   site occupations are MORE uneven than in the periodic run (0.41 to 0.83 against 0.55 to 0.75).
+2. **No honeycomb.** S(kappa) went down, not up (0.63), and the site pattern at +-kappa is 0.013
+   where a honeycomb has 9.
+3. The outcome is closest to the third one -- uneven sites, weight on several total momenta --
+   but it is not "nothing changed": the weight moved to other momenta and the pattern to other
+   wave vectors.
+
+What the new momenta are. Lifting ONE electron of the closed shell from the highest filled level
+(6 levels at -2.124 meV) into the lowest empty one (3 levels at -0.998 meV) costs 1.126 meV for
+the whole system, 0.063 meV per electron. `twist_shells.py`'s levels give these excitations
+total momenta with |K| = 1.396, 2.418 or 3.694, six of each. The trained state has 22 % at K = 0
+and 76 % on those three groups (62 % on the six momenta with |K| = 3.694). And the uneven site pattern sits at the six wave vectors |q| = 3.694, which are
+the differences between K = 0 and those six momenta -- as it must: a density wave at q needs
+weight on two total momenta that differ by q. So the state is consistent with a mixture of the
+closed shell and its cheapest excitations. The weights say which total momenta, not which
+arrangements of electrons; this reading is consistent with the numbers, not shown by them.
+
+What this means for the paradox:
+
+- **The twist does not bring the honeycomb.** Closing the shell of the non-interacting electrons
+  is not what was missing.
+- **It does not make the state even or single-momentum either.** The mixing of several total
+  momenta is therefore not special to the periodic open shell. The warning written before the
+  run applies: the gap of 1.1 meV is small against the repulsion, and the network mixes across it.
+  The open-shell diagnosis still describes WHERE the periodic runs keep their weight (98 % in
+  that shell); it does not explain WHY a trained network ends in a mixture.
+- The energy with the twist is 0.065 meV per electron higher than periodic (without interaction
+  the twist alone costs 0.047). The two are different boundary conditions; neither number can
+  be compared with the other as better or worse, and the twisted one cannot be compared with
+  the paper's Table I.
+- The Hamiltonian does not mix different total momenta, so the energy of a mixture is the
+  weighted average of the energies of its parts, and the best part alone would be at least as
+  low. A mixture therefore means either that several momenta have almost the same lowest energy
+  or that the optimisation has not finished choosing. This run cannot tell which. Both training
+  curves were still falling slowly at the end (about 0.005 to 0.007 meV per electron over the
+  last 50,000 iterations).
+- One run, one seed.
