@@ -38,11 +38,18 @@ these seven numbers and nothing else, and that eps = 5 and 10 differ only in the
 
     README.md                      this file
     code/settings_analysis.py      the comparison of the four runs, with its checks (new)
+    code/evaluate_authors_weights.py   the frozen-weight evaluation of a finished run (see below)
+    code/test_evaluate_authors_weights.py, launch_evaluation.sh, evaluation_results.py
     results/settings_comparison.csv    one row per run: settings, energy, paper, difference, S(kappa)
+    results/frozen_energies.csv, frozen_structure.csv, frozen_site_pattern.csv   the frozen weights
     figures/settings_comparison.png    the figure below
+    figures/frozen_density_pair_correlation.png   density and pair correlation, frozen weights
+    logs/                          the evaluation queues (GPU and CPU monitors every 10 s)
     runs/
       18_electrons_27_sites_released_settings/   their script unchanged; eps = 5, then eps = 10
       18_electrons_27_sites_table2_settings/     their script with Table II's seven numbers; eps = 10, then eps = 5
+      18_electrons_27_sites_eps3_released_settings/   their script unchanged at eps = 3, self-attention
+                                                 AND SlaterNet (asked for by the professor, started 2026-11-17)
         Each: README.md (the run's history, day by day, and its results), how_this_was_started.sh,
         results/2deg-CoulombMoire/CustomPsiformer/<parameters>/ (what THEIR code wrote:
         config.json, train_stats.csv = the energy of every iteration, qmcjax_ckpt_<step>.npz =
@@ -88,6 +95,40 @@ What it does not show:
   the training average.
 - Why the paper's Fig. 6 shows a honeycomb: no run of the authors' code, with either settings,
   shows one.
+
+## The same runs with their final weights frozen (2026-11-16)
+
+The energies above are training averages. `code/evaluate_authors_weights.py` evaluates each run's
+FINAL weights, held fixed: the authors' network, sampler and local energy, built as their train.py
+builds them, the configuration rebuilt by running the script each run was started with and
+required to equal the `config.json` their code wrote (`test_evaluate_authors_weights.py`, 7 tests).
+20,480,000 configurations per run, as in our own evaluations; each passed its check against the
+end of its training. `code/evaluation_results.py` makes the tables and the figure with the same
+functions (from `learn/`, unchanged) as for our runs. Run 2026-11-16 01:33 to 03:57 on both GPUs.
+
+| run | eps | energy, frozen weights | training average (above) | paper, Table I | frozen - paper | S(kappa) | site occupations |
+|---|---|---|---|---|---|---|---|
+| authors' code, released settings | 5 | -59.1015(2) | -59.1187(1) | -59.127(9) | +0.026 | 0.725 | 0.53 to 0.72 |
+| authors' code, Table II settings | 5 | -59.0773(2) | -59.0920(1) | -59.127(9) | +0.050 | 0.725 | 0.53 to 0.73 |
+| authors' code, released settings | 10 | -32.0487(1) | -32.0606(1) | -32.070(7) | +0.021 | 0.733 | 0.54 to 0.74 |
+| authors' code, Table II settings | 10 | -32.0345(1) | -32.0471(1) | -32.070(7) | +0.036 | 0.731 | 0.53 to 0.73 |
+| our code, Table II settings | 5 | -59.0758(2) | -59.0933(1) | -59.127(9) | +0.051 | 0.726 | 0.53 to 0.73 |
+| our code, Table II settings | 10 | -32.0354(2) | -32.0472(1) | -32.070(7) | +0.035 | 0.732 | 0.54 to 0.72 |
+
+![density and pair correlation, frozen weights](figures/frozen_density_pair_correlation.png)
+
+- **With the same settings the two codes give the same frozen energy**: within 0.002 meV per
+  electron at eps = 5 and 0.001 at eps = 10.
+- The frozen energy lies 0.012 to 0.017 meV per electron above the training average, in every run,
+  as in our own runs. With the released settings the training averages agree with Table I within
+  about one error bar, the frozen energies do not (about 3 error bars above). The authors' release
+  only reports training energies; whether Table I quotes training averages is not shown.
+- **No honeycomb**: S(kappa) 0.73 (a honeycomb gives 4.5), sublattice shares 0.33 each, and the
+  site pattern at the honeycomb's wave vectors is below 0.005 (a honeycomb gives 9). The site
+  occupations are uneven, 0.53 to 0.74 instead of 0.667 everywhere, as in our runs.
+- The paper's first author wrote on 2026-11-16 that eps = 5 lies very close to a first-order
+  transition (eps about 4.9) between the Wigner crystal and the Fermi liquid, both local minima
+  there, and that an erratum is in preparation. These runs all ended in the liquid-like state.
 
 ## How the analysis is made
 
