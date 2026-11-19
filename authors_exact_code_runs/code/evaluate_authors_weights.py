@@ -17,15 +17,21 @@ evaluation written in October 2026 for the authors'-code runs with 6 electrons, 
   - the summary records the same entries as our evaluations (learn/stage08_own_code/analysis/
     evaluate_weights.py), so the same analysis functions read both;
   - JAX must find a GPU (as in our evaluator), or nothing starts.
+Added 2026-11-19 for the eps = 3 runs: 1/eps = 1/3 (--inverse-eps 1/3) and SlaterNet
+(--network SlaterNet).  The default output folder of a SlaterNet evaluation carries the network in
+its name (evaluation/SlaterNet_<parameters>), because both networks of a run folder write output
+folders of the same name; a self-attention evaluation keeps evaluation/<parameters>, as before.
 The text from "Why a separate evaluation" on is the original's.
 
 Run (one GPU, one evaluation), from this folder:
     CUDA_VISIBLE_DEVICES=0 ../../.venv/bin/python evaluate_authors_weights.py ../runs/18_electrons_27_sites_released_settings --inverse-eps 0.2
-Options: --inverse-eps 0.2 | 0.1   1/eps of the run: 0.2 is eps = 5, 0.1 is eps = 10 (required)
+Options: --inverse-eps 0.2 | 0.1 | 1/3   1/eps of the run: eps = 5, 10 or 3 (required)
+         --network CustomPsiformer | SlaterNet   the network of the run (default CustomPsiformer)
          --steps N     evaluation steps after burn-in (default 20,480,000 / walkers:
                        20,000 for 1024 walkers, 5,000 for 4096)
          --burn-in N   steps that only move the walkers, first (default 200)
-         --out DIR     default <run folder>/evaluation/<the folder name of the authors' output>
+         --out DIR     default <run folder>/evaluation/<the folder name of the authors' output>,
+                       for SlaterNet <run folder>/evaluation/SlaterNet_<that name>
          --overwrite   replace an evaluation that is already in DIR
 
 Why a separate evaluation.  The energies in train_stats.csv were measured
@@ -105,7 +111,9 @@ PERIODICWAVE = REPO / "external" / "PeriodicWave"
 AUTHORS_COMMIT = "6525d2f3eec53f085b55d485e1bff45d61ef1782"
 AUTHORS_SCRIPT = PERIODICWAVE / "periodicwave" / "configs" / "run_2deg_triangular_potential.py"
 TABLE2_SCRIPT = "run_2deg_triangular_potential_table2.py"      # in the Table II run folder
-OUTPUT = Path("results") / "2deg-CoulombMoire" / "CustomPsiformer"
+OUTPUT = Path("results") / "2deg-CoulombMoire"                # then the network, then the parameters
+NETWORKS = ("CustomPsiformer", "SlaterNet")
+INVERSE_EPS = {"0.2": 0.2, "0.1": 0.1, "1/3": 1 / 3}           # 1/3: the run was started with 0.3333333333333333
 CONFIGURATIONS = 20_480_000    # steps x walkers, as in our 18-electron evaluations
 BINS_PER_MOIRE_LENGTH = 30     # density and pair maps: 156 x 156 bins at 27 sites, as ours
 RADIAL_BINS = 150
@@ -187,19 +195,28 @@ def authors_script(run):
     return copy if copy.exists() else AUTHORS_SCRIPT
 
 
-def command_line(inverse_eps):
-    """The arguments of how_this_was_started.sh: spins, sites, m*/m_e, 1/eps, a_M (nm), V (meV), phi, network."""
-    return ["18_0", "27", "0.35", str(inverse_eps), "8.031", "15", "45", "CustomPsiformer"]
+def command_line(inverse_eps, network="CustomPsiformer"):
+    """The arguments of how_this_was_started.sh: spins, sites, m*/m_e, 1/eps, a_M (nm), V (meV), phi, network.
+    str(1 / 3) is "0.3333333333333333", the argument the eps = 3 runs were started with."""
+    assert network in NETWORKS, network
+    return ["18_0", "27", "0.35", str(inverse_eps), "8.031", "15", "45", network]
 
 
-def output_folder(run, inverse_eps):
-    """results/2deg-CoulombMoire/CustomPsiformer/<parameters>/ of the run, named as their script names it."""
+def output_folder(run, inverse_eps, network="CustomPsiformer"):
+    """results/2deg-CoulombMoire/<network>/<parameters>/ of the run, named as their script names it."""
     a_0, me_eff_rel, moire_a = 5.29177210544e-2, 0.35, 8.031           # their convert_moire_scales
     U = (moire_a / a_0) * inverse_eps * me_eff_rel
-    matches = sorted((run / OUTPUT).glob(f"el18_0_N27_V*_45.0_U{np.round(U, 8)}"))
+    where = run / OUTPUT / network
+    matches = sorted(where.glob(f"el18_0_N27_V*_45.0_U{np.round(U, 8)}"))
     if len(matches) != 1:
-        sys.exit(f"expected one output folder for 1/eps = {inverse_eps} in {run / OUTPUT}, found {len(matches)}")
+        sys.exit(f"expected one output folder for 1/eps = {inverse_eps} in {where}, found {len(matches)}")
     return matches[0]
+
+
+def default_out(run, results, network):
+    """Where the evaluation goes unless --out says otherwise (see the top)."""
+    name = results.name if network == "CustomPsiformer" else f"{network}_{results.name}"
+    return run / "evaluation" / name
 
 
 def authors_code_unchanged():
@@ -236,7 +253,7 @@ def authors_configuration(script, arguments):
     return captured["cfg"]
 
 
-def training_configuration(run, inverse_eps):
+def training_configuration(run, inverse_eps, network="CustomPsiformer"):
     """The configuration the run was trained with.
 
     Rebuilt by running the same script with the same arguments as
@@ -247,12 +264,12 @@ def training_configuration(run, inverse_eps):
     """
     from periodicwave.utils import custom_logging
 
-    script, arguments = authors_script(run), command_line(inverse_eps)
+    script, arguments = authors_script(run), command_line(inverse_eps, network)
     cfg = authors_configuration(script, arguments)
     with tempfile.TemporaryDirectory() as scratch:
         custom_logging.save_config_dict_as_json(cfg, os.path.join(scratch, "config.json"))
         rebuilt = json.loads(Path(scratch, "config.json").read_text())
-    recorded = json.loads((output_folder(run, inverse_eps) / "config.json").read_text())
+    recorded = json.loads((output_folder(run, inverse_eps, network) / "config.json").read_text())
     if rebuilt != recorded:
         differing = sorted(k for k in set(rebuilt) | set(recorded) if rebuilt.get(k) != recorded.get(k))
         sys.exit(f"the rebuilt configuration differs from the run's config.json in {differing}")
@@ -394,16 +411,18 @@ def save(out, rows, totals, summary):
 def main():
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument("run", type=Path, help="run folder, e.g. ../runs/18_electrons_27_sites_released_settings")
-    parser.add_argument("--inverse-eps", type=float, choices=(0.1, 0.2), required=True, help="1/eps: 0.2 or 0.1")
+    parser.add_argument("--inverse-eps", choices=sorted(INVERSE_EPS), required=True, help="1/eps: 0.2, 0.1 or 1/3")
+    parser.add_argument("--network", choices=NETWORKS, default="CustomPsiformer")
     parser.add_argument("--steps", type=int, default=None, help="default 20,480,000 / walkers")
     parser.add_argument("--burn-in", type=int, default=200)
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
+    args.inverse_eps = INVERSE_EPS[args.inverse_eps]
     run = args.run.resolve()
-    results = output_folder(run, args.inverse_eps)                 # what the authors' code wrote
-    out = (args.out or run / "evaluation" / results.name).resolve()
+    results = output_folder(run, args.inverse_eps, args.network)   # what the authors' code wrote
+    out = (args.out or default_out(run, results, args.network)).resolve()
     out.mkdir(parents=True, exist_ok=True)
 
     # 1. Folder and GPU safety, before anything imports JAX or touches a GPU.
@@ -437,7 +456,7 @@ def main():
 
     # 2. The configuration, network and weights the run was trained with.
     #    (training_configuration checks the whole configuration against config.json.)
-    cfg, trained_with = training_configuration(run, args.inverse_eps)
+    cfg, trained_with = training_configuration(run, args.inverse_eps, args.network)
     network, local_energy, charges = build_like_train_py(cfg)
     if jax.device_count() != 1:
         sys.exit("make exactly one GPU visible (CUDA_VISIBLE_DEVICES=0): "
@@ -496,10 +515,17 @@ def main():
     if len(training_energy) != completed:
         sys.exit(f"train_stats.csv holds {len(training_energy)} rows, the checkpoint {completed} iterations")
     network_sizes = cfg.network[cfg.network.network_type]
+    if cfg.network.network_type == "CustomPsiformer":
+        sizes = dict(attention_layers=int(network_sizes.num_layers), attention_heads=int(network_sizes.num_heads),
+                     attention_perceptrons=int(network_sizes.num_perceptrons_per_layer))
+    else:                                                          # SlaterNet: no attention
+        sizes = dict(slaternet_layers=int(network_sizes.num_layers),
+                     slaternet_perceptrons=int(network_sizes.num_perceptrons_per_layer))
     # The same entries as our evaluations write (checkpoint_step: iterations done), so that
     # learn's table1_results.load reads both; "real": the authors' gradient convention.
     summary = dict(run=str(run), checkpoint=final.name, checkpoint_step=completed, final_checkpoint=True,
-                   checkpoint_md5=checkpoint_md5, network="attention", eps=round(1 / args.inverse_eps, 6),
+                   checkpoint_md5=checkpoint_md5, network={"CustomPsiformer": "attention", "SlaterNet": "slaternet"}[cfg.network.network_type],
+                   eps=round(1 / args.inverse_eps, 6),
                    gradient="real", authors_script=trained_with["authors_script"],
                    authors_command_line=trained_with["authors_command_line"],
                    steps_requested=args.steps, burn_in=args.burn_in,
@@ -507,10 +533,7 @@ def main():
                    training_settings=dict(batch=batch, iterations=int(cfg.optim.iterations),
                                           learning_rate=float(cfg.optim.lr.rate),
                                           learning_rate_delay=float(cfg.optim.lr.delay),
-                                          attention_layers=int(network_sizes.num_layers),
-                                          attention_heads=int(network_sizes.num_heads),
-                                          attention_perceptrons=int(network_sizes.num_perceptrons_per_layer),
-                                          determinants=int(cfg.network.determinants)),
+                                          determinants=int(cfg.network.determinants), **sizes),
                    mcmc_moves_per_step=cfg.mcmc.steps, mcmc_width=float(width),
                    supercell=supercell.tolist(), density_bins=density_bins,
                    r_max=float(r_max), radial_bins=RADIAL_BINS,
