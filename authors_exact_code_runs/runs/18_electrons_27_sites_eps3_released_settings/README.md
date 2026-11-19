@@ -93,3 +93,39 @@ checkpoints; the frozen-weight evaluation follows.
   crystal about 0.16 meV per electron below the Fermi liquid at eps about 3.3, so at eps = 3 the
   crystal should be the lower state; these runs did not find it.
 - One run per network, each with the authors' random start.
+
+### Final weights frozen (2026-11-19)
+
+`../../code/evaluate_authors_weights.py --inverse-eps 1/3 --network CustomPsiformer | SlaterNet`
+(`../../code/launch_evaluation_eps3.sh`, both GPUs, 02:55 to 04:07 UTC): the authors' network,
+sampler and local energy with the final weights held fixed, 20,480,000 configurations each; both
+passed the check against the end of training. Output in `evaluation/<parameters>/` (self-attention)
+and `evaluation/SlaterNet_<parameters>/`. Tables and figure made by
+`../../code/eps3_evaluation_results.py` with learn's functions, unchanged, next to our own code's
+self-attention run at eps = 3 (`runs/stage08/18_electrons_27_sites_eps3_real_gradient/`: Table II
+settings, the authors' gradient): `results/frozen_energies.csv`, `results/frozen_structure.csv`,
+`results/frozen_site_pattern.csv`, `figures/frozen_density_pair_correlation.png`.
+
+| eps = 3, final weights frozen | authors' code, self-attention | authors' code, SlaterNet | our code, self-attention |
+|---|---|---|---|
+| energy, meV per electron | -95.9339(2) | -94.2526(11) | -95.8838(2) |
+| training average (last 20 %) | -95.9563(2) | -94.2734(8) | -95.9056(2) |
+| S(kappa); a honeycomb gives 4.5 | 0.666 | 0.551 | 0.631 |
+| sublattice shares; a honeycomb gives 0, 1/2, 1/2 | 0.325, 0.332, 0.344 | 0.352, 0.342, 0.306 | 0.329, 0.343, 0.328 |
+| site occupations, smallest to largest (even: 0.667) | 0.51 to 0.79 | 0.25 to 0.98 | 0.43 to 0.87 |
+| site pattern, summed over its 27 wave vectors | 0.26 | 3.58 | 0.88 |
+| ... of which at +-kappa (a honeycomb: 9) | 0.01 | 0.06 | 0.01 |
+| ... of which at the six with |q| = 2.418 | 0.09 | 2.40 (1.18 at each of +-(0, 1/3) b) | 0.22 |
+
+![eps = 3, final weights frozen](figures/frozen_density_pair_correlation.png)
+
+- **No honeycomb in any of the three.**
+- **SlaterNet (one determinant) forms a stripe pattern**: rows of nearly full sites (up to 0.98)
+  and, one row in three, nearly empty sites (down to 0.25) with some density between the sites.
+  Its site pattern sits almost entirely at one pair of wave vectors, +-(0, 1/3) in units of the
+  moire reciprocal vectors (|q| = 2.418), one direction only. It is 1.68 meV per electron above the
+  self-attention network.
+- The authors' self-attention network with the released settings is 0.050 meV per electron below
+  ours with the Table II settings (frozen weights, both), with a less uneven density (0.51 to 0.79
+  against 0.43 to 0.87).
+- Frozen weights lie 0.021 to 0.022 meV per electron above the training averages, in all three.

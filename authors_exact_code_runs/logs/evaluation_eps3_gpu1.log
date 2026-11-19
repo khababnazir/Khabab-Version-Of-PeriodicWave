@@ -1,0 +1,44 @@
+=== 2026-11-19 02:55:23  evaluate SlaterNet, eps = 3, on GPU 1
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x791fe5970350>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py', '18_0', '27', '0.35', '0.3333333333333333', '8.031', '15', '45', 'SlaterNet']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 17.70578893669297
+Folder 'results/2deg-CoulombMoire/SlaterNet/el18_0_N27_V4.44370908_45.0_U17.70578894' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/SlaterNet/el18_0_N27_V4.44370908_45.0_U17.70578894/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/SlaterNet/el18_0_N27_V4.44370908_45.0_U17.70578894'.
+Configuration saved as JSON to results/2deg-CoulombMoire/SlaterNet/el18_0_N27_V4.44370908_45.0_U17.70578894/config.json
+Configuration saved as JSON to /tmp/tmpiio9wbut/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 17.70578893669297
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+making 2DCoulomb potential with energy scale: 17.70578893669297
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+burn-in of 200 steps done after 9 s (includes compiling)
+sanity check: evaluation -502.65670, end of training -502.72072
+step   1000  mean energy -502.59421  pmove 0.511  11.89 steps/s
+step   2000  mean energy -502.62445  pmove 0.512  14.39 steps/s
+step   3000  mean energy -502.61685  pmove 0.519  15.45 steps/s
+step   4000  mean energy -502.61353  pmove 0.511  16.02 steps/s
+step   5000  mean energy -502.61400  pmove 0.514  16.37 steps/s
+step   6000  mean energy -502.61287  pmove 0.513  16.61 steps/s
+step   7000  mean energy -502.60710  pmove 0.513  16.79 steps/s
+step   8000  mean energy -502.60478  pmove 0.514  16.92 steps/s
+step   9000  mean energy -502.60427  pmove 0.513  17.03 steps/s
+step  10000  mean energy -502.59833  pmove 0.511  17.11 steps/s
+step  11000  mean energy -502.59838  pmove 0.515  17.18 steps/s
+step  12000  mean energy -502.59462  pmove 0.516  17.23 steps/s
+step  13000  mean energy -502.59439  pmove 0.509  17.28 steps/s
+step  14000  mean energy -502.59688  pmove 0.514  17.32 steps/s
+step  15000  mean energy -502.59581  pmove 0.514  17.35 steps/s
+step  16000  mean energy -502.59658  pmove 0.513  17.38 steps/s
+step  17000  mean energy -502.59638  pmove 0.511  17.41 steps/s
+step  18000  mean energy -502.59642  pmove 0.514  17.43 steps/s
+step  19000  mean energy -502.59764  pmove 0.510  17.45 steps/s
+step  20000  mean energy -502.59755  pmove 0.508  17.47 steps/s
+=== 2026-11-19 03:14:46  evaluation of SlaterNet, eps = 3, ended with exit code 0
