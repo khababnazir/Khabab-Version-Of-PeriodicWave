@@ -51,6 +51,15 @@ Monitors every 10 s in `training/logs/` (GPU: nvidia-smi; CPU and memory: system
   steps, burn-in 300, gradient real, folx, slogdet, released network form; seeds 42 and 43.
   Speed after 2,000 iterations: 0.23 s per iteration on GPU 0, 0.25 to 0.30 on GPU 1 (its power
   limit is 250 W): about 13 and 14 to 17 hours, then about 1.3 hours of evaluation each. No NaN.
+- 2026-11-23 05:36: check at about 18,000 iterations (both running, no NaN, no GPU error). Learn's
+  checkpoint_structure.py (unchanged) on the checkpoints so far (`results/checkpoint_structure_*.csv`):
+  NO honeycomb in either run. Seed 42: S(kappa) 0.600 at 7,254 and 0.603 at 14,853, sublattice shares
+  0.334 / 0.333 / 0.333 and 0.324 / 0.325 / 0.351. Seed 43: 0.590 at 6,843 and 0.592 at 14,014,
+  0.332 / 0.332 / 0.336 and 0.327 / 0.339 / 0.335. For comparison, the authors' code: seed 42 was
+  already a honeycomb at its first checkpoint, 4,709 (S(kappa) 2.69, shares 0.484 / 0.484 / 0.032);
+  their first, clock-seeded run was not (0.65 at 4,759; 0.306 / 0.306 / 0.388).
+  Training energy, meV per electron, mean over iterations 16,500 to 17,499: ours -95.8464 (seed 42)
+  and -95.8363 (seed 43); the authors' code -96.1061 (seed 42, honeycomb) and -95.8077 (first run).
 
 ## Results
 
