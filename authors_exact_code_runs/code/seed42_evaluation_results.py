@@ -1,16 +1,14 @@
 """
-eps = 3, seed 42 (the honeycomb test): the final weights of both seed-42 runs FROZEN, next to the
-first eps = 3 self-attention run (clock seed): energy, density, pair correlation, S(kappa),
-sublattices, site pattern.  Also S(kappa) and the sublattice shares of the walkers in EVERY
-checkpoint of the two seed-42 runs (did the honeycomb form, and did it stay?).
+eps = 3, the authors' code from seed 42: its final weights FROZEN, next to the first eps = 3
+self-attention run (clock seed): energy, density, pair correlation, S(kappa), sublattices, site
+pattern.  Also S(kappa) and the sublattice shares of the walkers in EVERY checkpoint of the seed-42
+run (when did the honeycomb form, and did it stay?).  (Until 2026-11-23 also the honeycomb-field
+run; it is now in ../archive/eps3_seed42_honeycomb_field/, with the results it was in.)
 
 Everything is measured with learn's functions, unchanged, through eps3_evaluation_results.py (the
 same loading, tables and figure as for the first eps = 3 runs) and check_honeycomb.py (the walkers
 of a checkpoint).  The training energy is the mean of the last 20 % of the iterations, 160,000 to
-199,999, for all three runs.  For the field run, learn's load needs one train_stats.csv; its two
-(phase 1: iterations 0 to 19,999, with the field; phase 2: 20,000 to 199,999, without) are joined in
-a temporary folder, after checking that together they are iterations 0 to 199,999.  None of the
-last 20 % has the field.
+199,999, for both runs.
 
 Run, from this folder (CPU only):
     $HOME/.local/bin/uv run --no-project --python ../../.venv/bin/python --with matplotlib --with pyblock python seed42_evaluation_results.py
@@ -19,7 +17,6 @@ Output, in ../runs/18_electrons_27_sites_eps3_seed42/:
     figures/frozen_density_pair_correlation.png
 """
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -35,21 +32,7 @@ import check_honeycomb                                # noqa: E402  learn's walk
 t1, e3, NAME = ev3.t1, ev3.e3, ev3.NAME
 OUTPUT = Path("results") / "2deg-CoulombMoire" / "CustomPsiformer"
 ORDINARY = SEED42 / "ordinary"
-PHASE1 = SEED42 / "honeycomb_field" / "phase1_field_on"
-PHASE2 = SEED42 / "honeycomb_field" / "phase2_field_off"
-ev3.TITLES.update(seed42_ordinary="seed 42, ordinary", seed42_field="seed 42, field until 20,000",
-                  authors_attention="first run (clock seed)")
-
-
-def joined_training(scratch):
-    """The field run's two train_stats.csv as one, in scratch/NAME/: iterations 0 to 199,999."""
-    parts = [pd.read_csv(phase / OUTPUT / NAME / "train_stats.csv") for phase in (PHASE1, PHASE2)]
-    joined = pd.concat(parts, ignore_index=True)
-    assert parts[0]["step"].iloc[-1] == 19_999 and parts[1]["step"].iloc[0] == 20_000
-    assert np.array_equal(joined["step"].to_numpy(), np.arange(200_000)), "not iterations 0 to 199,999"
-    (scratch / NAME).mkdir()
-    joined.to_csv(scratch / NAME / "train_stats.csv", index=False)
-    return scratch
+ev3.TITLES.update(seed42_ordinary="seed 42", authors_attention="first run (clock seed)")
 
 
 def load_seed42(run, training, folder):
@@ -63,27 +46,24 @@ def load_seed42(run, training, folder):
 
 
 def checkpoint_structure():
-    """S(kappa) and the sublattice shares of the 1024 walkers of every checkpoint of both runs."""
+    """S(kappa) and the sublattice shares of the 1024 walkers of every checkpoint of the seed-42 run."""
     cs, acr = check_honeycomb.cs, check_honeycomb.acr
     geometry = cs.geometry()
     cs.self_check(geometry)
     rows = []
-    for run, phase in (("ordinary", ORDINARY), ("field_on", PHASE1), ("field_off", PHASE2)):
-        checkpoints = sorted((phase / OUTPUT / NAME).glob("qmcjax_ckpt_*.npz"))
-        assert checkpoints, phase
-        for checkpoint in checkpoints:
-            walkers = acr.walkers(checkpoint, geometry[0])
-            rows.append(dict(run=run, iteration=int(checkpoint.stem.split("_")[-1]), walkers=len(walkers),
-                             **cs.measure(walkers, *geometry)))
+    checkpoints = sorted((ORDINARY / OUTPUT / NAME).glob("qmcjax_ckpt_*.npz"))
+    assert checkpoints, ORDINARY
+    for checkpoint in checkpoints:
+        walkers = acr.walkers(checkpoint, geometry[0])
+        rows.append(dict(run="seed42", iteration=int(checkpoint.stem.split("_")[-1]), walkers=len(walkers),
+                         **cs.measure(walkers, *geometry)))
     return pd.DataFrame(rows)
 
 
 def main():
     first = ev3.load_authors("CustomPsiformer")
-    ordinary = load_seed42(ORDINARY, ORDINARY / OUTPUT, "seed42_ordinary")
-    with tempfile.TemporaryDirectory() as scratch:
-        field = load_seed42(PHASE2, joined_training(Path(scratch)), "seed42_field")
-    runs = [ordinary, field, first]
+    seed42 = load_seed42(ORDINARY, ORDINARY / OUTPUT, "seed42_ordinary")
+    runs = [seed42, first]
     assert all(len(r["training_series"]) == 40_000 for r in runs), "last 20 % = 40,000 iterations each"
     (SEED42 / "results").mkdir(exist_ok=True)
     (SEED42 / "figures").mkdir(exist_ok=True)

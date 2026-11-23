@@ -21,12 +21,12 @@ Added 2026-11-19 for the eps = 3 runs: 1/eps = 1/3 (--inverse-eps 1/3) and Slate
 (--network SlaterNet).  The default output folder of a SlaterNet evaluation carries the network in
 its name (evaluation/SlaterNet_<parameters>), because both networks of a run folder write output
 folders of the same name; a self-attention evaluation keeps evaluation/<parameters>, as before.
-Added 2026-11-23 for the seed-42 eps = 3 runs (../runs/18_electrons_27_sites_eps3_seed42): their run
-folders are ordinary/ and honeycomb_field/phase2_field_off/, and the script they were started with,
-the seed-42 copy, sits one or two folders above (authors_script finds it; the config.json check
-still decides).  Phase 2 continued from a copied checkpoint, so its train_stats.csv starts at
-iteration 20,000: training_energies checks that the rows are consecutive iterations ending at the
-checkpoint, and, if they do not start at 0, that the checkpoint they continued from is in the folder.
+Added 2026-11-23 for the seed-42 eps = 3 run (../runs/18_electrons_27_sites_eps3_seed42): its run
+folder is ordinary/, and the script it was started with, the seed-42 copy, sits one folder above
+(authors_script finds it; the config.json check still decides).  training_energies checks that the
+rows of train_stats.csv are consecutive iterations ending at the checkpoint, and, if they do not
+start at 0 (a run continued from a copied checkpoint: the honeycomb-field run, phase 2, now in
+../archive/eps3_seed42_honeycomb_field/), that the checkpoint they continued from is in the folder.
 The text from "Why a separate evaluation" on is the original's.
 
 Run (one GPU, one evaluation), from this folder:
@@ -118,7 +118,7 @@ PERIODICWAVE = REPO / "external" / "PeriodicWave"
 AUTHORS_COMMIT = "6525d2f3eec53f085b55d485e1bff45d61ef1782"
 AUTHORS_SCRIPT = PERIODICWAVE / "periodicwave" / "configs" / "run_2deg_triangular_potential.py"
 TABLE2_SCRIPT = "run_2deg_triangular_potential_table2.py"      # in the Table II run folder
-SEED42_SCRIPT = "run_2deg_triangular_potential_seed42.py"      # one or two folders above a seed-42 run folder
+SEED42_SCRIPT = "run_2deg_triangular_potential_seed42.py"      # in the folder above the seed-42 run folder
 OUTPUT = Path("results") / "2deg-CoulombMoire"                # then the network, then the parameters
 NETWORKS = ("CustomPsiformer", "SlaterNet")
 INVERSE_EPS = {"0.2": 0.2, "0.1": 0.1, "1/3": 1 / 3}           # 1/3: the run was started with 0.3333333333333333
@@ -199,11 +199,11 @@ def hold_gpu_lock():
 
 def authors_script(run):
     """The script the run was started with: the Table II copy if the run folder holds one; the seed-42
-    copy if the run folder or one of the two folders above it holds one; else theirs."""
+    copy if the run folder or the folder above it holds one; else theirs."""
     copy = run / TABLE2_SCRIPT
     if copy.exists():
         return copy
-    for folder in (run, run.parent, run.parent.parent):
+    for folder in (run, run.parent):
         if (folder / SEED42_SCRIPT).exists():
             return folder / SEED42_SCRIPT
     return AUTHORS_SCRIPT
@@ -236,7 +236,7 @@ def default_out(run, results, network):
 def training_energies(results, completed):
     """The energies of train_stats.csv, after checking its rows: consecutive iterations that end at
     the checkpoint (completed - 1).  A run that continued from a copied checkpoint starts later (the
-    seed-42 field run, phase 2: at 20,000); then the checkpoint it continued from must be in the folder."""
+    archived seed-42 field run, phase 2: at 20,000); then the checkpoint it continued from must be there."""
     table = np.loadtxt(results / "train_stats.csv", delimiter=",", skiprows=1, usecols=(0, 1), ndmin=2)
     steps, energies = table[:, 0].astype(int), table[:, 1]
     if len(steps) == 0 or steps[-1] != completed - 1 or np.any(np.diff(steps) != 1):

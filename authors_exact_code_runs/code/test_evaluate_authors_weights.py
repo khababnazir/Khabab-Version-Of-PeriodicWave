@@ -12,12 +12,11 @@ Checks for evaluate_authors_weights.py.  Run, from this folder (CPU, about a min
                  names; the wrong network is refused; the two networks of the eps = 3 folder get
                  different evaluation folders, and the earlier runs keep theirs;
   steps          by default steps x walkers = 20,480,000, as in our evaluations;
-  seed 42        (added 2026-11-23) the two seed-42 eps = 3 run folders (ordinary/ and
-                 honeycomb_field/phase2_field_off/) find the seed-42 script above them and rebuild
-                 their config.json; phase 1 (the field) is refused, because its config.json names the
-                 field; train_stats.csv must hold consecutive iterations ending at the checkpoint
-                 (phase 2: 20,000 to 199,999, after its copied checkpoint 19,999) -- a gap, a repeated
-                 row, a missing end or a late start without that checkpoint is refused;
+  seed 42        (added 2026-11-23) the seed-42 eps = 3 run folder (ordinary/) finds the seed-42
+                 script above it and rebuilds its config.json; train_stats.csv must hold consecutive
+                 iterations ending at the checkpoint -- a gap, a repeated row, a missing end or a
+                 late start without the checkpoint it continued from is refused (a late start with
+                 it is accepted: the archived honeycomb-field run, phase 2);
   their code     external/PeriodicWave is at the authors' commit with no tracked file changed;
   checkpoint     each final checkpoint restores with the authors' own checkpoint.restore, holds the
                  last iteration, and its parameters fit the network built from the configuration.
@@ -45,18 +44,16 @@ TABLE2 = RUNS / "18_electrons_27_sites_table2_settings"
 EPS3 = RUNS / "18_electrons_27_sites_eps3_released_settings"
 SEED42 = RUNS / "18_electrons_27_sites_eps3_seed42"
 ORDINARY = SEED42 / "ordinary"
-PHASE1 = SEED42 / "honeycomb_field" / "phase1_field_on"
-PHASE2 = SEED42 / "honeycomb_field" / "phase2_field_off"
 CASES = [(RELEASED, 0.2, "CustomPsiformer"), (RELEASED, 0.1, "CustomPsiformer"),
          (TABLE2, 0.2, "CustomPsiformer"), (TABLE2, 0.1, "CustomPsiformer"),
          (EPS3, 1 / 3, "CustomPsiformer"), (EPS3, 1 / 3, "SlaterNet"),
-         (ORDINARY, 1 / 3, "CustomPsiformer"), (PHASE2, 1 / 3, "CustomPsiformer")]
+         (ORDINARY, 1 / 3, "CustomPsiformer")]
 
 
 def expected_script(run):
     if run == TABLE2:
         return TABLE2 / ev.TABLE2_SCRIPT
-    if run in (ORDINARY, PHASE2):
+    if run == ORDINARY:
         return SEED42 / ev.SEED42_SCRIPT
     return ev.AUTHORS_SCRIPT
 
@@ -109,18 +106,10 @@ class ConfigurationTest(absltest.TestCase):
         self.assertIn("INVERSE_EPS=0.3333333333333333", start)
 
 
-    def test_seed42_phase1_is_refused(self):
-        """Phase 1 ran with the field; the seed-42 script without the field cannot rebuild its config."""
-        self.assertEqual(ev.authors_script(PHASE1), SEED42 / ev.SEED42_SCRIPT)
-        with self.assertRaisesRegex(SystemExit, "differs"):
-            ev.training_configuration(PHASE1, 1 / 3)
-
-
 class TrainingRowsTest(absltest.TestCase):
 
-    def test_the_two_seed42_runs(self):
+    def test_the_seed42_run(self):
         self.assertLen(ev.training_energies(ev.output_folder(ORDINARY, 1 / 3), 200_000), 200_000)
-        self.assertLen(ev.training_energies(ev.output_folder(PHASE2, 1 / 3), 200_000), 180_000)
 
     def fake(self, steps, checkpoints=()):
         folder = Path(self.create_tempdir().full_path)

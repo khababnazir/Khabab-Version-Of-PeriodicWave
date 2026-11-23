@@ -52,10 +52,11 @@ these seven numbers and nothing else, and that eps = 5 and 10 differ only in the
       18_electrons_27_sites_table2_settings/     their script with Table II's seven numbers; eps = 10, then eps = 5
       18_electrons_27_sites_eps3_released_settings/   their script unchanged at eps = 3, self-attention
                                                  AND SlaterNet (asked for by the professor, started 2026-11-17)
-      18_electrons_27_sites_eps3_seed42/   eps = 3, self-attention, seed 42 (2026-11-19): ordinary training,
-                                                 and a honeycomb field for 20,000 iterations then off;
-                                                 BOTH ended in the honeycomb, 0.20 meV per electron below the
+      18_electrons_27_sites_eps3_seed42/   eps = 3, self-attention, their script with seed 42 (2026-11-19):
+                                                 ended in the honeycomb crystal, 0.197 meV per electron below the
                                                  first eps = 3 run (frozen weights); see its README
+    archive/eps3_seed42_honeycomb_field/   the honeycomb-field test from the same seed (moved there on
+                                                 2026-11-23; README there)
         Each: README.md (the run's history, day by day, and its results), how_this_was_started.sh,
         results/2deg-CoulombMoire/CustomPsiformer/<parameters>/ (what THEIR code wrote:
         config.json, train_stats.csv = the energy of every iteration, qmcjax_ckpt_<step>.npz =

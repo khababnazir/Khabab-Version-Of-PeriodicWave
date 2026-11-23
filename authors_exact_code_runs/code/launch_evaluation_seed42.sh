@@ -1,9 +1,8 @@
 #!/bin/bash
-# Frozen-weight evaluation of the two seed-42 eps = 3 runs (evaluate_authors_weights.py), one per GPU,
-# both with their own Hamiltonian only (no field):
-#   GPU 0:  honeycomb_field/phase2_field_off   (field for iterations 0-19,999, then off to 199,999)
-#   GPU 1:  ordinary                           (no field, 200,000 iterations)
-# 20,480,000 configurations each (20,000 steps x 1024 walkers).
+# Frozen-weight evaluation of the seed-42 eps = 3 run (evaluate_authors_weights.py) on GPU 1:
+# 20,480,000 configurations (20,000 steps x 1024 walkers).
+# Run on 2026-11-23 01:46 with a second line, the same evaluation of the honeycomb-field run on
+# GPU 0; that run and its evaluation are now in ../archive/eps3_seed42_honeycomb_field/.
 #
 #   bash launch_evaluation_seed42.sh
 #
@@ -34,6 +33,5 @@ evaluate () {   # gpu run-folder
 
 export -f evaluate
 export PY LOGS
-setsid nohup bash -c "evaluate 0 $SEED42/honeycomb_field/phase2_field_off" >> $LOGS/evaluation_seed42_gpu0.log 2>&1 < /dev/null &
 setsid nohup bash -c "evaluate 1 $SEED42/ordinary" >> $LOGS/evaluation_seed42_gpu1.log 2>&1 < /dev/null &
-echo "launched on GPU 0 and GPU 1; logs in $LOGS/evaluation_seed42_gpu*.log"
+echo "launched on GPU 1; log in $LOGS/evaluation_seed42_gpu1.log"

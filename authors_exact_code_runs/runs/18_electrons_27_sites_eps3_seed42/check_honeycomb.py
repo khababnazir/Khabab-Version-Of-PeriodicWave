@@ -1,8 +1,8 @@
 """
 Did a honeycomb form?  S(kappa) and the three sublattice shares of the walkers in one checkpoint of
 the authors' code, measured with learn's functions, unchanged (authors_code_results.walkers, with
-its layout guard; checkpoint_structure.measure).  A honeycomb with sublattice 0 empty (the one the
-field raises) gives S(kappa) = 4.5 and shares 0, 1/2, 1/2; an even liquid about 0.7 and 1/3 each.
+its layout guard; checkpoint_structure.measure).  A honeycomb with one sublattice empty gives
+S(kappa) = 4.5 and shares 0, 1/2, 1/2; an even liquid about 0.7 and 1/3 each.
 
     $HOME/.local/bin/uv run --no-project --python ../../../.venv/bin/python --with matplotlib --with pyblock \
         python check_honeycomb.py CHECKPOINT [OUT.csv]
