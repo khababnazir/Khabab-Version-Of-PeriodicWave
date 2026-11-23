@@ -93,6 +93,13 @@ Queued on 2026-11-23 08:22 to follow the screen on each GPU:
   (about 5 h).
 Logs: `logs/gpu1_lucky_and_field.log`, `logs/gpu0.log`.
 
+Overnight extension (Khabab, 2026-11-23 08:27 server time: run until he is back next morning,
+about 23:30 server time), queued after the runs above on each GPU:
+- GPU 1: `bash start_lucky_and_field.sh 1 lucky 5 8` (four more lucky starts), then
+  `bash how_this_was_started.sh 1 ours 25 36` (until about 20:00);
+- GPU 0: `flock -n ~/moire-nnvmc/runs/gpu_locks/gpu0.lock bash how_this_was_started.sh 0 authors 13 20`
+  (eight more starts of the authors' code, until about 21:30).
+
 ## Results
 
 `screen_results.py` -> `results/screen.csv`: for every finished start, S(kappa) and the sublattice
