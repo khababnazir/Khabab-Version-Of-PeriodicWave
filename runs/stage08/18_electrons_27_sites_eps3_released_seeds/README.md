@@ -49,8 +49,8 @@ Monitors every 10 s in `training/logs/` (GPU: nvidia-smi; CPU and memory: system
 - 2026-11-23 04:19:55: both runs started (2 GPUs). `settings.json` of each: batch 1024,
   200,000 iterations, learning rate 0.1, delay 20000, 4 layers, 4 heads, 2 perceptrons, mcmc 30
   steps, burn-in 300, gradient real, folx, slogdet, released network form; seeds 42 and 43.
-  Speed about 0.24 s per iteration on GPU 0 and 0.25 on GPU 1: about 14 hours each, then about
-  1.3 hours of evaluation.
+  Speed after 2,000 iterations: 0.23 s per iteration on GPU 0, 0.25 to 0.30 on GPU 1 (its power
+  limit is 250 W): about 13 and 14 to 17 hours, then about 1.3 hours of evaluation each. No NaN.
 
 ## Results
 
