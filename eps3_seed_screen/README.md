@@ -51,6 +51,48 @@ setsid nohup bash how_this_was_started.sh 1 ours 1 12 >> logs/gpu1.log 2>&1 < /d
 launcher was dry-run with a fake python: the commands above for each seed, a finished authors' seed
 skipped, a busy GPU (exit code 75) stops the queue, bad arguments refused.
 
+## Our code from the authors' lucky start, and with the field (added 2026-11-23)
+
+Khabab, after the first 9 starts (no honeycomb): try our network from the authors' lucky start, and
+with the honeycomb field, judged early like the screen, and more seeds of our code.
+
+- **Lucky start** (`lucky_start/seed_S/`, 5,000 iterations each, our seeds 1 to 4).
+  `capture_authors_start.py` runs the authors' seed-42 script (unchanged) in a temporary folder
+  and records what their train.py makes before any burn-in: the initial parameters (their
+  network.init) and the 1024 initial walkers (their init_electrons_gaussian); then it stops the
+  run. `lucky_start.py` converts the parameters to our network (a copy of
+  learn/stage08_own_code/test_networks.py's converter) and writes them, with those walkers, as an
+  iteration-0 checkpoint for our train_moire.py, which then runs its usual burn-in and training
+  (it continues from any checkpoint, and at iteration 0 it burns in first). The seed S of our
+  run only chooses our Metropolis moves and KFAC's random numbers: those cannot be the authors'.
+  So this is the authors' starting POINT, not their path.
+  The start used is captured on the GPU that runs these starts (`authors_seed42_start_gpu.pkl`,
+  as the authors' run was on a GPU; its difference from the CPU capture
+  `authors_seed42_start.pkl` is printed in the log).
+- **Field** (`field/seed_42/`): our code from seed 42 (the start of our stopped seed-42 run, which
+  stayed liquid-like) with the field of the authors'-code test (lambda = 0.5: sublattice 0 raised
+  by 7.6 meV) for iterations 0 to 4,999 (`field_training.py` wraps train_moire.make_problem so
+  that the local energy includes the field), then the field off to 14,999 (plain train_moire.py,
+  same folder). `field.json` in the folder records the field.
+- **More seeds of our code**: `ours/seed_13` to `seed_24`, as the first 12.
+
+`test_lucky_and_field.py` (CPU), 7 tests, all pass: the capture gives the same start twice, bit
+for bit, and its walkers are the authors' Gaussian start; the converter copy is learn's function;
+our network with the converted parameters gives their network's log|Psi| and phase (16
+configurations spread over the cell); the iteration-0 checkpoint reads back with train_moire's
+own loader (iteration 0, these parameters, these walkers in their layout, width 0.2, the key a
+fresh start with that seed has); the field is 3 lambda on sublattice 0 and -1.5 lambda elsewhere,
+periodic, and the wrapped local energy is the plain one plus exactly the field. Three mutants,
+each caught: queries and keys swapped in the converter, the walkers read in the wrong layout, the
+field term dropped. `start_lucky_and_field.sh` was dry-run with a fake python.
+
+Queued on 2026-11-23 08:22 to follow the screen on each GPU:
+- GPU 1, when the screen of our code ends (about 10:45): `bash start_lucky_and_field.sh 1 lucky 1 4`,
+  then `bash start_lucky_and_field.sh 1 field 42` (about 1.6 h, then about 1.2 h);
+- GPU 0, when the screen of the authors' code ends (about 12:10): `bash how_this_was_started.sh 0 ours 13 24`
+  (about 5 h).
+Logs: `logs/gpu1_lucky_and_field.log`, `logs/gpu0.log`.
+
 ## Results
 
 `screen_results.py` -> `results/screen.csv`: for every finished start, S(kappa) and the sublattice
