@@ -78,7 +78,8 @@ def main():
     structure.to_csv(SEED42 / "results" / "frozen_structure.csv", index=False)
     pattern.to_csv(SEED42 / "results" / "frozen_site_pattern.csv", index=False)
     trajectory.to_csv(SEED42 / "results" / "checkpoint_structure.csv", index=False)
-    ev3.density_pair_figure(runs, SEED42 / "figures" / "frozen_density_pair_correlation.png")
+    ev3.density_pair_figure(runs, SEED42 / "figures" / "frozen_density_pair_correlation.png",
+                            title=ev3.TITLE.replace("supercell). ", "supercell).\n"))   # two columns: two lines
 
     with pd.option_context("display.width", 250, "display.max_columns", 40):
         print(energies[["run", "E_frozen", "E_frozen_error", "E_training_last20pct", "E_training_last20pct_error",

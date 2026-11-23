@@ -60,7 +60,11 @@ def load_ours():
     return dict(run, folder="our_code_attention")
 
 
-def density_pair_figure(runs, path):
+TITLE = ("\u03b5 = 3, final weights frozen (20.5 million configurations each; dashed: the supercell). "
+         "A honeycomb would leave one site in three empty.")
+
+
+def density_pair_figure(runs, path, title=TITLE):
     """Density (top) and pair correlation (bottom), one column per run, as for all our runs."""
     fig, axes = plt.subplots(2, len(runs), figsize=(2.6 * len(runs) + 1.0, 5.8), constrained_layout=True)
     densities = [t1.observables.density_map(r["totals"]["density"], r["n_configurations"], r["supercell"]) for r in runs]
@@ -90,8 +94,7 @@ def density_pair_figure(runs, path):
             if column == len(runs) - 1:
                 fig.colorbar(image, ax=axes[row, :], shrink=0.8,
                              label="n(r)  (a$_M^{-2}$)" if row == 0 else "g(\u0394r)  (1 = independent electrons)")
-    fig.suptitle("\u03b5 = 3, final weights frozen (20.5 million configurations each; dashed: the supercell). "
-                 "A honeycomb would leave one site in three empty.", x=0.01, ha="left", fontsize=8)
+    fig.suptitle(title, x=0.01, ha="left", fontsize=8)
     fig.savefig(path, dpi=300)
     plt.close(fig)
 
