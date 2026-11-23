@@ -41,7 +41,10 @@ def seeds(code):
 
 def training(train_stats):
     """Mean energy (meV per electron) and pmove over iterations 4,000 to 4,999; None if unfinished."""
-    d = pd.read_csv(train_stats, usecols=["step", "energy", "pmove"])
+    try:
+        d = pd.read_csv(train_stats, usecols=["step", "energy", "pmove"])
+    except pd.errors.EmptyDataError:              # a start that has only just begun
+        return None
     if len(d) != ITERATIONS or list(d["step"]) != list(range(ITERATIONS)):
         return None
     last = d[d["step"] >= ITERATIONS - 1000]
