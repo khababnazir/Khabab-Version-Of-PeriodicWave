@@ -1,0 +1,22 @@
+=== 2026-11-23 04:19:55  start attention_18e_eps3_seed43 on GPU 1
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -489.34033  pmove 0.27  width 0.070  lr 0.0952  step capped 100%  3.03 it/s
+step    2000  energy -505.30234  pmove 0.51  width 0.041  lr 0.0909  step capped 100%  3.44 it/s
+step    3000  energy -508.33270  pmove 0.52  width 0.041  lr 0.087  step capped 100%  3.60 it/s
+step    4000  energy -509.10550  pmove 0.53  width 0.041  lr 0.0833  step capped 100%  3.69 it/s
+step    5000  energy -509.34680  pmove 0.52  width 0.041  lr 0.08  step capped 100%  3.74 it/s
+step    6000  energy -510.01407  pmove 0.52  width 0.041  lr 0.0769  step capped 100%  3.78 it/s
+step    7000  energy -510.08051  pmove 0.52  width 0.041  lr 0.0741  step capped 100%  3.81 it/s
+step    8000  energy -510.45416  pmove 0.52  width 0.041  lr 0.0714  step capped 100%  3.83 it/s
+step    9000  energy -510.02722  pmove 0.53  width 0.041  lr 0.069  step capped 100%  3.84 it/s
+step   10000  energy -510.38354  pmove 0.53  width 0.041  lr 0.0667  step capped 100%  3.86 it/s
+step   11000  energy -510.31250  pmove 0.52  width 0.041  lr 0.0645  step capped 100%  3.87 it/s
+step   12000  energy -510.49469  pmove 0.52  width 0.041  lr 0.0625  step capped 100%  3.88 it/s
+step   13000  energy -510.89746  pmove 0.52  width 0.041  lr 0.0606  step capped 100%  3.89 it/s
+step   14000  energy -510.69446  pmove 0.52  width 0.041  lr 0.0588  step capped 100%  3.89 it/s
+step   15000  energy -510.91617  pmove 0.53  width 0.041  lr 0.0571  step capped 100%  3.90 it/s
+step   16000  energy -510.60849  pmove 0.53  width 0.041  lr 0.0556  step capped 100%  3.90 it/s
+step   17000  energy -511.04276  pmove 0.53  width 0.041  lr 0.0541  step capped 100%  3.91 it/s
+step   18000  energy -510.85107  pmove 0.52  width 0.041  lr 0.0526  step capped 100%  3.91 it/s
+Terminated
+=== 2026-11-23 05:39:57  attention_18e_eps3_seed43 ended with exit code 143

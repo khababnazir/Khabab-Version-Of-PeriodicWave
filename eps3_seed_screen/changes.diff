@@ -1,0 +1,32 @@
+--- external/PeriodicWave/periodicwave/configs/run_2deg_triangular_potential.py
++++ run_2deg_triangular_potential_screen.py
+@@ -164,6 +164,7 @@
+ cfg.mcmc.move_width = 0.2
+ cfg.mcmc.steps      = 30
+ cfg.mcmc.move_width_updater = 'adaptive'
++cfg.debug.deterministic = True   # CHANGED (copy): their train.py then calls jax.random.PRNGKey(42) instead of a clock seed
+ 
+ # general network parameters
+ cfg.network.complex = True # complex wavefunction work better for pbc systems
+@@ -195,6 +196,21 @@
+     cfg.network.determinants = 1 # when using a single determinant, SlaterNet is equivalent to Hartree-Fock
+ 
+ # Get folder name to save the results
++# CHANGED (copy, seed screen): any seed instead of 42, and 5,000 iterations.
++# With cfg.debug.deterministic their train.py calls jax.random.PRNGKey(42) once (train.py line 373,
++# the only PRNGKey call in periodicwave); the lines below turn that one call into
++# PRNGKey(SCREEN_SEED).  SCREEN_SEED=42 is their seed-42 start; check_seed_override.sh checks both.
++_SCREEN_SEED = int(os.environ["SCREEN_SEED"])
++_their_prng_key = jax.random.PRNGKey
++_calls_with_42 = []
++def _screen_prng_key(seed, *args, **kwargs):
++    if isinstance(seed, int) and seed == 42:
++        _calls_with_42.append(seed)
++        assert len(_calls_with_42) == 1, "PRNGKey(42) called more than once: not only train.py's seed"
++        seed = _SCREEN_SEED
++    return _their_prng_key(seed, *args, **kwargs)
++jax.random.PRNGKey = _screen_prng_key
++cfg.optim.iterations = int(os.environ.get("SCREEN_ITERATIONS", "5000"))   # their code saves a checkpoint at the last one
+ folder_name = f"results/2deg-CoulombMoire/{network_type}/el{nspins[0]}_{nspins[1]}_N{num_unit_cells}_V{np.round(moire_potential_strength,8)}_{moire_potential_phi}_U{np.round(interaction_energy_scale,8)}"
+ 
+ # save path

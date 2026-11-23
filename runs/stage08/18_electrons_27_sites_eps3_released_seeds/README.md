@@ -60,7 +60,12 @@ Monitors every 10 s in `training/logs/` (GPU: nvidia-smi; CPU and memory: system
   their first, clock-seeded run was not (0.65 at 4,759; 0.306 / 0.306 / 0.388).
   Training energy, meV per electron, mean over iterations 16,500 to 17,499: ours -95.8464 (seed 42)
   and -95.8363 (seed 43); the authors' code -96.1061 (seed 42, honeycomb) and -95.8077 (first run).
+- 2026-11-23 05:39:57: both runs STOPPED by Khabab's choice (exit code 143, no evaluation),
+  seed 42 at iteration 19,747, seed 43 at 18,633: neither had a honeycomb at 15,000 iterations,
+  while the authors' seed 42 had one by 4,709. Instead: a screen of many short starts of both codes,
+  `eps3_seed_screen/` (top of the repository). These two runs stay here as two more starts of our
+  code that did not find the crystal in their first 15,000 iterations.
 
 ## Results
 
-After the runs.
+Stopped at about 19,000 iterations (above); no frozen evaluation.

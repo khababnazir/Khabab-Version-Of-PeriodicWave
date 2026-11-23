@@ -1,0 +1,23 @@
+=== 2026-11-23 04:19:55  start attention_18e_eps3_seed42 on GPU 0
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -499.42871  pmove 0.27  width 0.070  lr 0.0952  step capped 100%  3.17 it/s
+step    2000  energy -507.32050  pmove 0.52  width 0.041  lr 0.0909  step capped 100%  3.62 it/s
+step    3000  energy -508.54520  pmove 0.52  width 0.041  lr 0.087  step capped 100%  3.80 it/s
+step    4000  energy -509.26666  pmove 0.52  width 0.041  lr 0.0833  step capped 100%  3.89 it/s
+step    5000  energy -509.73822  pmove 0.52  width 0.041  lr 0.08  step capped 100%  3.95 it/s
+step    6000  energy -509.98334  pmove 0.53  width 0.041  lr 0.0769  step capped 100%  3.99 it/s
+step    7000  energy -510.10294  pmove 0.52  width 0.041  lr 0.0741  step capped 100%  4.02 it/s
+step    8000  energy -510.32718  pmove 0.52  width 0.041  lr 0.0714  step capped 100%  4.05 it/s
+step    9000  energy -510.69147  pmove 0.53  width 0.041  lr 0.069  step capped 100%  4.06 it/s
+step   10000  energy -510.48108  pmove 0.52  width 0.041  lr 0.0667  step capped 100%  4.08 it/s
+step   11000  energy -510.22943  pmove 0.53  width 0.041  lr 0.0645  step capped 100%  4.09 it/s
+step   12000  energy -510.55450  pmove 0.53  width 0.041  lr 0.0625  step capped 100%  4.10 it/s
+step   13000  energy -511.15155  pmove 0.53  width 0.041  lr 0.0606  step capped 100%  4.11 it/s
+step   14000  energy -510.75952  pmove 0.52  width 0.041  lr 0.0588  step capped 100%  4.12 it/s
+step   15000  energy -511.20618  pmove 0.52  width 0.041  lr 0.0571  step capped 100%  4.13 it/s
+step   16000  energy -511.20032  pmove 0.52  width 0.041  lr 0.0556  step capped 100%  4.13 it/s
+step   17000  energy -511.02289  pmove 0.52  width 0.041  lr 0.0541  step capped 100%  4.14 it/s
+step   18000  energy -511.22263  pmove 0.53  width 0.041  lr 0.0526  step capped 100%  4.14 it/s
+step   19000  energy -511.20129  pmove 0.53  width 0.041  lr 0.0513  step capped 100%  4.15 it/s
+Terminated
+=== 2026-11-23 05:39:57  attention_18e_eps3_seed42 ended with exit code 143

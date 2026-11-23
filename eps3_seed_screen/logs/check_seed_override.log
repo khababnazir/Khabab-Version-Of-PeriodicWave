@@ -1,0 +1,12 @@
+run in /tmp/screen_check/s42 (SCREEN_SEED=42): exit 0
+run in /tmp/screen_check/s1 (SCREEN_SEED=1): exit 0
+run in /tmp/screen_check/mutant (SCREEN_SEED=1): exit 0
+pmove at iteration 0: seed-42 run 0.16832682, SCREEN_SEED=42 0.16832682, SCREEN_SEED=1 0.16871746, mutant 0.16832682
+energy at iteration 0: seed-42 run -312.667, SCREEN_SEED=42 -312.667, SCREEN_SEED=1 -304.21844
+PASS SCREEN_SEED=42 starts as the seed-42 run (pmove)
+PASS SCREEN_SEED=42 starts as the seed-42 run (energy within 1e-3)
+PASS SCREEN_SEED=1 starts elsewhere
+PASS config.json differs from the seed-42 run's only in optim.iterations
+PASS SCREEN_SEED=1 and 42 have the same config.json
+PASS the mutant (no override) is caught: it starts as seed 42
+config differences: ['optim.iterations']
