@@ -12,6 +12,12 @@ Checks for evaluate_authors_weights.py.  Run, from this folder (CPU, about a min
                  names; the wrong network is refused; the two networks of the eps = 3 folder get
                  different evaluation folders, and the earlier runs keep theirs;
   steps          by default steps x walkers = 20,480,000, as in our evaluations;
+  seed 42        (added 2026-11-23) the two seed-42 eps = 3 run folders (ordinary/ and
+                 honeycomb_field/phase2_field_off/) find the seed-42 script above them and rebuild
+                 their config.json; phase 1 (the field) is refused, because its config.json names the
+                 field; train_stats.csv must hold consecutive iterations ending at the checkpoint
+                 (phase 2: 20,000 to 199,999, after its copied checkpoint 19,999) -- a gap, a repeated
+                 row, a missing end or a late start without that checkpoint is refused;
   their code     external/PeriodicWave is at the authors' commit with no tracked file changed;
   checkpoint     each final checkpoint restores with the authors' own checkpoint.restore, holds the
                  last iteration, and its parameters fit the network built from the configuration.
@@ -37,9 +43,22 @@ RUNS = HERE.parent / "runs"
 RELEASED = RUNS / "18_electrons_27_sites_released_settings"
 TABLE2 = RUNS / "18_electrons_27_sites_table2_settings"
 EPS3 = RUNS / "18_electrons_27_sites_eps3_released_settings"
+SEED42 = RUNS / "18_electrons_27_sites_eps3_seed42"
+ORDINARY = SEED42 / "ordinary"
+PHASE1 = SEED42 / "honeycomb_field" / "phase1_field_on"
+PHASE2 = SEED42 / "honeycomb_field" / "phase2_field_off"
 CASES = [(RELEASED, 0.2, "CustomPsiformer"), (RELEASED, 0.1, "CustomPsiformer"),
          (TABLE2, 0.2, "CustomPsiformer"), (TABLE2, 0.1, "CustomPsiformer"),
-         (EPS3, 1 / 3, "CustomPsiformer"), (EPS3, 1 / 3, "SlaterNet")]
+         (EPS3, 1 / 3, "CustomPsiformer"), (EPS3, 1 / 3, "SlaterNet"),
+         (ORDINARY, 1 / 3, "CustomPsiformer"), (PHASE2, 1 / 3, "CustomPsiformer")]
+
+
+def expected_script(run):
+    if run == TABLE2:
+        return TABLE2 / ev.TABLE2_SCRIPT
+    if run in (ORDINARY, PHASE2):
+        return SEED42 / ev.SEED42_SCRIPT
+    return ev.AUTHORS_SCRIPT
 
 
 class ConfigurationTest(absltest.TestCase):
@@ -49,8 +68,7 @@ class ConfigurationTest(absltest.TestCase):
             with self.subTest(run=run.name, inverse_eps=inverse_eps, network=network):
                 cfg, trained_with = ev.training_configuration(run, inverse_eps, network)     # exits if different
                 self.assertEqual(trained_with["authors_command_line"][3], str(inverse_eps))
-                expected = TABLE2 / ev.TABLE2_SCRIPT if run == TABLE2 else ev.AUTHORS_SCRIPT
-                self.assertEqual(ev.authors_script(run), expected)
+                self.assertEqual(ev.authors_script(run), expected_script(run))
                 self.assertEqual(cfg.batch_size, 4096 if run == TABLE2 else 1024)
 
     def test_the_wrong_script_is_refused(self):
@@ -89,6 +107,43 @@ class ConfigurationTest(absltest.TestCase):
         self.assertEqual(ev.command_line(ev.INVERSE_EPS["1/3"], "SlaterNet")[3], "0.3333333333333333")
         start = (EPS3 / "how_this_was_started.sh").read_text()
         self.assertIn("INVERSE_EPS=0.3333333333333333", start)
+
+
+    def test_seed42_phase1_is_refused(self):
+        """Phase 1 ran with the field; the seed-42 script without the field cannot rebuild its config."""
+        self.assertEqual(ev.authors_script(PHASE1), SEED42 / ev.SEED42_SCRIPT)
+        with self.assertRaisesRegex(SystemExit, "differs"):
+            ev.training_configuration(PHASE1, 1 / 3)
+
+
+class TrainingRowsTest(absltest.TestCase):
+
+    def test_the_two_seed42_runs(self):
+        self.assertLen(ev.training_energies(ev.output_folder(ORDINARY, 1 / 3), 200_000), 200_000)
+        self.assertLen(ev.training_energies(ev.output_folder(PHASE2, 1 / 3), 200_000), 180_000)
+
+    def fake(self, steps, checkpoints=()):
+        folder = Path(self.create_tempdir().full_path)
+        lines = ["step,energy,ewmean,ewvar,pmove,locstd"] + [f"{s},-1.0,-1.0,0.0,0.5,1.0" for s in steps]
+        (folder / "train_stats.csv").write_text("\n".join(lines) + "\n")
+        for c in checkpoints:
+            (folder / f"qmcjax_ckpt_{c:06d}.npz").write_bytes(b"")
+        return folder
+
+    def test_complete_rows_are_accepted(self):
+        self.assertLen(ev.training_energies(self.fake(range(100)), 100), 100)
+        self.assertLen(ev.training_energies(self.fake(range(20, 100), checkpoints=[19]), 100), 80)
+
+    def test_bad_rows_are_refused(self):
+        cases = {"a gap": list(range(50)) + list(range(51, 100)),
+                 "a repeated row (a restart)": list(range(60)) + list(range(55, 100)),
+                 "a missing end": range(99),
+                 "an empty table": []}
+        for name, steps in cases.items():
+            with self.subTest(name), self.assertRaisesRegex(SystemExit, "consecutive"):
+                ev.training_energies(self.fake(steps), 100)
+        with self.assertRaisesRegex(SystemExit, "continued from"):
+            ev.training_energies(self.fake(range(20, 100)), 100)       # no qmcjax_ckpt_000019.npz
 
 
 class FoldersTest(absltest.TestCase):

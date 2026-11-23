@@ -40,6 +40,8 @@ these seven numbers and nothing else, and that eps = 5 and 10 differ only in the
     code/settings_analysis.py      the comparison of the four runs, with its checks (new)
     code/evaluate_authors_weights.py   the frozen-weight evaluation of a finished run (see below)
     code/test_evaluate_authors_weights.py, launch_evaluation.sh, evaluation_results.py
+    code/launch_evaluation_eps3.sh, eps3_evaluation_results.py, eps3_checkpoint_structure.py   eps = 3
+    code/launch_evaluation_seed42.sh, seed42_evaluation_results.py   eps = 3, seed 42
     results/settings_comparison.csv    one row per run: settings, energy, paper, difference, S(kappa)
     results/frozen_energies.csv, frozen_structure.csv, frozen_site_pattern.csv   the frozen weights
     figures/settings_comparison.png    the figure below
@@ -50,6 +52,10 @@ these seven numbers and nothing else, and that eps = 5 and 10 differ only in the
       18_electrons_27_sites_table2_settings/     their script with Table II's seven numbers; eps = 10, then eps = 5
       18_electrons_27_sites_eps3_released_settings/   their script unchanged at eps = 3, self-attention
                                                  AND SlaterNet (asked for by the professor, started 2026-11-17)
+      18_electrons_27_sites_eps3_seed42/   eps = 3, self-attention, seed 42 (2026-11-19): ordinary training,
+                                                 and a honeycomb field for 20,000 iterations then off;
+                                                 BOTH ended in the honeycomb, 0.20 meV per electron below the
+                                                 first eps = 3 run (frozen weights); see its README
         Each: README.md (the run's history, day by day, and its results), how_this_was_started.sh,
         results/2deg-CoulombMoire/CustomPsiformer/<parameters>/ (what THEIR code wrote:
         config.json, train_stats.csv = the energy of every iteration, qmcjax_ckpt_<step>.npz =

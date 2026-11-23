@@ -78,6 +78,57 @@ phase 1's `train_stats.csv` include the field term.
   those walkers.
   Speed 0.36 s per iteration on each GPU: phase 1 about 2 hours, each run about 20 hours.
 
-## Results
+- 2026-11-23: frozen evaluation of both final checkpoints, field off (2 GPUs, 01:46 to 03:03).
+  evaluate_authors_weights.py extended for these run folders (it finds the seed-42 script above
+  them; phase 2's train_stats.csv starts at 20,000, after its copied checkpoint): 14 tests pass, 3
+  mutants caught. Results below.
 
-After the runs.
+## Results (2026-11-23)
+
+Both runs ended normally (exit code 0; GPU 0, phase 2: 2026-11-20 02:09:50; GPU 1: 2026-11-20
+03:10:01), no NaN in any train_stats.csv. Final weights frozen on 2026-11-23, field off
+(`code/launch_evaluation_seed42.sh`: `evaluate_authors_weights.py`, 20,480,000 configurations each,
+2 GPUs, about 75 minutes). Sanity checks passed: first 200 steps -512.62715 against -512.67719 at the
+end of training (field run), -512.61136 against -512.68073 (ordinary). Tables and figure:
+`code/seed42_evaluation_results.py` -> `results/frozen_energies.csv`, `frozen_structure.csv`,
+`frozen_site_pattern.csv`, `checkpoint_structure.csv`, `figures/frozen_density_pair_correlation.png`.
+
+| eps = 3, self-attention, authors' code, released settings | seed 42, ordinary | seed 42, field until 20,000 | first run (clock seed) |
+|---|---|---|---|
+| frozen energy (meV per electron) | **-96.1305(2)** | **-96.1335(1)** | -95.9339(2) |
+| training, last 20 % (160,000 to 199,999) | -96.1437(1) | -96.1434(1) | -95.9563(2) |
+| frozen minus first run | **-0.1967(3)** | **-0.1996(3)** | 0 |
+| S(kappa) (connected); a perfect honeycomb 4.5 | 2.649 (0.461) | 2.628 (0.465) | 0.666 (0.663) |
+| sublattice shares 0 / 1 / 2 | 0.482 / 0.482 / **0.036** | **0.037** / 0.481 / 0.482 | 0.325 / 0.332 / 0.344 |
+| site occupations, lowest to highest | 0.067 to 0.967 | 0.073 to 0.965 | 0.513 to 0.788 |
+| site pattern at +-kappa (summed over all 27 q) | 7.149 (7.149) | 7.092 (7.092) | 0.011 (0.261) |
+| kinetic / moire / Coulomb (meV per electron) | 26.335 / -29.337 / -93.129 | 25.994 / -29.069 / -93.058 | 22.867 / -25.911 / -92.890 |
+| frozen minus training | +0.013 | +0.010 | +0.022 |
+
+![seed 42, frozen weights](figures/frozen_density_pair_correlation.png)
+
+Every checkpoint (`results/checkpoint_structure.csv`, the 1024 walkers of each):
+- **ordinary** (no field ever): a honeycomb with sublattice 2 empty from the FIRST checkpoint
+  (iteration 4,709) to the last: empty-sublattice share 0.031 to 0.040, S(kappa) 2.60 to 2.72, in
+  all 44 checkpoints.
+- **field run**: phase 1 (field on), sublattice 0 share 0.026 to 0.028 (5 checkpoints; at 19,999:
+  0.027, S(kappa) 2.75, `honeycomb_field/phase1_check.csv`); phase 2 (field off, 39 checkpoints to
+  199,999), 0.027 to 0.039. It never melted.
+
+What this shows (one seed of each, at eps = 3):
+- The authors' code, with their released settings, found the honeycomb Wigner crystal from seed 42
+  WITHOUT any field, as early as iteration 4,709. The first run, with the same code and settings
+  and only another random start (clock seed), ended in the even, liquid-like state.
+- The honeycomb's frozen energy is 0.197 to 0.200 meV per electron BELOW the first run's state,
+  about 750 of the combined error bars. The first run had stopped in a higher local minimum:
+  this training does not reliably reach the lower state, and which state it reaches depends on
+  the random start. (The first author's plot: the crystal about 0.16 meV per electron below the
+  liquid near eps = 3.3.)
+- The prepared honeycomb survived 180,000 iterations without the field and ends at the same
+  state as the spontaneous one: the two are the same honeycomb shifted by one site (a different
+  empty sublattice), and their frozen energies differ by 0.0029(2) meV per electron -- two
+  separately trained networks for equivalent states, not a physical difference. (The ordinary
+  run's two evaluation halves differ by 2.2 combined error bars, so its error bar may be slightly
+  small.)
+- Not shown: how often a random start finds the honeycomb (here 1 of 2 starts at eps = 3), nor
+  anything at eps = 5, where the first author puts the crystal and the liquid nearly level.
