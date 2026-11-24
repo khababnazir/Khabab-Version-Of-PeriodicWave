@@ -1,0 +1,24 @@
+=== 2026-11-23 10:26:40  screen queue on GPU 1 ended; lucky start, then field
+=== 2026-11-23 10:26:40  capturing the authors' seed-42 start on GPU 1
+GPU capture against the CPU one: backend gpu | walkers max |diff| 7.152557373046875e-07 | parameters max |diff| 2.384185791015625e-07
+=== 2026-11-23 10:26:51  start lucky_start/seed_1 on GPU 1
+=== 2026-11-23 10:49:41  lucky_start/seed_1 ended with exit code 0
+=== 2026-11-23 10:49:45  start lucky_start/seed_2 on GPU 1
+=== 2026-11-23 11:12:34  lucky_start/seed_2 ended with exit code 0
+=== 2026-11-23 11:12:39  start lucky_start/seed_3 on GPU 1
+=== 2026-11-23 11:35:29  lucky_start/seed_3 ended with exit code 0
+=== 2026-11-23 11:35:33  start lucky_start/seed_4 on GPU 1
+=== 2026-11-23 11:58:23  lucky_start/seed_4 ended with exit code 0
+=== 2026-11-23 11:58:23  start field/seed_42 (field on, 0 to 4,999) on GPU 1
+=== 2026-11-23 12:21:11  field/seed_42 (field on, 0 to 4,999) ended with exit code 0
+=== 2026-11-23 12:21:11  start field/seed_42 (field off, to 14,999) on GPU 1
+=== 2026-11-23 13:04:20  field/seed_42 (field off, to 14,999) ended with exit code 0
+=== 2026-11-23 13:04:21  overnight extension on GPU 1: lucky 5-8, then our seeds 25-36
+=== 2026-11-23 13:04:25  start lucky_start/seed_5 on GPU 1
+=== 2026-11-23 13:27:15  lucky_start/seed_5 ended with exit code 0
+=== 2026-11-23 13:27:19  start lucky_start/seed_6 on GPU 1
+=== 2026-11-23 13:50:05  lucky_start/seed_6 ended with exit code 0
+=== 2026-11-23 13:50:09  start lucky_start/seed_7 on GPU 1
+=== 2026-11-23 14:12:55  lucky_start/seed_7 ended with exit code 0
+=== 2026-11-23 14:12:59  start lucky_start/seed_8 on GPU 1
+=== 2026-11-23 14:35:43  lucky_start/seed_8 ended with exit code 0

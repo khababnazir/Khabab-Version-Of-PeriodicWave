@@ -1,0 +1,18 @@
+Jax Devices: [CudaDevice(id=0)]
+Setting jax_default_matmul_precision to float32
+Matmul precision set to: <jax._src.config.State object at 0x71374de11c40>
+Calculating 2DEG with triangular potential with parameters: ['/home/khabab/moire-nnvmc/eps3_seed_screen/run_2deg_triangular_potential_screen.py', '18_0', '27', '0.35', '0.3333333333333333', '8.031', '15', '45', 'CustomPsiformer']
+Energy scale = 3.375558507946676, 
+ moire_potential_strength = 4.443709082419185, 
+ interaction_energy_scale = 17.70578893669297
+Folder 'results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U17.70578894' does not exist.
+Device and environment info logged to results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U17.70578894/device_info.log
+'config.json' does not exist in the folder 'results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U17.70578894'.
+Configuration saved as JSON to results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U17.70578894/config.json
+get_jastrow: NOT using Jastrow
+making construct_input_features with periodic norm
+Using customized local_energy from pbc.hamiltonian 
+local_energy, using folx with complex_output: True
+making 2DCoulomb potential with energy scale: 17.70578893669297
+make_triangular_potential: using [U, phi/pi] = [4.443709082419185, 0.25]
+'train_stats.csv' does not exist in the folder 'results/2deg-CoulombMoire/CustomPsiformer/el18_0_N27_V4.44370908_45.0_U17.70578894'.

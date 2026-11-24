@@ -1,0 +1,8 @@
+continuing from checkpoint_000000.npz
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -499.84436  pmove 0.26  width 0.070  lr 0.0952  step capped 100%  3.03 it/s
+step    2000  energy -508.09271  pmove 0.51  width 0.041  lr 0.0909  step capped 100%  3.45 it/s
+step    3000  energy -509.73529  pmove 0.52  width 0.041  lr 0.087  step capped 100%  3.61 it/s
+step    4000  energy -510.38132  pmove 0.52  width 0.041  lr 0.0833  step capped 100%  3.70 it/s
+step    5000  energy -510.63055  pmove 0.52  width 0.041  lr 0.08  step capped 100%  3.75 it/s
+finished

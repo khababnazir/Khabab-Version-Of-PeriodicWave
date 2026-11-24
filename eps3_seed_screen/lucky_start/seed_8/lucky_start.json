@@ -1,0 +1,5 @@
+{
+  "start": "authors_seed42_start_gpu.pkl",
+  "seed_of_our_moves": 8,
+  "what": "parameters and walkers of the authors' seed-42 start; our burn-in, moves and KFAC from seed_of_our_moves"
+}

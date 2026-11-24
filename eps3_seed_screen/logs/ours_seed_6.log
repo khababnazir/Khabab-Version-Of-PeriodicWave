@@ -1,0 +1,7 @@
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -499.00702  pmove 0.27  width 0.070  lr 0.0952  step capped 100%  3.01 it/s
+step    2000  energy -507.84723  pmove 0.51  width 0.041  lr 0.0909  step capped 100%  3.42 it/s
+step    3000  energy -509.22852  pmove 0.52  width 0.041  lr 0.087  step capped 100%  3.58 it/s
+step    4000  energy -509.35162  pmove 0.52  width 0.041  lr 0.0833  step capped 100%  3.67 it/s
+step    5000  energy -509.72382  pmove 0.52  width 0.041  lr 0.08  step capped 100%  3.72 it/s
+finished

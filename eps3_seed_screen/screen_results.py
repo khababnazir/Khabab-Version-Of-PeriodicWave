@@ -13,7 +13,11 @@ authors' seed-42 run at 4,709 (a honeycomb) and their first eps = 3 run at 4,759
 Run, from this folder (CPU only; it reads only finished starts, so it can run during the screen):
     JAX_PLATFORMS=cpu CUDA_VISIBLE_DEVICES= $HOME/.local/bin/uv run --no-project --python ../.venv/bin/python \
         --with matplotlib --with pyblock python screen_results.py
-Output: results/screen.csv (one row per start, the two controls first).
+Output: results/screen.csv (one row per start, the two controls first; code "ours_lucky" for our
+code from the authors' seed-42 start, lucky_start/seed_S/) and results/field.csv (our code with the
+field, field/seed_42/: its checkpoints 5,000, the end of the field, and 15,000, 10,000 iterations
+after it; the training energy over the 1,000 iterations before each, which at 4,000 to 4,999
+includes the field).
 """
 import sys
 from pathlib import Path
@@ -59,6 +63,37 @@ def row(code, seed, iteration, walkers, energy, pmove, geometry):
                 E_4000_4999_meV=energy, pmove_4000_4999=pmove)
 
 
+def our_final(folder, iteration):
+    """The walkers of our checkpoint at this iteration, or None."""
+    found = [R for i, R in cs.checkpoints(folder) if i == iteration]
+    return found[0] if found else None
+
+
+def window(train_stats, first, last):
+    """Mean energy (meV per electron) and pmove over iterations first to last."""
+    d = pd.read_csv(train_stats, usecols=["step", "energy", "pmove"])
+    part = d[(d["step"] >= first) & (d["step"] <= last)]
+    assert len(part) == last - first + 1, (train_stats, first, last, len(part))
+    return part["energy"].mean() * UNIT, part["pmove"].mean()
+
+
+def field_table(geometry):
+    """Our code with the field: structure and energy at the end of the field and 10,000 iterations later."""
+    folder = HERE / "field" / "seed_42"
+    rows = []
+    for iteration, field, label in ((5000, True, "field on (0 to 4,999)"), (15000, False, "field off (5,000 to 14,999)")):
+        R = our_final(folder, iteration)
+        if R is None:
+            continue
+        energy, pmove = window(folder / "train_stats.csv", iteration - 1000, iteration - 1)
+        m = cs.measure(R, *geometry)
+        shares = [m["sublattice_0"], m["sublattice_1"], m["sublattice_2"]]
+        rows.append(dict(run="field/seed_42", phase=label, iteration=iteration, **m, emptiest_sublattice=min(shares),
+                         honeycomb=min(shares) < HONEYCOMB_BELOW, energy_includes_field=field,
+                         E_last_1000_meV=energy, pmove_last_1000=pmove))
+    return pd.DataFrame(rows)
+
+
 def main():
     geometry = cs.geometry()
     cs.self_check(geometry)
@@ -72,21 +107,27 @@ def main():
         done = training(folder / "train_stats.csv") if (folder / "train_stats.csv").exists() else None
         if final.exists() and done:
             rows.append(row("authors", seed, ITERATIONS, acr.walkers(final, geometry[0]), *done, geometry))
-    for seed in seeds("ours"):
-        folder = HERE / "ours" / f"seed_{seed}"
-        done = training(folder / "train_stats.csv") if (folder / "train_stats.csv").exists() else None
-        final = [R for iteration, R in cs.checkpoints(folder) if iteration == ITERATIONS]
-        if final and done:
-            rows.append(row("ours", seed, ITERATIONS, final[0], *done, geometry))
+    for code, where in (("ours", "ours"), ("ours_lucky", "lucky_start")):
+        for seed in seeds(where):
+            folder = HERE / where / f"seed_{seed}"
+            done = training(folder / "train_stats.csv") if (folder / "train_stats.csv").exists() else None
+            final = our_final(folder, ITERATIONS)
+            if final is not None and done:
+                rows.append(row(code, seed, ITERATIONS, final, *done, geometry))
     table = pd.DataFrame(rows)
     (HERE / "results").mkdir(exist_ok=True)
     table.to_csv(HERE / "results" / "screen.csv", index=False)
     with pd.option_context("display.width", 200, "display.max_rows", 100):
         print(table[["code", "seed", "S_kappa", "sublattice_0", "sublattice_1", "sublattice_2",
                      "honeycomb", "E_4000_4999_meV"]].round(4).to_string(index=False))
-    for code in ("authors", "ours"):
+    for code in ("authors", "ours", "ours_lucky"):
         part = table[table["code"] == code]
         print(f"{code}: {len(part)} starts finished, {int(part['honeycomb'].sum())} honeycomb")
+    field = field_table(geometry)
+    field.to_csv(HERE / "results" / "field.csv", index=False)
+    with pd.option_context("display.width", 200):
+        print(field[["phase", "iteration", "S_kappa", "sublattice_0", "sublattice_1", "sublattice_2", "honeycomb",
+                     "energy_includes_field", "E_last_1000_meV"]].round(4).to_string(index=False))
 
 
 if __name__ == "__main__":

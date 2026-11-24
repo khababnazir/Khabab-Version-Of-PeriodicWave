@@ -1,0 +1,12 @@
+continuing from checkpoint_005000.npz
+step    6000  energy -512.63306  pmove 0.54  width 0.037  lr 0.0769  step capped 100%  3.03 it/s
+step    7000  energy -511.67130  pmove 0.53  width 0.037  lr 0.0741  step capped 100%  3.45 it/s
+step    8000  energy -512.31067  pmove 0.54  width 0.037  lr 0.0714  step capped 100%  3.62 it/s
+step    9000  energy -512.32983  pmove 0.55  width 0.037  lr 0.069  step capped 100%  3.70 it/s
+step   10000  energy -512.07355  pmove 0.54  width 0.037  lr 0.0667  step capped 100%  3.76 it/s
+step   11000  energy -512.39752  pmove 0.54  width 0.037  lr 0.0645  step capped 100%  3.79 it/s
+step   12000  energy -512.65002  pmove 0.54  width 0.037  lr 0.0625  step capped 100%  3.82 it/s
+step   13000  energy -512.43658  pmove 0.54  width 0.037  lr 0.0606  step capped 100%  3.84 it/s
+step   14000  energy -512.49274  pmove 0.54  width 0.037  lr 0.0588  step capped 100%  3.86 it/s
+step   15000  energy -512.46332  pmove 0.54  width 0.037  lr 0.0571  step capped 100%  3.87 it/s
+finished
