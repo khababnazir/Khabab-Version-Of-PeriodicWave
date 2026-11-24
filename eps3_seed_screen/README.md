@@ -100,6 +100,24 @@ about 23:30 server time), queued after the runs above on each GPU:
 - GPU 0: `flock -n ~/moire-nnvmc/runs/gpu_locks/gpu0.lock bash how_this_was_started.sh 0 authors 13 20`
   (eight more starts of the authors' code, until about 21:30).
 
+## Long runs (2026-11-24)
+
+Khabab: continue the start in which OUR code found the honeycomb without the field (random seed
+36), and train SlaterNet from the same seed number on the other GPU. Both to 200,000 iterations,
+then the frozen-weight evaluation (20,000 steps x 1024 walkers), into `long/` (the screen folders
+stay as they were):
+- GPU 0: `bash continue_to_200000.sh 0 ours/seed_36 ours_seed_36` -- a copy of ours/seed_36 in
+  long/ours_seed_36/, continued by train_moire.py from its checkpoint 5,000 (the first 5,000 rows
+  of train_stats.csv checked unchanged). Started 2026-11-24 00:55:57; 0.23 s per iteration, about
+  12.5 h, then about 1.3 h of evaluation.
+- GPU 1: `bash train_to_200000.sh 1 slaternet 36` -- a fresh SlaterNet run, long/slaternet_seed_36/
+  (released SlaterNet sizes: 1 determinant, 4 layers, width 64, 2 perceptrons, as the authors'
+  SlaterNet config). Seed 36 of SlaterNet is a different start from seed 36 of the attention
+  network (another network, other initial weights). Started 00:57:38; 0.076 s per iteration,
+  about 4.2 h, then its evaluation.
+Both launchers were dry-run with a fake python. Logs: `logs/long_ours_seed_36.log`,
+`logs/long_slaternet_seed_36.log`.
+
 ## Results
 
 `screen_results.py` -> `results/screen.csv`: for every finished start, S(kappa) and the sublattice
