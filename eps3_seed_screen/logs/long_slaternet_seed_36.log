@@ -1,0 +1,229 @@
+=== 2026-11-24 00:57:38  start long/slaternet_seed_36 on GPU 1
+burn-in: 300 x 30 Metropolis steps
+step    1000  energy -465.03192  pmove 0.34  width 0.070  lr 0.0952  step capped 100%  7.67 it/s
+step    2000  energy -493.18970  pmove 0.51  width 0.041  lr 0.0909  step capped 100%  10.59 it/s
+step    3000  energy -500.97208  pmove 0.51  width 0.041  lr 0.087  step capped 100%  12.11 it/s
+step    4000  energy -502.41315  pmove 0.54  width 0.037  lr 0.0833  step capped 100%  13.04 it/s
+step    5000  energy -502.24451  pmove 0.50  width 0.041  lr 0.08  step capped 100%  13.66 it/s
+step    6000  energy -502.72144  pmove 0.51  width 0.041  lr 0.0769  step capped 100%  14.11 it/s
+step    7000  energy -502.47339  pmove 0.51  width 0.041  lr 0.0741  step capped 100%  14.45 it/s
+step    8000  energy -503.91364  pmove 0.50  width 0.041  lr 0.0714  step capped 100%  14.72 it/s
+step    9000  energy -503.75522  pmove 0.52  width 0.040  lr 0.069  step capped 100%  14.93 it/s
+step   10000  energy -503.63574  pmove 0.51  width 0.040  lr 0.0667  step capped 100%  15.11 it/s
+step   11000  energy -504.27786  pmove 0.51  width 0.040  lr 0.0645  step capped 100%  15.25 it/s
+step   12000  energy -503.40875  pmove 0.51  width 0.040  lr 0.0625  step capped 100%  15.38 it/s
+step   13000  energy -503.73071  pmove 0.51  width 0.040  lr 0.0606  step capped 100%  15.48 it/s
+step   14000  energy -503.65283  pmove 0.51  width 0.040  lr 0.0588  step capped 100%  15.58 it/s
+step   15000  energy -504.14706  pmove 0.51  width 0.040  lr 0.0571  step capped 100%  15.66 it/s
+step   16000  energy -504.21762  pmove 0.51  width 0.040  lr 0.0556  step capped 100%  15.73 it/s
+step   17000  energy -503.06989  pmove 0.52  width 0.040  lr 0.0541  step capped 100%  15.79 it/s
+step   18000  energy -504.00418  pmove 0.51  width 0.040  lr 0.0526  step capped 100%  15.85 it/s
+step   19000  energy -503.70514  pmove 0.52  width 0.040  lr 0.0513  step capped 100%  15.90 it/s
+step   20000  energy -504.16348  pmove 0.51  width 0.040  lr 0.05  step capped 100%  15.95 it/s
+step   21000  energy -503.86414  pmove 0.51  width 0.040  lr 0.0488  step capped 100%  15.99 it/s
+step   22000  energy -503.80859  pmove 0.51  width 0.040  lr 0.0476  step capped 100%  16.03 it/s
+step   23000  energy -503.34363  pmove 0.51  width 0.040  lr 0.0465  step capped 100%  16.07 it/s
+step   24000  energy -504.09763  pmove 0.51  width 0.040  lr 0.0455  step capped 100%  16.10 it/s
+step   25000  energy -503.81055  pmove 0.51  width 0.040  lr 0.0444  step capped 100%  16.13 it/s
+step   26000  energy -504.27869  pmove 0.51  width 0.040  lr 0.0435  step capped 100%  16.16 it/s
+step   27000  energy -503.62070  pmove 0.51  width 0.040  lr 0.0426  step capped 100%  16.18 it/s
+step   28000  energy -503.43903  pmove 0.51  width 0.040  lr 0.0417  step capped 100%  16.21 it/s
+step   29000  energy -503.68030  pmove 0.52  width 0.040  lr 0.0408  step capped 100%  16.23 it/s
+step   30000  energy -503.73688  pmove 0.52  width 0.040  lr 0.04  step capped 100%  16.25 it/s
+step   31000  energy -504.68994  pmove 0.51  width 0.040  lr 0.0392  step capped 100%  16.27 it/s
+step   32000  energy -503.90747  pmove 0.52  width 0.040  lr 0.0385  step capped 100%  16.29 it/s
+step   33000  energy -504.14709  pmove 0.51  width 0.040  lr 0.0377  step capped 100%  16.31 it/s
+step   34000  energy -503.53351  pmove 0.51  width 0.040  lr 0.037  step capped 100%  16.32 it/s
+step   35000  energy -503.75983  pmove 0.51  width 0.040  lr 0.0364  step capped 100%  16.34 it/s
+step   36000  energy -504.52994  pmove 0.51  width 0.040  lr 0.0357  step capped 100%  16.35 it/s
+step   37000  energy -504.57324  pmove 0.52  width 0.040  lr 0.0351  step capped 100%  16.37 it/s
+step   38000  energy -504.47336  pmove 0.51  width 0.040  lr 0.0345  step capped 100%  16.38 it/s
+step   39000  energy -504.28949  pmove 0.51  width 0.040  lr 0.0339  step capped 100%  16.39 it/s
+step   40000  energy -503.55011  pmove 0.51  width 0.040  lr 0.0333  step capped 100%  16.41 it/s
+step   41000  energy -503.41272  pmove 0.51  width 0.040  lr 0.0328  step capped 100%  16.42 it/s
+step   42000  energy -504.30328  pmove 0.51  width 0.040  lr 0.0323  step capped 100%  16.43 it/s
+step   43000  energy -504.14352  pmove 0.52  width 0.040  lr 0.0317  step capped 100%  16.44 it/s
+step   44000  energy -504.23126  pmove 0.51  width 0.040  lr 0.0313  step capped 100%  16.45 it/s
+step   45000  energy -504.68811  pmove 0.51  width 0.040  lr 0.0308  step capped 100%  16.46 it/s
+step   46000  energy -504.19730  pmove 0.52  width 0.040  lr 0.0303  step capped 100%  16.47 it/s
+step   47000  energy -504.24310  pmove 0.51  width 0.040  lr 0.0299  step capped 100%  16.48 it/s
+step   48000  energy -504.12006  pmove 0.51  width 0.040  lr 0.0294  step capped 100%  16.49 it/s
+step   49000  energy -504.00305  pmove 0.51  width 0.040  lr 0.029  step capped 100%  16.50 it/s
+step   50000  energy -504.10757  pmove 0.51  width 0.040  lr 0.0286  step capped 100%  16.50 it/s
+step   51000  energy -503.76028  pmove 0.51  width 0.040  lr 0.0282  step capped 100%  16.51 it/s
+step   52000  energy -504.27048  pmove 0.51  width 0.040  lr 0.0278  step capped 100%  16.52 it/s
+step   53000  energy -503.95251  pmove 0.51  width 0.040  lr 0.0274  step capped 100%  16.53 it/s
+step   54000  energy -504.10822  pmove 0.51  width 0.040  lr 0.027  step capped 100%  16.53 it/s
+step   55000  energy -504.03040  pmove 0.51  width 0.040  lr 0.0267  step capped 100%  16.54 it/s
+step   56000  energy -504.38705  pmove 0.51  width 0.040  lr 0.0263  step capped 100%  16.55 it/s
+step   57000  energy -504.52051  pmove 0.51  width 0.040  lr 0.026  step capped 100%  16.55 it/s
+step   58000  energy -503.85449  pmove 0.51  width 0.040  lr 0.0256  step capped 100%  16.56 it/s
+step   59000  energy -503.70438  pmove 0.52  width 0.040  lr 0.0253  step capped 100%  16.56 it/s
+step   60000  energy -504.21243  pmove 0.51  width 0.040  lr 0.025  step capped 100%  16.57 it/s
+step   61000  energy -504.74536  pmove 0.51  width 0.040  lr 0.0247  step capped 100%  16.57 it/s
+step   62000  energy -503.55768  pmove 0.51  width 0.040  lr 0.0244  step capped 100%  16.58 it/s
+step   63000  energy -504.33630  pmove 0.51  width 0.040  lr 0.0241  step capped 100%  16.58 it/s
+step   64000  energy -503.22818  pmove 0.51  width 0.040  lr 0.0238  step capped 100%  16.59 it/s
+step   65000  energy -503.58212  pmove 0.51  width 0.040  lr 0.0235  step capped 100%  16.59 it/s
+step   66000  energy -503.74402  pmove 0.52  width 0.040  lr 0.0233  step capped 100%  16.60 it/s
+step   67000  energy -503.71735  pmove 0.52  width 0.040  lr 0.023  step capped 100%  16.60 it/s
+step   68000  energy -504.67007  pmove 0.52  width 0.040  lr 0.0227  step capped 100%  16.61 it/s
+step   69000  energy -504.25476  pmove 0.51  width 0.040  lr 0.0225  step capped 100%  16.61 it/s
+step   70000  energy -504.08533  pmove 0.50  width 0.040  lr 0.0222  step capped 100%  16.62 it/s
+step   71000  energy -504.92377  pmove 0.51  width 0.040  lr 0.022  step capped 100%  16.62 it/s
+step   72000  energy -504.43500  pmove 0.51  width 0.040  lr 0.0217  step capped 100%  16.62 it/s
+step   73000  energy -503.98373  pmove 0.51  width 0.040  lr 0.0215  step capped 100%  16.63 it/s
+step   74000  energy -503.69183  pmove 0.52  width 0.040  lr 0.0213  step capped 100%  16.63 it/s
+step   75000  energy -503.72891  pmove 0.51  width 0.040  lr 0.0211  step capped 100%  16.63 it/s
+step   76000  energy -504.77222  pmove 0.51  width 0.040  lr 0.0208  step capped 100%  16.64 it/s
+step   77000  energy -504.17422  pmove 0.51  width 0.040  lr 0.0206  step capped 100%  16.64 it/s
+step   78000  energy -503.77078  pmove 0.51  width 0.040  lr 0.0204  step capped 100%  16.64 it/s
+step   79000  energy -503.91418  pmove 0.51  width 0.040  lr 0.0202  step capped 100%  16.65 it/s
+step   80000  energy -504.38046  pmove 0.51  width 0.040  lr 0.02  step capped 100%  16.65 it/s
+step   81000  energy -503.83490  pmove 0.51  width 0.040  lr 0.0198  step capped 100%  16.65 it/s
+step   82000  energy -504.46722  pmove 0.51  width 0.040  lr 0.0196  step capped 100%  16.66 it/s
+step   83000  energy -504.06210  pmove 0.51  width 0.040  lr 0.0194  step capped 100%  16.66 it/s
+step   84000  energy -503.52310  pmove 0.51  width 0.040  lr 0.0192  step capped 100%  16.66 it/s
+step   85000  energy -504.25296  pmove 0.51  width 0.040  lr 0.019  step capped 100%  16.66 it/s
+step   86000  energy -503.30444  pmove 0.51  width 0.040  lr 0.0189  step capped 100%  16.67 it/s
+step   87000  energy -504.70050  pmove 0.51  width 0.040  lr 0.0187  step capped 100%  16.67 it/s
+step   88000  energy -503.32977  pmove 0.52  width 0.040  lr 0.0185  step capped 100%  16.67 it/s
+step   89000  energy -502.81903  pmove 0.51  width 0.040  lr 0.0183  step capped 100%  16.67 it/s
+step   90000  energy -503.69247  pmove 0.51  width 0.040  lr 0.0182  step capped 100%  16.67 it/s
+step   91000  energy -504.15881  pmove 0.51  width 0.040  lr 0.018  step capped 100%  16.68 it/s
+step   92000  energy -504.32568  pmove 0.51  width 0.040  lr 0.0179  step capped 100%  16.68 it/s
+step   93000  energy -504.14969  pmove 0.51  width 0.040  lr 0.0177  step capped 100%  16.68 it/s
+step   94000  energy -504.38968  pmove 0.50  width 0.040  lr 0.0175  step capped 100%  16.68 it/s
+step   95000  energy -504.72501  pmove 0.51  width 0.040  lr 0.0174  step capped 100%  16.69 it/s
+step   96000  energy -504.96771  pmove 0.51  width 0.040  lr 0.0172  step capped 100%  16.69 it/s
+step   97000  energy -503.55206  pmove 0.51  width 0.040  lr 0.0171  step capped 100%  16.69 it/s
+step   98000  energy -503.43079  pmove 0.51  width 0.040  lr 0.0169  step capped 100%  16.69 it/s
+step   99000  energy -504.71475  pmove 0.51  width 0.040  lr 0.0168  step capped 100%  16.69 it/s
+step  100000  energy -503.99118  pmove 0.51  width 0.040  lr 0.0167  step capped 100%  16.70 it/s
+step  101000  energy -504.58734  pmove 0.51  width 0.040  lr 0.0165  step capped 100%  16.70 it/s
+step  102000  energy -504.30298  pmove 0.51  width 0.040  lr 0.0164  step capped 100%  16.70 it/s
+step  103000  energy -503.14182  pmove 0.51  width 0.040  lr 0.0163  step capped 100%  16.70 it/s
+step  104000  energy -504.20889  pmove 0.51  width 0.040  lr 0.0161  step capped 100%  16.70 it/s
+step  105000  energy -503.70465  pmove 0.51  width 0.040  lr 0.016  step capped 100%  16.70 it/s
+step  106000  energy -503.81268  pmove 0.51  width 0.040  lr 0.0159  step capped 100%  16.71 it/s
+step  107000  energy -504.25723  pmove 0.51  width 0.040  lr 0.0157  step capped 100%  16.71 it/s
+step  108000  energy -503.65338  pmove 0.51  width 0.040  lr 0.0156  step capped 100%  16.71 it/s
+step  109000  energy -504.01181  pmove 0.51  width 0.040  lr 0.0155  step capped 100%  16.71 it/s
+step  110000  energy -503.39938  pmove 0.51  width 0.040  lr 0.0154  step capped 100%  16.71 it/s
+step  111000  energy -504.16626  pmove 0.51  width 0.040  lr 0.0153  step capped 100%  16.71 it/s
+step  112000  energy -503.82864  pmove 0.51  width 0.040  lr 0.0152  step capped 100%  16.72 it/s
+step  113000  energy -504.77472  pmove 0.52  width 0.040  lr 0.015  step capped 100%  16.72 it/s
+step  114000  energy -504.24759  pmove 0.51  width 0.040  lr 0.0149  step capped 100%  16.72 it/s
+step  115000  energy -504.04370  pmove 0.51  width 0.040  lr 0.0148  step capped 100%  16.72 it/s
+step  116000  energy -504.39789  pmove 0.51  width 0.040  lr 0.0147  step capped 100%  16.72 it/s
+step  117000  energy -503.75888  pmove 0.51  width 0.040  lr 0.0146  step capped 100%  16.72 it/s
+step  118000  energy -504.84723  pmove 0.51  width 0.040  lr 0.0145  step capped 100%  16.72 it/s
+step  119000  energy -504.90503  pmove 0.51  width 0.040  lr 0.0144  step capped 100%  16.72 it/s
+step  120000  energy -504.25439  pmove 0.51  width 0.040  lr 0.0143  step capped 100%  16.73 it/s
+step  121000  energy -505.11957  pmove 0.51  width 0.040  lr 0.0142  step capped 100%  16.73 it/s
+step  122000  energy -503.93384  pmove 0.51  width 0.040  lr 0.0141  step capped 100%  16.73 it/s
+step  123000  energy -503.92911  pmove 0.51  width 0.040  lr 0.014  step capped 100%  16.73 it/s
+step  124000  energy -505.16699  pmove 0.52  width 0.040  lr 0.0139  step capped 100%  16.73 it/s
+step  125000  energy -504.62320  pmove 0.51  width 0.040  lr 0.0138  step capped 100%  16.73 it/s
+step  126000  energy -504.93384  pmove 0.52  width 0.040  lr 0.0137  step capped 100%  16.73 it/s
+step  127000  energy -504.49744  pmove 0.51  width 0.040  lr 0.0136  step capped 100%  16.73 it/s
+step  128000  energy -504.16162  pmove 0.51  width 0.040  lr 0.0135  step capped 100%  16.74 it/s
+step  129000  energy -503.94513  pmove 0.51  width 0.040  lr 0.0134  step capped 100%  16.74 it/s
+step  130000  energy -503.77713  pmove 0.51  width 0.040  lr 0.0133  step capped 100%  16.74 it/s
+step  131000  energy -504.03598  pmove 0.52  width 0.040  lr 0.0132  step capped 100%  16.74 it/s
+step  132000  energy -504.34430  pmove 0.52  width 0.040  lr 0.0132  step capped 100%  16.74 it/s
+step  133000  energy -504.53998  pmove 0.51  width 0.040  lr 0.0131  step capped 100%  16.74 it/s
+step  134000  energy -504.36169  pmove 0.51  width 0.040  lr 0.013  step capped 100%  16.74 it/s
+step  135000  energy -504.03870  pmove 0.51  width 0.040  lr 0.0129  step capped 100%  16.74 it/s
+step  136000  energy -504.33350  pmove 0.51  width 0.040  lr 0.0128  step capped 100%  16.74 it/s
+step  137000  energy -504.71088  pmove 0.51  width 0.040  lr 0.0127  step capped 100%  16.74 it/s
+step  138000  energy -504.89105  pmove 0.51  width 0.040  lr 0.0127  step capped 100%  16.74 it/s
+step  139000  energy -504.99930  pmove 0.52  width 0.040  lr 0.0126  step capped 100%  16.75 it/s
+step  140000  energy -504.38589  pmove 0.51  width 0.040  lr 0.0125  step capped 100%  16.75 it/s
+step  141000  energy -505.01022  pmove 0.51  width 0.040  lr 0.0124  step capped 100%  16.75 it/s
+step  142000  energy -504.15042  pmove 0.51  width 0.040  lr 0.0123  step capped 100%  16.75 it/s
+step  143000  energy -504.19989  pmove 0.51  width 0.040  lr 0.0123  step capped 100%  16.75 it/s
+step  144000  energy -503.88885  pmove 0.51  width 0.040  lr 0.0122  step capped 100%  16.75 it/s
+step  145000  energy -504.18152  pmove 0.51  width 0.040  lr 0.0121  step capped 100%  16.75 it/s
+step  146000  energy -504.22632  pmove 0.51  width 0.040  lr 0.012  step capped 100%  16.75 it/s
+step  147000  energy -504.18250  pmove 0.51  width 0.040  lr 0.012  step capped 100%  16.75 it/s
+step  148000  energy -505.15042  pmove 0.51  width 0.040  lr 0.0119  step capped 100%  16.75 it/s
+step  149000  energy -504.82007  pmove 0.51  width 0.040  lr 0.0118  step capped 100%  16.75 it/s
+step  150000  energy -504.26062  pmove 0.51  width 0.040  lr 0.0118  step capped 100%  16.76 it/s
+step  151000  energy -504.42566  pmove 0.51  width 0.040  lr 0.0117  step capped 100%  16.76 it/s
+step  152000  energy -504.28705  pmove 0.51  width 0.040  lr 0.0116  step capped 100%  16.76 it/s
+step  153000  energy -504.45850  pmove 0.51  width 0.040  lr 0.0116  step capped 100%  16.76 it/s
+step  154000  energy -503.95438  pmove 0.52  width 0.040  lr 0.0115  step capped 100%  16.76 it/s
+step  155000  energy -504.55554  pmove 0.51  width 0.040  lr 0.0114  step capped 100%  16.76 it/s
+step  156000  energy -503.90106  pmove 0.51  width 0.040  lr 0.0114  step capped 100%  16.76 it/s
+step  157000  energy -504.43454  pmove 0.51  width 0.040  lr 0.0113  step capped 100%  16.76 it/s
+step  158000  energy -503.62515  pmove 0.51  width 0.040  lr 0.0112  step capped 100%  16.76 it/s
+step  159000  energy -503.72467  pmove 0.51  width 0.040  lr 0.0112  step capped 100%  16.76 it/s
+step  160000  energy -503.59814  pmove 0.51  width 0.040  lr 0.0111  step capped 100%  16.76 it/s
+step  161000  energy -504.55780  pmove 0.51  width 0.040  lr 0.011  step capped 100%  16.76 it/s
+step  162000  energy -504.91534  pmove 0.51  width 0.040  lr 0.011  step capped 100%  16.76 it/s
+step  163000  energy -504.37070  pmove 0.51  width 0.040  lr 0.0109  step capped 100%  16.76 it/s
+step  164000  energy -503.04016  pmove 0.51  width 0.040  lr 0.0109  step capped 100%  16.77 it/s
+step  165000  energy -504.03821  pmove 0.52  width 0.040  lr 0.0108  step capped 100%  16.77 it/s
+step  166000  energy -504.32550  pmove 0.51  width 0.040  lr 0.0108  step capped 100%  16.77 it/s
+step  167000  energy -504.28705  pmove 0.51  width 0.040  lr 0.0107  step capped 100%  16.77 it/s
+step  168000  energy -504.20447  pmove 0.51  width 0.040  lr 0.0106  step capped 100%  16.77 it/s
+step  169000  energy -503.48868  pmove 0.51  width 0.040  lr 0.0106  step capped 100%  16.77 it/s
+step  170000  energy -503.49567  pmove 0.51  width 0.040  lr 0.0105  step capped 100%  16.77 it/s
+step  171000  energy -503.97601  pmove 0.51  width 0.040  lr 0.0105  step capped 100%  16.77 it/s
+step  172000  energy -504.26569  pmove 0.51  width 0.040  lr 0.0104  step capped 100%  16.77 it/s
+step  173000  energy -503.97681  pmove 0.51  width 0.040  lr 0.0104  step capped 100%  16.77 it/s
+step  174000  energy -504.47333  pmove 0.51  width 0.040  lr 0.0103  step capped 100%  16.77 it/s
+step  175000  energy -504.39111  pmove 0.51  width 0.040  lr 0.0103  step capped 100%  16.77 it/s
+step  176000  energy -504.15417  pmove 0.51  width 0.040  lr 0.0102  step capped 100%  16.77 it/s
+step  177000  energy -504.32349  pmove 0.51  width 0.040  lr 0.0102  step capped 100%  16.77 it/s
+step  178000  energy -504.91470  pmove 0.51  width 0.040  lr 0.0101  step capped 100%  16.77 it/s
+step  179000  energy -504.28943  pmove 0.51  width 0.040  lr 0.0101  step capped 100%  16.77 it/s
+step  180000  energy -504.13586  pmove 0.51  width 0.040  lr 0.01  step capped 100%  16.78 it/s
+step  181000  energy -504.33112  pmove 0.51  width 0.040  lr 0.00995  step capped 100%  16.78 it/s
+step  182000  energy -504.55783  pmove 0.51  width 0.040  lr 0.0099  step capped 100%  16.78 it/s
+step  183000  energy -504.85095  pmove 0.52  width 0.040  lr 0.00985  step capped 100%  16.78 it/s
+step  184000  energy -503.77664  pmove 0.51  width 0.040  lr 0.0098  step capped 100%  16.78 it/s
+step  185000  energy -504.66965  pmove 0.51  width 0.040  lr 0.00976  step capped 100%  16.78 it/s
+step  186000  energy -504.37750  pmove 0.51  width 0.040  lr 0.00971  step capped 100%  16.78 it/s
+step  187000  energy -505.10706  pmove 0.51  width 0.040  lr 0.00966  step capped 100%  16.78 it/s
+step  188000  energy -504.08698  pmove 0.51  width 0.040  lr 0.00962  step capped 100%  16.78 it/s
+step  189000  energy -504.04498  pmove 0.51  width 0.040  lr 0.00957  step capped 100%  16.78 it/s
+step  190000  energy -503.93512  pmove 0.51  width 0.040  lr 0.00952  step capped 100%  16.78 it/s
+step  191000  energy -504.55621  pmove 0.51  width 0.040  lr 0.00948  step capped 100%  16.78 it/s
+step  192000  energy -504.39523  pmove 0.51  width 0.040  lr 0.00943  step capped 100%  16.78 it/s
+step  193000  energy -504.57745  pmove 0.51  width 0.040  lr 0.00939  step capped 100%  16.78 it/s
+step  194000  energy -503.81158  pmove 0.51  width 0.040  lr 0.00935  step capped 100%  16.78 it/s
+step  195000  energy -504.50659  pmove 0.51  width 0.040  lr 0.0093  step capped 100%  16.78 it/s
+step  196000  energy -504.48856  pmove 0.51  width 0.040  lr 0.00926  step capped 100%  16.78 it/s
+step  197000  energy -504.54559  pmove 0.52  width 0.040  lr 0.00922  step capped 100%  16.78 it/s
+step  198000  energy -504.34378  pmove 0.51  width 0.040  lr 0.00917  step capped 100%  16.78 it/s
+step  199000  energy -504.69647  pmove 0.51  width 0.040  lr 0.00913  step capped 100%  16.78 it/s
+step  200000  energy -504.56424  pmove 0.51  width 0.040  lr 0.00909  step capped 100%  16.79 it/s
+finished
+=== 2026-11-24 04:16:30  long/slaternet_seed_36 ended with exit code 0
+=== 2026-11-24 04:16:30  frozen-weight evaluation of long/slaternet_seed_36 on GPU 1
+burn-in of 200 steps done after 10 s (includes compiling)
+sanity check: evaluation -504.14816, training before the checkpoint -504.25249
+step   1000  mean energy -504.16419  pmove 0.512  12.35 steps/s
+step   2000  mean energy -504.14723  pmove 0.514  14.73 steps/s
+step   3000  mean energy -504.13698  pmove 0.513  15.71 steps/s
+step   4000  mean energy -504.13076  pmove 0.509  16.24 steps/s
+step   5000  mean energy -504.12471  pmove 0.504  16.57 steps/s
+step   6000  mean energy -504.12458  pmove 0.516  16.80 steps/s
+step   7000  mean energy -504.12770  pmove 0.510  16.97 steps/s
+step   8000  mean energy -504.12248  pmove 0.514  17.10 steps/s
+step   9000  mean energy -504.12570  pmove 0.505  17.20 steps/s
+step  10000  mean energy -504.12295  pmove 0.506  17.28 steps/s
+step  11000  mean energy -504.12574  pmove 0.509  17.35 steps/s
+step  12000  mean energy -504.12875  pmove 0.515  17.40 steps/s
+step  13000  mean energy -504.12660  pmove 0.519  17.44 steps/s
+step  14000  mean energy -504.12777  pmove 0.507  17.48 steps/s
+step  15000  mean energy -504.12963  pmove 0.518  17.51 steps/s
+step  16000  mean energy -504.13263  pmove 0.508  17.54 steps/s
+step  17000  mean energy -504.12986  pmove 0.512  17.57 steps/s
+step  18000  mean energy -504.13083  pmove 0.509  17.59 steps/s
+step  19000  mean energy -504.12907  pmove 0.509  17.60 steps/s
+step  20000  mean energy -504.12919  pmove 0.507  17.62 steps/s
+finished
+=== 2026-11-24 04:35:40  evaluation of long/slaternet_seed_36 ended with exit code 0
